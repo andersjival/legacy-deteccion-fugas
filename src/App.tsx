@@ -18,10 +18,9 @@ export function App() {
     return path || '/';
   });
 
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<ServiceType>('Detección Especializada de Fugas');
   
-  const { isAuthenticated, isLoading, error, loginWithPin, logout } = useAdminAuth();
+  const { isAuthenticated, isLoading, error, login, logout } = useAdminAuth();
   const { isInstallable, notificationsGranted, promptInstall, requestNotificationPermission } = usePWA();
 
   // Escuchar cambios de historial (botón atrás/adelante del navegador)
@@ -43,11 +42,17 @@ export function App() {
     }
   }, []);
 
-  // Abrir panel admin si está en la URL ?view=admin
+  // Redirigir variantes /detec, /panel, /admin o ?view=admin a la ruta oficial /detec/panel
   useEffect(() => {
+    const raw = window.location.pathname.replace(/\/+$/, '');
+    if (raw === '/detec' || raw === '/panel' || raw === '/admin') {
+      window.history.replaceState({}, '', '/detec/panel');
+      setCurrentPath('/detec/panel');
+    }
     const params = new URLSearchParams(window.location.search);
     if (params.get('view') === 'admin') {
-      setIsAdminOpen(true);
+      window.history.replaceState({}, '', '/detec/panel');
+      setCurrentPath('/detec/panel');
     }
   }, []);
 
@@ -63,21 +68,44 @@ export function App() {
   };
 
   const isAgendaRoute = currentPath === '/agenda' || currentPath === '/agendar';
+  const isAdminRoute = currentPath === '/detec/panel' || currentPath === '/detec' || currentPath === '/panel' || currentPath === '/admin';
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-brand-dark selection:bg-brand-blue selection:text-white">
-      {isAgendaRoute ? (
-        /* Vista Exclusiva de Agenda Sin Distracciones */
+      {isAdminRoute ? (
+        /* RUTA EXCLUSIVA INDEPENDIENTE: /detec/panel */
+        isAuthenticated ? (
+          <AdminView
+            onClose={() => navigateTo('/')}
+            onLogout={() => {
+              logout();
+              navigateTo('/');
+            }}
+            onInstallPWA={promptInstall}
+            onRequestNotifications={requestNotificationPermission}
+            isInstallable={isInstallable}
+            notificationsGranted={notificationsGranted}
+          />
+        ) : (
+          <AdminLogin
+            onLogin={login}
+            onClose={() => navigateTo('/')}
+            isLoading={isLoading}
+            error={error}
+          />
+        )
+      ) : isAgendaRoute ? (
+        /* Vista Exclusiva de Agenda Sin Distracciones: /agenda */
         <AgendaPage
           onBackToHome={() => navigateTo('/')}
           initialService={selectedService}
-          onOpenAdmin={() => setIsAdminOpen(true)}
+          onOpenAdmin={() => navigateTo('/detec/panel')}
         />
       ) : (
-        /* Vista Principal Completa */
+        /* Vista Principal Completa: / */
         <>
           <Navbar
-            onOpenAdmin={() => setIsAdminOpen(true)}
+            onOpenAdmin={() => navigateTo('/detec/panel')}
             onNavigateAgenda={() => navigateTo('/agenda')}
           />
 
@@ -89,36 +117,12 @@ export function App() {
           </main>
 
           <Footer
-            onOpenAdmin={() => setIsAdminOpen(true)}
+            onOpenAdmin={() => navigateTo('/detec/panel')}
             onNavigateAgenda={() => navigateTo('/agenda')}
             onInstallPWA={promptInstall}
             isInstallable={isInstallable}
           />
         </>
-      )}
-
-      {/* Modal / Vista de Administrador */}
-      {isAdminOpen && (
-        isAuthenticated ? (
-          <AdminView
-            onClose={() => setIsAdminOpen(false)}
-            onLogout={() => {
-              logout();
-              setIsAdminOpen(false);
-            }}
-            onInstallPWA={promptInstall}
-            onRequestNotifications={requestNotificationPermission}
-            isInstallable={isInstallable}
-            notificationsGranted={notificationsGranted}
-          />
-        ) : (
-          <AdminLogin
-            onLogin={loginWithPin}
-            onClose={() => setIsAdminOpen(false)}
-            isLoading={isLoading}
-            error={error}
-          />
-        )
       )}
     </div>
   );

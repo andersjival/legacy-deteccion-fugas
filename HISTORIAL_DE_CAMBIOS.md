@@ -15,6 +15,15 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.7.0] - 2026-10-28 - Aislamiento del Panel Admin en URL Separada `/detec/panel` con Formulario de Usuario y Contraseña
+- **Ruta Exclusiva Separada `/detec/panel` (`App.tsx`):**
+  - El acceso administrativo y el inicio de sesión ya no operan como modal superpuesto en la misma URL; ahora residen en su propia URL dedicada `/detec/panel`.
+  - Redirección automática de comodines `/detec`, `/panel`, `/admin` hacia la ruta canónica `/detec/panel`.
+- **Formulario de Usuario y Contraseña (`AdminLogin.tsx`):**
+  - Rediseñada la pantalla de acceso con campos formales de Usuario (`admin`) y Contraseña (`1234` o configurada) con opción para mostrar/ocultar clave.
+  - Alternador hacia teclado numérico PIN rápido para cuando el técnico se encuentra en calle y necesita desbloqueo con una sola mano.
+  - Botón directo para volver a la página principal del sitio web.
+
 ### [v2.6.0] - 2026-10-28 - Simplificación de Almacenamiento Cero Basura e Historial de Borrado de Datos
 - **Eliminación de Tecnicismos de Infraestructura (`StorageManager.tsx`):**
   - Removidas todas las referencias a "Cloudflare 2" (R2) y "Cloudflare 1" (D1).

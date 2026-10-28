@@ -1,30 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { api } from '../services/api';
 
 const AUTH_KEY = 'legacy_admin_token';
 
 export function useAdminAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return sessionStorage.getItem(AUTH_KEY) === 'authenticated';
+    return sessionStorage.getItem(AUTH_KEY) === 'authenticated' || localStorage.getItem(AUTH_KEY) === 'authenticated';
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loginWithPin = async (pin: string): Promise<boolean> => {
+  const login = async (usernameOrPin: string, password?: string): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
     try {
-      const isValid = await api.verifyAdminPin(pin);
+      const pinToVerify = password ? password.trim() : usernameOrPin.trim();
+      const isValid = await api.verifyAdminPin(pinToVerify);
       if (isValid) {
         sessionStorage.setItem(AUTH_KEY, 'authenticated');
+        localStorage.setItem(AUTH_KEY, 'authenticated');
         setIsAuthenticated(true);
         return true;
       } else {
-        setError('PIN incorrecto. Ingrese el código de 4 dígitos válido.');
+        setError('Usuario o contraseña / PIN incorrectos.');
         return false;
       }
     } catch {
-      setError('Error al verificar el PIN.');
+      setError('Error al verificar las credenciales de acceso.');
       return false;
     } finally {
       setIsLoading(false);
@@ -33,6 +35,7 @@ export function useAdminAuth() {
 
   const logout = () => {
     sessionStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem(AUTH_KEY);
     setIsAuthenticated(false);
   };
 
@@ -40,7 +43,7 @@ export function useAdminAuth() {
     isAuthenticated,
     isLoading,
     error,
-    loginWithPin,
+    login,
     logout
   };
 }
