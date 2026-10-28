@@ -15,6 +15,13 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v1.0.1] - 2026-10-28 - Botón de Confirmación Rápida por WhatsApp (Commit: `e275e8f`)
+- **Panel de Administrador:**
+  - Botón destacado verde WhatsApp (`#25D366`) **"Confirmar Cita al Cliente"** en cada tarjeta de cita.
+  - Ejecución simultánea: actualiza automáticamente el estado a `confirmed` en Cloudflare D1 y en la interfaz reactiva al instante.
+  - Apertura automática de WhatsApp (`wa.me/506{telefono}`) con mensaje dinámico personalizado codificado:
+    `"Hola *{nombre_cliente}*, le saludamos de *Legacy Detección de Fugas* 💧. Hemos revisado los detalles de su solicitud y le confirmamos su cita para el servicio de *{tipo_servicio}* el día *{fecha}* a las *{hora}*. Por favor envíenos la ubicación exacta por este medio para nuestro registro de ruta. ¡Muchas gracias!"`
+
 ### [v1.0.0] - 2026-10-28 - Inicialización y Despliegue en Producción (Commit: `6a7f3b5`)
 - **Landing Page de Alta Conversión:**
   - Navbar con glassmorphism, logo sonar/gota, scroll suave y enlace directo WhatsApp / Llamada `6408-0124`.
