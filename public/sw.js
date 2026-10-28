@@ -1,17 +1,19 @@
 // Service Worker para Legacy Detección de Fugas PWA
-const CACHE_NAME = 'legacy-pwa-v1';
+const CACHE_NAME = 'legacy-pwa-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.webmanifest',
+  '/logo.png',
   '/icon.svg'
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
@@ -29,20 +31,46 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener('fetch', (event) => {
-  // Solo cachear peticiones GET y evitar cachear peticiones /api/*
+  // Solo manejar GET y excluir llamadas a la API
   if (event.request.method !== 'GET' || event.request.url.includes('/api/')) {
     return;
   }
+
+  // Network-First para navegación HTML (evita pantallas congeladas y desactualizadas)
+  if (event.request.mode === 'navigate' || event.request.headers.get('accept')?.includes('text/html')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request) || caches.match('/index.html'))
+    );
+    return;
+  }
+
+  // Stale-While-Revalidate para recursos estáticos
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      return cachedResponse || fetch(event.request).then((networkResponse) => {
-        return networkResponse;
-      }).catch(() => {
-        if (event.request.headers.get('accept')?.includes('text/html')) {
-          return caches.match('/index.html');
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
         }
-      });
+        return networkResponse;
+      }).catch(() => cachedResponse);
+
+      return cachedResponse || fetchPromise;
     })
   );
 });
@@ -60,7 +88,7 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body: data.body,
-    icon: '/icon.svg',
+    icon: '/logo.png',
     badge: '/icon.svg',
     vibrate: [200, 100, 200, 100, 400],
     data: {

@@ -37,10 +37,24 @@ export function usePWA() {
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
     window.addEventListener('appinstalled', handleAppInstalled);
 
-    // Registrar Service Worker si es compatible
+    // Registrar Service Worker y forzar actualización inmediata
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch((err) => {
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        reg.update();
+        if (reg.waiting) {
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
+      }).catch((err) => {
         console.warn('Service worker registration failed:', err);
+      });
+
+      // Si el controlador cambia a la nueva versión, recargar silenciosamente para mostrar el código fresco
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
       });
     }
 

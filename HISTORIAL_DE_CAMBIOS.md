@@ -15,6 +15,15 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v1.8.0] - 2026-10-28 - Desbloqueo de Caché PWA y Encabezados Anti-Freeze
+- **Actualización de Service Worker (`sw.js` a `legacy-pwa-v2`):**
+  - Implementada estrategia *Network-First* obligatoria para navegación HTML. Si hay internet, siempre pide la versión fresca de la nube en lugar de servir el archivo local congelado.
+  - Purga automática de cachés anteriores (`legacy-pwa-v1`) con `caches.delete()` en el evento `activate`.
+- **Encabezados HTTP en Cloudflare Pages (`public/_headers`):**
+  - Encabezados estrictos `Cache-Control: no-cache, no-store, must-revalidate` para `sw.js` y `manifest.webmanifest`, asegurando que los navegadores detecten actualizaciones al instante sin retención fantasma de 24 horas.
+- **Auto-Recarga Reactiva (`usePWA.ts`):**
+  - Evento `controllerchange` configurado para actualizar silenciosamente cualquier pestaña abierta en cuanto el nuevo Service Worker se activa.
+
 ### [v1.7.0] - 2026-10-28 - Aislamiento Radical de la Agenda en Página Independiente `/agenda` (Commit: `f70509b`)
 - **Extracción Total del Inicio (`App.tsx`):**
   - Eliminado por completo el componente de agendamiento (`BookingWizard`) de la página principal (`/`). La página de inicio ya no contiene el formulario, erradicando cualquier salto o scroll hacia abajo.
