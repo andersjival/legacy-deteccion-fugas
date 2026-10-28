@@ -15,6 +15,11 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v1.9.0] - 2026-10-28 - Transparencia Glassmorphism en Tarjeta Flotante del Hero
+- **Efecto Traslúcido de Alto Contraste (`HeroSection.tsx`):**
+  - Transformada la tarjeta flotante *"Rastreo Acústico Activo / Geófono Digital y Gas Trazador"* de opaca (`bg-brand-dark/95`) a cristal translúcido (`bg-brand-dark/35 backdrop-blur-sm border-white/25`).
+  - Permite visualizar con total claridad las letras, datos y detalles del pie de la fotografía real situada detrás, conservando legibilidad mediante tipografía brillante (`text-cyan-300`, `drop-shadow-md`).
+
 ### [v1.8.0] - 2026-10-28 - Desbloqueo de Caché PWA y Encabezados Anti-Freeze (Commit: `54dcdea`)
 - **Actualización de Service Worker (`sw.js` a `legacy-pwa-v2`):**
   - Implementada estrategia *Network-First* obligatoria para navegación HTML. Si hay internet, siempre pide la versión fresca de la nube en lugar de servir el archivo local congelado.

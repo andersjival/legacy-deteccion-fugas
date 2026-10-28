@@ -89,14 +89,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigateAgenda }) =>
                   className="w-full h-80 sm:h-96 object-cover rounded-2xl"
                 />
 
-                {/* Overlay de Diagnóstico Flotante */}
-                <div className="absolute bottom-6 left-6 right-6 bg-brand-dark/95 backdrop-blur-md text-white p-4 rounded-2xl border border-white/10 shadow-lg">
+                {/* Overlay de Diagnóstico Flotante con Transparencia Glassmorphism */}
+                <div className="absolute bottom-6 left-6 right-6 bg-brand-dark/35 backdrop-blur-sm text-white p-3.5 rounded-2xl border border-white/25 shadow-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs uppercase tracking-wider text-brand-blue font-bold">Rastreo Acústico Activo</p>
-                      <p className="text-sm font-bold text-white">Geófono Digital y Gas Trazador</p>
+                      <p className="text-xs uppercase tracking-wider text-cyan-300 font-extrabold drop-shadow-md">Rastreo Acústico Activo</p>
+                      <p className="text-sm font-extrabold text-white drop-shadow-md">Geófono Digital y Gas Trazador</p>
                     </div>
-                    <div className="px-3 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-extrabold rounded-lg border border-emerald-500/30">
+                    <div className="px-3 py-1 bg-emerald-500/30 backdrop-blur-sm text-emerald-200 text-xs font-black rounded-lg border border-emerald-400/40 shadow-sm">
                       99.8% Precisión
                     </div>
                   </div>
