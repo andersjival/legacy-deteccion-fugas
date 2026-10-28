@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Compass, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Search, Compass, Sparkles, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
 
 interface ServicesSectionProps {
   onSelectService: (serviceName: string) => void;
@@ -104,6 +104,51 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ onSelectServic
               </div>
             );
           })}
+        </div>
+
+        {/* Banner de Evidencia Real: Ubicación Exacta Antes y Después */}
+        <div className="mt-14 bg-gradient-to-r from-brand-dark to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-card border border-slate-800">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-6 rounded-2xl overflow-hidden shadow-lg border border-white/10 bg-black">
+              <img
+                src="/images/caso-punto-exacto.png"
+                alt="Caso real: Ubicamos el punto exacto Antes y Después de reparación de tubería"
+                className="w-full h-auto max-h-80 sm:max-h-96 object-contain bg-slate-950 mx-auto"
+              />
+            </div>
+            <div className="lg:col-span-6 space-y-4">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-extrabold bg-brand-orange/20 text-brand-orange border border-brand-orange/30">
+                <ShieldCheck className="w-4 h-4" />
+                <span>Garantía de Cero Daño Innecesario</span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                UBICAMOS EL PUNTO EXACTO DE LA FUGA
+              </h3>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                Detectamos el origen subterráneo u oculto con precisión milimétrica antes de intervenir. Evitamos romper pisos, losas o jardines enteros, excavando únicamente donde se requiere la reparación.
+              </p>
+              <div className="pt-2 flex flex-col sm:flex-row gap-3 text-xs font-semibold text-slate-300">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Sin rupturas a ciegas</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Ahorro sustancial en acabados</span>
+                </div>
+              </div>
+              <div className="pt-2">
+                <a
+                  href="#agendar"
+                  onClick={() => onSelectService('Detección Especializada de Fugas')}
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-extrabold text-white bg-brand-orange hover:bg-orange-600 transition-all shadow-glow-orange"
+                >
+                  <span>Agendar Localización de Fuga</span>
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>

@@ -80,8 +80,8 @@ export const TechShowcase: React.FC<TechShowcaseProps> = ({ onNavigateAgenda }) 
             <div className="lg:col-span-5">
               <div className="relative rounded-3xl overflow-hidden bg-white p-3 shadow-card border border-white">
                 <img
-                  src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80"
-                  alt="Equipamiento técnico manómetros y sistemas de detección"
+                  src="/images/tecnologia-equipo.png"
+                  alt="Equipamiento de alta gama para detección acústica y trazado Legacy"
                   className="w-full h-80 sm:h-96 object-cover rounded-2xl"
                 />
                 <div className="p-4 bg-brand-dark text-white rounded-xl mt-3 flex items-center justify-between">

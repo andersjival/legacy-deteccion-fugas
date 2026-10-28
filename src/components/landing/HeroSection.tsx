@@ -81,8 +81,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigateAgenda }) =>
               {/* Tarjeta Principal de Presentación */}
               <div className="relative rounded-3xl overflow-hidden bg-white p-3 shadow-card border border-white/60">
                 <img
-                  src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80"
-                  alt="Especialista en detección acústica de fugas Legacy"
+                  src="/images/hero-deteccion-fugas.png"
+                  alt="Técnico especialista de Legacy detectando fuga con equipo de precisión"
                   className="w-full h-80 sm:h-96 object-cover rounded-2xl"
                 />
 

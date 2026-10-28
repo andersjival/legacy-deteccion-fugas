@@ -15,6 +15,14 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v1.6.0] - 2026-10-28 - Reemplazo de Imágenes Genéricas por Fotografías Reales de Legacy
+- **Hero Section (`HeroSection.tsx`):**
+  - Eliminación de imagen de stock Unsplash y reemplazo por fotografía real en acción (`/images/hero-deteccion-fugas.png`): técnico con auriculares localizando fuga activa en tubería con sensor acústico.
+- **Sección de Tecnología y Equipos (`TechShowcase.tsx`):**
+  - Eliminación de imagen genérica y sustitución por foto real de maletín técnico especializado (`/images/tecnologia-equipo.png`).
+- **Banner de Evidencia y Punto Exacto (`ServicesSection.tsx`):**
+  - Incorporación de fotografía real "Antes y Después" (`/images/caso-punto-exacto.png`) demostrando la excavación y reparación puntual de tubería sin rupturas innecesarias.
+
 ### [v1.5.0] - 2026-10-28 - Integración del Logo Oficial de Águila de Legacy (Commit: `a6aed4a`)
 - **Navbar Principal (`Navbar.tsx`):**
   - Reemplazo del isotipo temporal por el logo oficial del águila azul (`/logo.png`) en contenedor estilizado con micro-hover.
