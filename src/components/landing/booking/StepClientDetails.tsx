@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Phone, MapPin, Wrench, FileText, ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { User, Phone, MapPin, Wrench, FileText, ArrowLeft, ArrowRight, CheckCircle2, CheckCircle, Camera, Loader2 } from 'lucide-react';
 import { ServiceType } from '../../../types/appointment';
 import { LocationPickerMap } from '../../common/LocationPickerMap';
 
@@ -17,6 +17,8 @@ interface StepClientDetailsProps {
   onChangeLocation: (lat: number, lng: number) => void;
   onBack: () => void;
   onNext: () => void;
+  onSubmitDirectly?: () => void;
+  isSubmitting?: boolean;
 }
 
 export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
@@ -24,16 +26,18 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
   onChange,
   onChangeLocation,
   onBack,
-  onNext
+  onNext,
+  onSubmitDirectly,
+  isSubmitting = false
 }) => {
   const isNameValid = formData.client_name.trim().length >= 3;
   const isPhoneValid = formData.client_phone.replace(/\D/g, '').length >= 8;
   const isAddressWritten = formData.client_address.trim().length >= 5;
   const isLocationPinned = formData.latitude !== null && formData.longitude !== null;
   const isAddressValid = isAddressWritten || isLocationPinned;
-  const isProblemValid = formData.problem_description.trim().length >= 10;
+  const isProblemValid = formData.problem_description.trim().length >= 3;
 
-  const isFormValid = isNameValid && isPhoneValid && isAddressValid && isProblemValid;
+  const isFormValid = isNameValid && isPhoneValid && isAddressValid;
 
   const handleLocationPicked = (lat: number, lng: number) => {
     onChangeLocation(lat, lng);
@@ -44,6 +48,8 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
 
   return (
     <div className="space-y-4 sm:space-y-5">
+      
+      {/* 1. Nombre y Teléfono en grilla */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         {/* Nombre Completo */}
         <div>
@@ -115,7 +121,7 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
         </div>
       </div>
 
-      {/* Tipo de Servicio */}
+      {/* 2. Tipo de Servicio */}
       <div>
         <div className="flex items-center justify-between mb-1">
           <label className="text-xs font-bold text-brand-dark uppercase tracking-wider">
@@ -140,7 +146,38 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
         </div>
       </div>
 
-      {/* Dirección Escrita + Mapa Interactivo */}
+      {/* 3. Descripción Detallada del Problema o Síntomas (Ubicado aquí para ser 100% visible en móvil antes del mapa) */}
+      <div className="bg-slate-50/70 p-3 sm:p-4 rounded-2xl border border-slate-200/80">
+        <div className="flex items-center justify-between mb-1">
+          <label className="text-xs font-bold text-brand-dark uppercase tracking-wider flex items-center gap-1.5">
+            <FileText className="w-3.5 h-3.5 text-brand-blue" />
+            <span>Descripción del Problema o Síntomas *</span>
+          </label>
+          {isProblemValid && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+              Listo
+            </span>
+          )}
+        </div>
+        <div className="relative">
+          <textarea
+            required
+            rows={2}
+            placeholder="Ej. El recibo del agua se duplicó, se escucha agua corriendo en el baño o pared húmeda..."
+            value={formData.problem_description}
+            onChange={(e) => onChange('problem_description', e.target.value)}
+            className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-medium outline-none transition-all ${
+              isProblemValid
+                ? 'border-emerald-500 bg-white text-brand-dark focus:ring-2 focus:ring-emerald-500/20'
+                : 'border-slate-200 bg-white focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20'
+            }`}
+          />
+        </div>
+        <p className="text-[10px] text-slate-400 mt-1">Explica brevemente lo que ocurre para que el técnico lleve el equipo adecuado.</p>
+      </div>
+
+      {/* 4. Dirección Escrita + Mapa Interactivo */}
       <div className="space-y-2.5">
         <div>
           <div className="flex items-center justify-between mb-1">
@@ -195,62 +232,54 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
         </div>
       </div>
 
-      {/* Descripción Detallada del Problema */}
-      <div>
-        <div className="flex items-center justify-between mb-1">
-          <label className="text-xs font-bold text-brand-dark uppercase tracking-wider">
-            Descripción del Problema o Síntomas *
-          </label>
-          {isProblemValid && (
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-              Listo
-            </span>
-          )}
-        </div>
-        <div className="relative">
-          <FileText className={`w-4 h-4 absolute left-3.5 top-3.5 transition-colors ${isProblemValid ? 'text-emerald-500' : 'text-slate-400'}`} />
-          <textarea
-            required
-            rows={2}
-            placeholder="Ej. Subió el recibo de agua al doble, se escucha sonido constante en el baño..."
-            value={formData.problem_description}
-            onChange={(e) => onChange('problem_description', e.target.value)}
-            className={`w-full pl-10 pr-9 py-2.5 sm:py-3 rounded-xl border text-sm font-medium outline-none transition-all ${
-              isProblemValid
-                ? 'border-emerald-500 bg-emerald-50/20 text-brand-dark focus:ring-2 focus:ring-emerald-500/20'
-                : 'border-slate-200 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20'
-            }`}
-          />
-          {isProblemValid && (
-            <CheckCircle2 className="w-4 h-4 text-emerald-500 absolute right-3.5 top-3.5" />
-          )}
-        </div>
-        {!isProblemValid && formData.problem_description.length > 0 && (
-          <p className="text-[10px] text-slate-400 mt-0.5">Escribe al menos 10 caracteres para orientar al técnico.</p>
-        )}
-      </div>
-
-      {/* Botones de Navegación */}
-      <div className="pt-2 flex items-center justify-between gap-3">
+      {/* 5. Botones de Navegación con Opción Directa sin fotos */}
+      <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
         <button
           type="button"
           onClick={onBack}
-          className="px-4 py-2.5 rounded-xl font-bold text-brand-slate hover:bg-slate-100 transition-all flex items-center gap-1.5 text-xs sm:text-sm"
+          disabled={isSubmitting}
+          className="order-3 sm:order-1 px-4 py-2.5 rounded-xl font-bold text-brand-slate hover:bg-slate-100 transition-all flex items-center justify-center gap-1.5 text-xs sm:text-sm"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Atrás</span>
         </button>
 
-        <button
-          type="button"
-          disabled={!isFormValid}
-          onClick={onNext}
-          className="px-6 sm:px-8 py-3 rounded-xl font-extrabold text-white bg-brand-blue hover:bg-brand-lightBlue disabled:bg-slate-300 disabled:cursor-not-allowed shadow-md transition-all flex items-center gap-2 text-xs sm:text-sm"
-        >
-          <span>Siguiente: Fotos de Evidencia</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
+        <div className="order-1 sm:order-2 flex flex-col sm:flex-row gap-2">
+          {/* Opción 1: Confirmar directamente (sin fotos) */}
+          {onSubmitDirectly && (
+            <button
+              type="button"
+              disabled={!isFormValid || isSubmitting}
+              onClick={onSubmitDirectly}
+              className="px-5 py-3 rounded-xl font-extrabold text-white bg-brand-orange hover:bg-brand-orangeHover shadow-glow-orange disabled:bg-slate-300 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 text-xs sm:text-sm"
+              title="Confirmar cita sin adjuntar fotos"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Confirmando Cita...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Confirmar Cita (Sin Fotos)</span>
+                </>
+              )}
+            </button>
+          )}
+
+          {/* Opción 2: Subir fotos (opcional) */}
+          <button
+            type="button"
+            disabled={!isFormValid || isSubmitting}
+            onClick={onNext}
+            className="px-5 py-3 rounded-xl font-bold text-brand-blue bg-brand-ice hover:bg-brand-iceBorder border border-brand-iceBorder disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-1.5 text-xs sm:text-sm"
+          >
+            <Camera className="w-4 h-4" />
+            <span>Subir Fotos (Opcional)</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </div>
   );

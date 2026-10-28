@@ -15,6 +15,14 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.1.0] - 2026-10-28 - Fotos 100% Opcionales y Visibilidad Móvil de Síntomas
+- **Subida de Fotos 100% Opcional (`StepClientDetails.tsx`, `StepPhotoUpload.tsx`):**
+  - Añadido botón de confirmación directa en el Paso 2: *"Confirmar Cita (Sin Fotos)"* para que el usuario pueda agendar en 1 clic sin pasar por el paso de imágenes.
+  - El botón secundario *"Subir Fotos (Opcional)"* queda disponible para quienes sí deseen adjuntar evidencia.
+  - En el Paso 3, el botón adapta su texto a *"Confirmar Cita (Sin Fotos)"* si no se añaden imágenes, o *"Confirmar Cita con X Foto(s)"*.
+- **Reubicación de la Descripción de Síntomas (`StepClientDetails.tsx`):**
+  - Se movió el campo *"Descripción del Problema o Síntomas"* a la posición inmediata superior (justo después del Tipo de Servicio y antes de la dirección/mapa). Ahora es 100% visible desde cualquier celular sin necesidad de desplazarse por debajo del mapa.
+
 ### [v2.0.0] - 2026-10-28 - UX Móvil Compacta en Agenda: Auto-Scroll, Checks Verdes y Rediseño de Pasos (Commit: `db29d1b`)
 - **Botón de Paso 1 Mejorado (`StepDateAndTime.tsx`):**
   - Texto actualizado a *"Siguiente: Indicar Ubicación y Contacto →"*, comunicando claramente la acción siguiente.

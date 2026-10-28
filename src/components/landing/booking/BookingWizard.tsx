@@ -175,6 +175,8 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
             onChangeLocation={handleLocationChange}
             onBack={() => goToStep(1)}
             onNext={() => goToStep(3)}
+            onSubmitDirectly={handleSubmit}
+            isSubmitting={isSubmitting}
           />
         )}
 
