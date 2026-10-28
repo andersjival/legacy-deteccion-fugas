@@ -3,7 +3,6 @@ import { Navbar } from './components/landing/Navbar';
 import { HeroSection } from './components/landing/HeroSection';
 import { ServicesSection } from './components/landing/ServicesSection';
 import { TechShowcase } from './components/landing/TechShowcase';
-import { BookingWizard } from './components/landing/booking/BookingWizard';
 import { TestimonialsSection } from './components/landing/TestimonialsSection';
 import { Footer } from './components/landing/Footer';
 import { AgendaPage } from './components/agenda/AgendaPage';
@@ -35,6 +34,15 @@ export function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Redirigir hash #agendar/#agenda directamente a la ruta limpia /agenda
+  useEffect(() => {
+    if (window.location.hash === '#agendar' || window.location.hash === '#agenda') {
+      window.history.replaceState({}, '', '/agenda');
+      setCurrentPath('/agenda');
+      window.scrollTo(0, 0);
+    }
+  }, []);
+
   // Abrir panel admin si está en la URL ?view=admin
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -46,7 +54,7 @@ export function App() {
   const navigateTo = (path: string) => {
     window.history.pushState({}, '', path);
     setCurrentPath(path.replace(/\/+$/, '') || '/');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo(0, 0);
   };
 
   const handleSelectService = (serviceTitle: string) => {
@@ -77,7 +85,6 @@ export function App() {
             <HeroSection onNavigateAgenda={() => navigateTo('/agenda')} />
             <ServicesSection onSelectService={handleSelectService} />
             <TechShowcase onNavigateAgenda={() => navigateTo('/agenda')} />
-            <BookingWizard initialService={selectedService} />
             <TestimonialsSection />
           </main>
 

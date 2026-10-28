@@ -38,7 +38,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda })
             <a href="#inicio" className="hover:text-brand-blue transition-colors">Inicio</a>
             <a href="#servicios" className="hover:text-brand-blue transition-colors">Servicios</a>
             <a href="#tecnologia" className="hover:text-brand-blue transition-colors">Tecnología</a>
-            <button onClick={onNavigateAgenda} className="hover:text-brand-blue transition-colors font-semibold">Agendar</button>
+            <a
+              href="/agenda"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigateAgenda();
+              }}
+              className="hover:text-brand-blue transition-colors font-semibold cursor-pointer"
+            >
+              Agendar
+            </a>
             <a href="#testimonios" className="hover:text-brand-blue transition-colors">Testimonios</a>
           </nav>
 
@@ -52,13 +61,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda })
               <span>6408-0124</span>
             </a>
 
-            <button
-              onClick={onNavigateAgenda}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-extrabold text-white bg-brand-orange hover:bg-brand-orangeHover shadow-glow-orange hover:shadow-lg transition-all"
+            <a
+              href="/agenda"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigateAgenda();
+              }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-extrabold text-white bg-brand-orange hover:bg-brand-orangeHover shadow-glow-orange hover:shadow-lg transition-all cursor-pointer"
             >
               <Calendar className="w-4 h-4" />
               <span>Agendar Cita</span>
-            </button>
+            </a>
 
             {/* Acceso Discreto Admin */}
             <button
@@ -115,15 +128,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda })
           >
             Tecnología
           </a>
-          <button
-            onClick={() => {
+          <a
+            href="/agenda"
+            onClick={(e) => {
+              e.preventDefault();
               setMobileMenuOpen(false);
               onNavigateAgenda();
             }}
-            className="w-full text-left px-3 py-2 rounded-lg text-base font-semibold text-brand-slate hover:bg-brand-ice"
+            className="block px-3 py-2 rounded-lg text-base font-semibold text-brand-slate hover:bg-brand-ice cursor-pointer"
           >
             Agendar Cita
-          </button>
+          </a>
           <a
             href="#testimonios"
             onClick={() => setMobileMenuOpen(false)}
@@ -139,16 +154,18 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda })
               <Phone className="w-4 h-4 text-brand-blue" />
               Llamar al 6408-0124
             </a>
-            <button
-              onClick={() => {
+            <a
+              href="/agenda"
+              onClick={(e) => {
+                e.preventDefault();
                 setMobileMenuOpen(false);
                 onNavigateAgenda();
               }}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold bg-brand-orange text-white shadow-glow-orange"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold bg-brand-orange text-white shadow-glow-orange cursor-pointer"
             >
               <Calendar className="w-4 h-4" />
-              Agendar Inspección Ahora
-            </button>
+              <span>Agendar Inspección Ahora</span>
+            </a>
           </div>
         </div>
       )}

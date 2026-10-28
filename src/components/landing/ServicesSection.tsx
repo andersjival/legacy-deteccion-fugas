@@ -94,9 +94,12 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ onSelectServic
 
                 {/* Botón Pastilla Azul Claro */}
                 <a
-                  href="#agendar"
-                  onClick={() => onSelectService(srv.title)}
-                  className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold text-brand-blue bg-brand-ice hover:bg-brand-blue hover:text-white border border-brand-iceBorder transition-all"
+                  href="/agenda"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectService(srv.title);
+                  }}
+                  className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold text-brand-blue bg-brand-ice hover:bg-brand-blue hover:text-white border border-brand-iceBorder transition-all cursor-pointer"
                 >
                   <span>Reservar Este Servicio</span>
                   <ArrowRight className="w-4 h-4" />
@@ -139,9 +142,12 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ onSelectServic
               </div>
               <div className="pt-2">
                 <a
-                  href="#agendar"
-                  onClick={() => onSelectService('Detección Especializada de Fugas')}
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-extrabold text-white bg-brand-orange hover:bg-orange-600 transition-all shadow-glow-orange"
+                  href="/agenda"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectService('Detección Especializada de Fugas');
+                  }}
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-extrabold text-white bg-brand-orange hover:bg-orange-600 transition-all shadow-glow-orange cursor-pointer"
                 >
                   <span>Agendar Localización de Fuga</span>
                   <ArrowRight className="w-4 h-4" />

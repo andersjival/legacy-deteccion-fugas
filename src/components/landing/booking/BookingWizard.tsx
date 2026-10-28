@@ -94,24 +94,22 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
   };
 
   return (
-    <section id="agendar" className="py-20 bg-brand-ice/40 relative">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Cabecera del Wizard */}
-        <div className="text-center mb-10 space-y-2">
-          <span className="text-xs sm:text-sm font-bold text-brand-blue tracking-widest uppercase">
-            Disponibilidad en Vivo
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-brand-dark tracking-tight">
-            AGENDA TU INSPECCIÓN TÉCNICA
-          </h2>
-          <p className="text-sm text-brand-slate max-w-xl mx-auto">
-            Elige el horario conveniente, escribe o fija tu dirección en el mapa y describe tu caso.
-          </p>
-        </div>
+    <div className="w-full">
+      {/* Cabecera del Wizard */}
+      <div className="text-center mb-8 space-y-2">
+        <span className="text-xs sm:text-sm font-bold text-brand-blue tracking-widest uppercase">
+          Disponibilidad en Vivo
+        </span>
+        <h2 className="text-2xl sm:text-4xl font-extrabold text-brand-dark tracking-tight">
+          AGENDA TU INSPECCIÓN TÉCNICA
+        </h2>
+        <p className="text-sm text-brand-slate max-w-xl mx-auto">
+          Elige el horario conveniente, escribe o fija tu dirección en el mapa y describe tu caso.
+        </p>
+      </div>
 
-        {/* Tarjeta Principal del Formulario Interactivo */}
-        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-100 shadow-card">
+      {/* Tarjeta Principal del Formulario Interactivo */}
+      <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-100 shadow-card">
           
           {/* Barra de Pasos */}
           {step < 4 && (
@@ -178,8 +176,6 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
             />
           )}
         </div>
-
-      </div>
-    </section>
+    </div>
   );
 };

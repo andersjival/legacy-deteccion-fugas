@@ -15,6 +15,15 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v1.7.0] - 2026-10-28 - Aislamiento Radical de la Agenda en Página Independiente `/agenda`
+- **Extracción Total del Inicio (`App.tsx`):**
+  - Eliminado por completo el componente de agendamiento (`BookingWizard`) de la página principal (`/`). La página de inicio ya no contiene el formulario, erradicando cualquier salto o scroll hacia abajo.
+- **Navegación Exclusiva a `/agenda`:**
+  - Botón de Hero *"Verificar Disponibilidad y Agendar"*, botones de Navbar, tarjetas de Servicios, banner de evidencia y pie de página reconectados con enlace directo `href="/agenda"`.
+  - Detección y redirección automática de anclas residuales (`#agendar` / `#agenda`) hacia la ruta limpia `/agenda`.
+- **Entorno Limpio y Sin Distracciones (`AgendaPage.tsx`, `BookingWizard.tsx`):**
+  - Vista exclusiva donde el usuario solo puede completar su cita técnica o pulsar *"Volver al inicio"*, sin elementos ajenos ni distracciones.
+
 ### [v1.6.0] - 2026-10-28 - Reemplazo de Imágenes Genéricas por Fotografías Reales de Legacy (Commit: `cf7db08`)
 - **Hero Section (`HeroSection.tsx`):**
   - Eliminación de imagen de stock Unsplash y reemplazo por fotografía real en acción (`/images/hero-deteccion-fugas.png`): técnico con auriculares localizando fuga activa en tubería con sensor acústico.

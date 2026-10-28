@@ -65,14 +65,17 @@ export const TechShowcase: React.FC<TechShowcaseProps> = ({ onNavigateAgenda }) 
               </div>
 
               <div className="pt-4">
-                <button
-                  type="button"
-                  onClick={onNavigateAgenda}
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl text-base font-extrabold text-white bg-brand-dark hover:bg-slate-800 shadow-card transition-all"
+                <a
+                  href="/agenda"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigateAgenda();
+                  }}
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl text-base font-extrabold text-white bg-brand-dark hover:bg-slate-800 shadow-card transition-all cursor-pointer"
                 >
                   <span>Reservar Diagnóstico</span>
                   <ArrowUpRight className="w-5 h-5 text-brand-orange" />
-                </button>
+                </a>
               </div>
             </div>
 

@@ -38,14 +38,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigateAgenda }) =>
 
             {/* Botones CTA Principales */}
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-              <button
-                type="button"
-                onClick={onNavigateAgenda}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-base font-extrabold text-white bg-brand-orange hover:bg-brand-orangeHover shadow-glow-orange hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all"
+              <a
+                href="/agenda"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onNavigateAgenda();
+                }}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-base font-extrabold text-white bg-brand-orange hover:bg-brand-orangeHover shadow-glow-orange hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
               >
                 <Calendar className="w-5 h-5" />
                 <span>Verificar Disponibilidad y Agendar</span>
-              </button>
+              </a>
 
               <a
                 href="tel:+50664080124"

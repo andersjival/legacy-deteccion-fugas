@@ -48,7 +48,18 @@ export const Footer: React.FC<FooterProps> = ({
               <li><a href="#inicio" className="hover:text-white transition-colors">Inicio</a></li>
               <li><a href="#servicios" className="hover:text-white transition-colors">Servicios Técnicos</a></li>
               <li><a href="#tecnologia" className="hover:text-white transition-colors">Equipamiento FLIR / Geófono</a></li>
-              <li><button onClick={onNavigateAgenda} className="hover:text-white transition-colors text-left">Agendar Inspección</button></li>
+              <li>
+                <a
+                  href="/agenda"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onNavigateAgenda();
+                  }}
+                  className="hover:text-white transition-colors text-left cursor-pointer"
+                >
+                  Agendar Inspección
+                </a>
+              </li>
               <li><a href="#testimonios" className="hover:text-white transition-colors">Testimonios Verificados</a></li>
             </ul>
           </div>
