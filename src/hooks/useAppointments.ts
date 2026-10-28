@@ -92,6 +92,13 @@ export function useAppointments(isPollingActive = true) {
     }
   };
 
+  const updatePayment = async (id: string, amount: number, payment_method: string) => {
+    const updated = await api.updateAppointmentPayment(id, amount, payment_method);
+    if (updated) {
+      setAppointments((prev) => prev.map((a) => (a.id === id ? updated : a)));
+    }
+  };
+
   const dismissAlert = () => setNewAppointmentAlert(null);
 
   return {
@@ -102,6 +109,7 @@ export function useAppointments(isPollingActive = true) {
     dismissAlert,
     refresh: () => fetchAppointments(false),
     updateStatus,
-    updateService
+    updateService,
+    updatePayment
   };
 }

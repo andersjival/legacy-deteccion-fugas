@@ -6,6 +6,7 @@ import { PhotoLightbox } from './PhotoLightbox';
 import { AvailabilityManager } from './AvailabilityManager';
 import { AdminSettingsTab } from './AdminSettingsTab';
 import { KPICards } from './KPICards';
+import { FinancialReportCard } from './FinancialReportCard';
 import { useAppointments } from '../../hooks/useAppointments';
 import { getTodayDateString, getTomorrowDateString } from '../../utils/dateFormatter';
 import { Bell, RefreshCw, X, Navigation } from 'lucide-react';
@@ -35,7 +36,8 @@ export const AdminView: React.FC<AdminViewProps> = ({
     dismissAlert,
     refresh,
     updateStatus,
-    updateService
+    updateService,
+    updatePayment
   } = useAppointments(true);
 
   const [activeTab, setActiveTab] = useState<AdminTab>('route');
@@ -124,6 +126,9 @@ export const AdminView: React.FC<AdminViewProps> = ({
               </span>
             </div>
 
+            {/* Reporte Financiero Diario y Semanal */}
+            <FinancialReportCard appointments={appointments} />
+
             {loading ? (
               <div className="text-center py-12 text-xs font-bold text-brand-blue">Cargando ruta de hoy...</div>
             ) : todayAppointments.length === 0 ? (
@@ -144,6 +149,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                   index={idx}
                   onUpdateStatus={updateStatus}
                   onUpdateService={updateService}
+                  onUpdatePayment={updatePayment}
                   onOpenLightbox={(photos, index) => setLightboxState({ photos, index })}
                 />
               ))
@@ -156,6 +162,9 @@ export const AdminView: React.FC<AdminViewProps> = ({
           <div className="space-y-3">
             {/* Control de Citas: Hoy, Semana y Mes */}
             <KPICards appointments={appointments} />
+
+            {/* Reporte Financiero Diario y Semanal */}
+            <FinancialReportCard appointments={appointments} />
 
             {/* Filtros Rápidos Estilo Pastilla */}
             <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs font-bold">
@@ -193,6 +202,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                   appointment={app}
                   onUpdateStatus={updateStatus}
                   onUpdateService={updateService}
+                  onUpdatePayment={updatePayment}
                   onOpenLightbox={(photos, index) => setLightboxState({ photos, index })}
                 />
               ))

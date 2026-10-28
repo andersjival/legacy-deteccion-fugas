@@ -284,6 +284,8 @@ app.get('/appointments', async (c) => {
 
       const list = rows.map((r: any) => ({
         ...r,
+        amount_collected: Number(r.amount_collected || 0),
+        payment_method: r.payment_method || 'sinpe',
         photo_keys: r.photo_keys_json ? JSON.parse(r.photo_keys_json) : []
       }));
       return c.json(list || []);
@@ -423,6 +425,14 @@ app.patch('/appointments/:id', async (c) => {
       if (body.status) {
         await c.env.DB.prepare('UPDATE appointments SET status = ? WHERE id = ?')
           .bind(body.status, id).run();
+      }
+      if (body.amount_collected !== undefined) {
+        await c.env.DB.prepare('UPDATE appointments SET amount_collected = ? WHERE id = ?')
+          .bind(Number(body.amount_collected || 0), id).run();
+      }
+      if (body.payment_method) {
+        await c.env.DB.prepare('UPDATE appointments SET payment_method = ? WHERE id = ?')
+          .bind(body.payment_method, id).run();
       }
 
       const updated = await c.env.DB.prepare('SELECT * FROM appointments WHERE id = ?').bind(id).first<any>();

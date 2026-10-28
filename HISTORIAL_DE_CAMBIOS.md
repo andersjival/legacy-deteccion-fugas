@@ -15,6 +15,18 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.9.0] - 2026-10-28 - Registro de Monto Cobrado, Medio de Pago (Sinpe Móvil / Tarjeta / Efectivo) y Reportes Financieros
+- **Registro de Cobro en Citas (`PaymentModal.tsx`):**
+  - Modal interactivo con entrada de monto en Colones (₡), chips de monto rápido (₡25.000, ₡35.000, ₡45.000, ₡60.000, ₡80.000) y selector de método de pago: Sinpe Móvil, Tarjeta o Efectivo.
+  - Disponible tanto en el flujo de ruta callejera (`TodayRouteCard.tsx`) como en el listado general (`AppointmentCard.tsx`).
+- **Persistencia en Cloudflare D1 (`functions/api/[[route]].ts`):**
+  - Columnas `amount_collected` (REAL) y `payment_method` (TEXT) migradas y sincronizadas en la base de datos remota D1.
+  - Endpoint `PATCH /appointments/:id` actualizado para registrar montos y medios de pago en tiempo real.
+- **Reporte Financiero Diario y Semanal (`FinancialReportCard.tsx`):**
+  - Tarjeta de balance financiero con selector "Cierre de Hoy" y "Esta Semana" (lunes a domingo).
+  - Desglose detallado de ingresos totales acumulados y distribución por método: Sinpe Móvil, Tarjeta bancaria y Efectivo.
+  - Integrado de forma visible en el plan de ruta de hoy y en la vista general del panel.
+
 ### [v2.8.0] - 2026-10-28 - Intervalos Configurables por Bloque: Cuarta Opción y Personalización Libre
 - **Ampliación de Opciones Predeterminadas (`AvailabilityManager.tsx`):**
   - Añadida una 4ta opción estándar (4 horas / 240 min) e intervalos de 1 hora (60 min), 1.5 horas (90 min), 2 horas (120 min) y 3 horas (180 min).

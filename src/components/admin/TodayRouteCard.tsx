@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Navigation, Phone, MessageSquare, CheckCircle, MapPin, ChevronDown, ChevronUp, Image as ImageIcon, Clock, Edit3, FastForward } from 'lucide-react';
-import { Appointment, AppointmentStatus } from '../../types/appointment';
+import { Navigation, Phone, MessageSquare, CheckCircle, MapPin, ChevronDown, ChevronUp, Image as ImageIcon, Clock, Edit3, FastForward, DollarSign } from 'lucide-react';
+import { Appointment, AppointmentStatus, PaymentMethod } from '../../types/appointment';
 import { formatTime12h, formatDateToSpanish } from '../../utils/dateFormatter';
 import { ServiceEditorModal } from './ServiceEditorModal';
+import { PaymentModal } from './PaymentModal';
 
 interface TodayRouteCardProps {
   appointment: Appointment;
@@ -10,6 +11,7 @@ interface TodayRouteCardProps {
   onUpdateStatus: (id: string, status: AppointmentStatus) => void;
   onOpenLightbox: (photos: string[], index: number) => void;
   onUpdateService?: (id: string, newServiceType: string) => Promise<void>;
+  onUpdatePayment?: (id: string, amount: number, method: PaymentMethod) => Promise<void>;
 }
 
 export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
@@ -17,10 +19,12 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
   index,
   onUpdateStatus,
   onOpenLightbox,
-  onUpdateService
+  onUpdateService,
+  onUpdatePayment
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const rawDigits = appointment.client_phone.replace(/\D/g, '');
   const phoneWithCountry = rawDigits.startsWith('506') ? rawDigits : `506${rawDigits}`;
   const rangoHora = `${formatTime12h(appointment.start_time)} - ${formatTime12h(appointment.end_time)}`;
@@ -92,6 +96,37 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
               <Edit3 className="w-2.5 h-2.5" />
               <span>Editar / +Servicios</span>
             </button>
+          )}
+        </div>
+
+        {/* Estado y Monto del Cobro */}
+        <div className="pt-0.5">
+          {Number(appointment.amount_collected || 0) > 0 ? (
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-black text-emerald-800">
+              <span>₡{Number(appointment.amount_collected).toLocaleString('es-CR')}</span>
+              <span className="text-[10px] text-emerald-600 font-bold uppercase">
+                ({appointment.payment_method === 'card' ? 'Tarjeta' : (appointment.payment_method === 'cash' ? 'Efectivo' : 'Sinpe Móvil')})
+              </span>
+              {onUpdatePayment && (
+                <button
+                  type="button"
+                  onClick={() => setIsPaymentOpen(true)}
+                  className="ml-1 text-[10px] text-emerald-700 underline font-bold hover:text-emerald-900"
+                >
+                  Cambiar
+                </button>
+              )}
+            </div>
+          ) : (
+            onUpdatePayment && (
+              <button
+                type="button"
+                onClick={() => setIsPaymentOpen(true)}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 transition-all cursor-pointer"
+              >
+                <span>₡ Registrar Cobro (Sinpe / Tarjeta)</span>
+              </button>
+            )
           )}
         </div>
         <div className="flex items-start gap-1.5 text-xs text-brand-slate font-medium pt-1">
@@ -210,6 +245,22 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
           currentServiceType={appointment.service_type}
           onSaveService={async (id, srv) => {
             if (onUpdateService) await onUpdateService(id, srv);
+          }}
+        />
+      )}
+
+      {/* Modal para Registrar o Editar Cobro */}
+      {isPaymentOpen && (
+        <PaymentModal
+          isOpen={isPaymentOpen}
+          onClose={() => setIsPaymentOpen(false)}
+          appointmentId={appointment.id}
+          clientName={appointment.client_name}
+          serviceType={appointment.service_type}
+          currentAmount={appointment.amount_collected}
+          currentMethod={appointment.payment_method}
+          onSavePayment={async (id, amt, mtd) => {
+            if (onUpdatePayment) await onUpdatePayment(id, amt, mtd);
           }}
         />
       )}

@@ -368,6 +368,34 @@ class ApiService {
     return updatedApp;
   }
 
+  async updateAppointmentPayment(id: string, amount: number, payment_method: string): Promise<Appointment | null> {
+    try {
+      if (!this.useLocalFallback) {
+        const res = await fetch(`/api/appointments/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount_collected: amount, payment_method })
+        });
+        if (res.ok) return await res.json();
+      }
+    } catch {
+      this.useLocalFallback = true;
+    }
+
+    const current = this.getStored<Appointment[]>(STORAGE_KEYS.APPOINTMENTS, []);
+    let updatedApp: Appointment | null = null;
+    const updated = current.map((app) => {
+      if (app.id === id) {
+        updatedApp = { ...app, amount_collected: amount, payment_method };
+        return updatedApp;
+      }
+      return app;
+    });
+
+    this.setStored(STORAGE_KEYS.APPOINTMENTS, updated);
+    return updatedApp;
+  }
+
   async updateAppointmentService(id: string, service_type: string): Promise<Appointment | null> {
     try {
       if (!this.useLocalFallback) {
