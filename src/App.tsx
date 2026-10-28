@@ -6,6 +6,7 @@ import { TechShowcase } from './components/landing/TechShowcase';
 import { BookingWizard } from './components/landing/booking/BookingWizard';
 import { TestimonialsSection } from './components/landing/TestimonialsSection';
 import { Footer } from './components/landing/Footer';
+import { AgendaPage } from './components/agenda/AgendaPage';
 import { AdminLogin } from './components/admin/AdminLogin';
 import { AdminView } from './components/admin/AdminView';
 import { useAdminAuth } from './hooks/useAdminAuth';
@@ -13,13 +14,28 @@ import { usePWA } from './hooks/usePWA';
 import { ServiceType } from './types/appointment';
 
 export function App() {
+  const [currentPath, setCurrentPath] = useState(() => {
+    const path = window.location.pathname.replace(/\/+$/, '');
+    return path || '/';
+  });
+
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<ServiceType>('Detección Especializada de Fugas');
   
   const { isAuthenticated, isLoading, error, loginWithPin, logout } = useAdminAuth();
   const { isInstallable, notificationsGranted, promptInstall, requestNotificationPermission } = usePWA();
 
-  // Abrir panel admin automáticamente si en la URL está ?view=admin
+  // Escuchar cambios de historial (botón atrás/adelante del navegador)
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.replace(/\/+$/, '');
+      setCurrentPath(path || '/');
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Abrir panel admin si está en la URL ?view=admin
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('view') === 'admin') {
@@ -27,36 +43,54 @@ export function App() {
     }
   }, []);
 
+  const navigateTo = (path: string) => {
+    window.history.pushState({}, '', path);
+    setCurrentPath(path.replace(/\/+$/, '') || '/');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleSelectService = (serviceTitle: string) => {
     setSelectedService(serviceTitle as ServiceType);
-    const element = document.getElementById('agendar');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    navigateTo('/agenda');
   };
+
+  const isAgendaRoute = currentPath === '/agenda' || currentPath === '/agendar';
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-brand-dark selection:bg-brand-blue selection:text-white">
-      {/* 1. Navbar Glassmorphic */}
-      <Navbar onOpenAdmin={() => setIsAdminOpen(true)} />
+      {isAgendaRoute ? (
+        /* Vista Exclusiva de Agenda Sin Distracciones */
+        <AgendaPage
+          onBackToHome={() => navigateTo('/')}
+          initialService={selectedService}
+          onOpenAdmin={() => setIsAdminOpen(true)}
+        />
+      ) : (
+        /* Vista Principal Completa */
+        <>
+          <Navbar
+            onOpenAdmin={() => setIsAdminOpen(true)}
+            onNavigateAgenda={() => navigateTo('/agenda')}
+          />
 
-      {/* 2. Landing Page Completa */}
-      <main className="flex-grow">
-        <HeroSection />
-        <ServicesSection onSelectService={handleSelectService} />
-        <TechShowcase />
-        <BookingWizard initialService={selectedService} />
-        <TestimonialsSection />
-      </main>
+          <main className="flex-grow">
+            <HeroSection onNavigateAgenda={() => navigateTo('/agenda')} />
+            <ServicesSection onSelectService={handleSelectService} />
+            <TechShowcase onNavigateAgenda={() => navigateTo('/agenda')} />
+            <BookingWizard initialService={selectedService} />
+            <TestimonialsSection />
+          </main>
 
-      {/* 3. Footer Corporativo */}
-      <Footer
-        onOpenAdmin={() => setIsAdminOpen(true)}
-        onInstallPWA={promptInstall}
-        isInstallable={isInstallable}
-      />
+          <Footer
+            onOpenAdmin={() => setIsAdminOpen(true)}
+            onNavigateAgenda={() => navigateTo('/agenda')}
+            onInstallPWA={promptInstall}
+            isInstallable={isInstallable}
+          />
+        </>
+      )}
 
-      {/* 4. Panel de Administrador / Login de Seguridad */}
+      {/* Modal / Vista de Administrador */}
       {isAdminOpen && (
         isAuthenticated ? (
           <AdminView

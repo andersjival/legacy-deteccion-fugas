@@ -3,12 +3,14 @@ import { Phone, MapPin, Clock, Lock, Download, ShieldCheck } from 'lucide-react'
 
 interface FooterProps {
   onOpenAdmin: () => void;
+  onNavigateAgenda: () => void;
   onInstallPWA?: () => void;
   isInstallable?: boolean;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   onOpenAdmin,
+  onNavigateAgenda,
   onInstallPWA,
   isInstallable = false
 }) => {
@@ -45,7 +47,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li><a href="#inicio" className="hover:text-white transition-colors">Inicio</a></li>
               <li><a href="#servicios" className="hover:text-white transition-colors">Servicios Técnicos</a></li>
               <li><a href="#tecnologia" className="hover:text-white transition-colors">Equipamiento FLIR / Geófono</a></li>
-              <li><a href="#agendar" className="hover:text-white transition-colors">Agendar Inspección</a></li>
+              <li><button onClick={onNavigateAgenda} className="hover:text-white transition-colors text-left">Agendar Inspección</button></li>
               <li><a href="#testimonios" className="hover:text-white transition-colors">Testimonios Verificados</a></li>
             </ul>
           </div>

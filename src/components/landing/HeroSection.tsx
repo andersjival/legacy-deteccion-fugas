@@ -2,7 +2,11 @@ import React from 'react';
 import { Phone, Calendar, ShieldCheck, Zap, Crosshair } from 'lucide-react';
 import { WaveDivider } from '../common/WaveDivider';
 
-export const HeroSection: React.FC = () => {
+interface HeroSectionProps {
+  onNavigateAgenda: () => void;
+}
+
+export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigateAgenda }) => {
   return (
     <section id="inicio" className="relative pt-6 md:pt-12 overflow-hidden bg-gradient-to-br from-[#D8ECFF] via-[#EAF4FF] to-[#F0F8FF]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pb-16 md:pb-24">
@@ -34,13 +38,14 @@ export const HeroSection: React.FC = () => {
 
             {/* Botones CTA Principales */}
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-              <a
-                href="#agendar"
+              <button
+                type="button"
+                onClick={onNavigateAgenda}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-base font-extrabold text-white bg-brand-orange hover:bg-brand-orangeHover shadow-glow-orange hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all"
               >
                 <Calendar className="w-5 h-5" />
                 <span>Verificar Disponibilidad y Agendar</span>
-              </a>
+              </button>
 
               <a
                 href="tel:+50664080124"

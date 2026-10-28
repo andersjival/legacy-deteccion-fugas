@@ -2,7 +2,11 @@ import React from 'react';
 import { Check, ShieldAlert, Award, Clock, DollarSign, ArrowUpRight } from 'lucide-react';
 import { WaveDivider } from '../common/WaveDivider';
 
-export const TechShowcase: React.FC = () => {
+interface TechShowcaseProps {
+  onNavigateAgenda: () => void;
+}
+
+export const TechShowcase: React.FC<TechShowcaseProps> = ({ onNavigateAgenda }) => {
   const benefits = [
     {
       icon: DollarSign,
@@ -61,13 +65,14 @@ export const TechShowcase: React.FC = () => {
               </div>
 
               <div className="pt-4">
-                <a
-                  href="#agendar"
+                <button
+                  type="button"
+                  onClick={onNavigateAgenda}
                   className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl text-base font-extrabold text-white bg-brand-dark hover:bg-slate-800 shadow-card transition-all"
                 >
                   <span>Reservar Diagnóstico</span>
                   <ArrowUpRight className="w-5 h-5 text-brand-orange" />
-                </a>
+                </button>
               </div>
             </div>
 

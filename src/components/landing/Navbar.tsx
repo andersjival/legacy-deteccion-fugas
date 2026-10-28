@@ -3,9 +3,10 @@ import { Phone, Calendar, Lock, Menu, X } from 'lucide-react';
 
 interface NavbarProps {
   onOpenAdmin: () => void;
+  onNavigateAgenda: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -37,7 +38,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin }) => {
             <a href="#inicio" className="hover:text-brand-blue transition-colors">Inicio</a>
             <a href="#servicios" className="hover:text-brand-blue transition-colors">Servicios</a>
             <a href="#tecnologia" className="hover:text-brand-blue transition-colors">Tecnología</a>
-            <a href="#agendar" className="hover:text-brand-blue transition-colors">Agendar</a>
+            <button onClick={onNavigateAgenda} className="hover:text-brand-blue transition-colors font-semibold">Agendar</button>
             <a href="#testimonios" className="hover:text-brand-blue transition-colors">Testimonios</a>
           </nav>
 
@@ -51,13 +52,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin }) => {
               <span>6408-0124</span>
             </a>
 
-            <a
-              href="#agendar"
+            <button
+              onClick={onNavigateAgenda}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-extrabold text-white bg-brand-orange hover:bg-brand-orangeHover shadow-glow-orange hover:shadow-lg transition-all"
             >
               <Calendar className="w-4 h-4" />
               <span>Agendar Cita</span>
-            </a>
+            </button>
 
             {/* Acceso Discreto Admin */}
             <button
@@ -114,13 +115,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin }) => {
           >
             Tecnología
           </a>
-          <a
-            href="#agendar"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-lg text-base font-semibold text-brand-slate hover:bg-brand-ice"
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onNavigateAgenda();
+            }}
+            className="w-full text-left px-3 py-2 rounded-lg text-base font-semibold text-brand-slate hover:bg-brand-ice"
           >
             Agendar Cita
-          </a>
+          </button>
           <a
             href="#testimonios"
             onClick={() => setMobileMenuOpen(false)}
@@ -136,14 +139,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin }) => {
               <Phone className="w-4 h-4 text-brand-blue" />
               Llamar al 6408-0124
             </a>
-            <a
-              href="#agendar"
-              onClick={() => setMobileMenuOpen(false)}
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onNavigateAgenda();
+              }}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold bg-brand-orange text-white shadow-glow-orange"
             >
               <Calendar className="w-4 h-4" />
               Agendar Inspección Ahora
-            </a>
+            </button>
           </div>
         </div>
       )}
