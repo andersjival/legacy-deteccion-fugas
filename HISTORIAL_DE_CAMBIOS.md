@@ -15,7 +15,7 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
-### [v1.6.0] - 2026-10-28 - Reemplazo de Imágenes Genéricas por Fotografías Reales de Legacy
+### [v1.6.0] - 2026-10-28 - Reemplazo de Imágenes Genéricas por Fotografías Reales de Legacy (Commit: `cf7db08`)
 - **Hero Section (`HeroSection.tsx`):**
   - Eliminación de imagen de stock Unsplash y reemplazo por fotografía real en acción (`/images/hero-deteccion-fugas.png`): técnico con auriculares localizando fuga activa en tubería con sensor acústico.
 - **Sección de Tecnología y Equipos (`TechShowcase.tsx`):**
