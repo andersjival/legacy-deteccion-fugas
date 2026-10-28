@@ -15,7 +15,7 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
-### [v1.0.0] - 2026-10-28 - Inicialización y Lanzamiento PWA
+### [v1.0.0] - 2026-10-28 - Inicialización y Despliegue en Producción (Commit: `6a7f3b5`)
 - **Landing Page de Alta Conversión:**
   - Navbar con glassmorphism, logo sonar/gota, scroll suave y enlace directo WhatsApp / Llamada `6408-0124`.
   - Hero section con degradado celeste suave, divisores de onda SVG orgánicos, badge de precisión y doble CTA.
