@@ -1,0 +1,23 @@
+name = "legacy-deteccion-fugas"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "dist"
+
+# Configuración de Base de Datos Cloudflare D1
+[[d1_databases]]
+binding = "DB"
+database_name = "legacy-fugas-db"
+database_id = "legacy-fugas-d1-id"
+
+# Configuración de Almacenamiento Cloudflare R2
+[[r2_buckets]]
+binding = "PHOTOS_BUCKET"
+bucket_name = "legacy-fugas-photos"
+
+# Cron Trigger diario a las 3:00 AM para auto-limpieza
+[triggers]
+crons = ["0 3 * * *"]
+
+# Variables de Entorno Públicas
+[vars]
+ENVIRONMENT = "production"
+ADMIN_PIN = "1234"
