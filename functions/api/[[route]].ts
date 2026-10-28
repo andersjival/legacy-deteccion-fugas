@@ -9,6 +9,16 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>().basePath('/api');
 
+function formatTime12h(time24: string): string {
+  if (!time24) return '';
+  const [hStr, mStr] = time24.split(':');
+  let h = parseInt(hStr, 10);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12;
+  h = h ? h : 12;
+  return `${h}:${mStr} ${ampm}`;
+}
+
 // Health Check
 app.get('/health', (c) => {
   return c.json({
@@ -105,22 +115,22 @@ app.post('/work-days', async (c) => {
   if (c.env.DB) {
     try {
       await c.env.DB.prepare(`
-        INSERT INTO work_days (date, is_available, start_time, end_time, custom_slot_minutes, custom_max_appointments, blocked_slots_json)
+        INSERT INTO work_days (date, is_available, start_time, end_time, slot_duration_minutes, max_appointments, blocked_slots_json)
         VALUES (?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(date) DO UPDATE SET
           is_available = excluded.is_available,
           start_time = excluded.start_time,
           end_time = excluded.end_time,
-          custom_slot_minutes = excluded.custom_slot_minutes,
-          custom_max_appointments = excluded.custom_max_appointments,
+          slot_duration_minutes = excluded.slot_duration_minutes,
+          max_appointments = excluded.max_appointments,
           blocked_slots_json = excluded.blocked_slots_json
       `).bind(
         body.date,
         body.is_available ? 1 : 0,
         body.start_time || '08:00',
         body.end_time || '17:00',
-        body.custom_slot_minutes || null,
-        body.custom_max_appointments || null,
+        body.slot_duration_minutes || null,
+        body.max_appointments || null,
         body.blocked_slots ? JSON.stringify(body.blocked_slots) : null
       ).run();
     } catch (e) {
@@ -140,11 +150,10 @@ app.get('/availability', async (c) => {
   let endTime = '17:00';
   let isAvailable = true;
   let blockedSlots: string[] = [];
-  const bookedSlots: string[] = [];
+  const bookedStartTimes: string[] = [];
 
   if (c.env.DB) {
     try {
-      // Leer settings globales
       const settings = await c.env.DB.prepare('SELECT * FROM settings WHERE id = 1').first<any>();
       if (settings) {
         durationMinutes = settings.slot_duration_minutes;
@@ -153,23 +162,21 @@ app.get('/availability', async (c) => {
         endTime = settings.default_end_time;
       }
 
-      // Leer regla específica del día
       const workDay = await c.env.DB.prepare('SELECT * FROM work_days WHERE date = ?').bind(date).first<any>();
       if (workDay) {
         isAvailable = workDay.is_available === 1;
         if (workDay.start_time) startTime = workDay.start_time;
         if (workDay.end_time) endTime = workDay.end_time;
-        if (workDay.custom_slot_minutes) durationMinutes = workDay.custom_slot_minutes;
-        if (workDay.custom_max_appointments) maxAppointments = workDay.custom_max_appointments;
+        if (workDay.slot_duration_minutes) durationMinutes = workDay.slot_duration_minutes;
+        if (workDay.max_appointments) maxAppointments = workDay.max_appointments;
         if (workDay.blocked_slots_json) blockedSlots = JSON.parse(workDay.blocked_slots_json);
       }
 
-      // Leer citas ya agendadas
       const { results } = await c.env.DB.prepare(
-        "SELECT appointment_time FROM appointments WHERE appointment_date = ? AND status != 'cancelled'"
+        "SELECT start_time FROM appointments WHERE appointment_date = ? AND status != 'cancelled'"
       ).bind(date).all();
 
-      results?.forEach((r: any) => bookedSlots.push(r.appointment_time));
+      results?.forEach((r: any) => bookedStartTimes.push(r.start_time));
     } catch (e) {
       console.warn('D1 availability check error:', e);
     }
@@ -179,15 +186,17 @@ app.get('/availability', async (c) => {
     return c.json({
       date,
       is_available: false,
+      start_time: startTime,
+      end_time: endTime,
       slots: [],
-      total_booked: bookedSlots.length,
-      max_allowed: 0
+      total_booked: bookedStartTimes.length,
+      max_allowed: 0,
+      remaining_slots: 0
     });
   }
 
-  // Generar bloques según duración
-  const isDayFull = bookedSlots.length >= maxAppointments;
-  const slots: Array<{ time: string; available: boolean; reason?: string }> = [];
+  const isDayFull = bookedStartTimes.length >= maxAppointments;
+  const slots: Array<{ start_time: string; end_time: string; label: string; available: boolean; reason?: string }> = [];
 
   const [startH, startM] = startTime.split(':').map(Number);
   const [endH, endM] = endTime.split(':').map(Number);
@@ -196,28 +205,40 @@ app.get('/availability', async (c) => {
   const endMin = endH * 60 + endM;
 
   while (currentMin + durationMinutes <= endMin) {
-    const h = Math.floor(currentMin / 60);
-    const m = currentMin % 60;
-    const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    const sH = Math.floor(currentMin / 60);
+    const sM = currentMin % 60;
+    const startSlot = `${String(sH).padStart(2, '0')}:${String(sM).padStart(2, '0')}`;
 
-    const isBooked = bookedSlots.includes(timeStr);
-    const isManuallyBlocked = blockedSlots.includes(timeStr);
+    const nextMin = currentMin + durationMinutes;
+    const eH = Math.floor(nextMin / 60);
+    const eM = nextMin % 60;
+    const endSlot = `${String(eH).padStart(2, '0')}:${String(eM).padStart(2, '0')}`;
+
+    const isBooked = bookedStartTimes.includes(startSlot);
+    const isManuallyBlocked = blockedSlots.includes(startSlot);
 
     slots.push({
-      time: timeStr,
+      start_time: startSlot,
+      end_time: endSlot,
+      label: `${formatTime12h(startSlot)} - ${formatTime12h(endSlot)}`,
       available: !isDayFull && !isBooked && !isManuallyBlocked,
-      reason: isDayFull ? 'Cupo diario alcanzado' : (isBooked ? 'Horario reservado' : (isManuallyBlocked ? 'No disponible' : undefined))
+      reason: isDayFull ? 'Cupo diario completo' : (isBooked ? 'Ocupado' : (isManuallyBlocked ? 'Bloqueado por admin' : undefined))
     });
 
     currentMin += durationMinutes;
   }
 
+  const remaining = Math.max(0, maxAppointments - bookedStartTimes.length);
+
   return c.json({
     date,
     is_available: true,
+    start_time: startTime,
+    end_time: endTime,
     slots,
-    total_booked: bookedSlots.length,
-    max_allowed: maxAppointments
+    total_booked: bookedStartTimes.length,
+    max_allowed: maxAppointments,
+    remaining_slots: remaining
   });
 });
 
@@ -226,7 +247,7 @@ app.get('/appointments', async (c) => {
   if (c.env.DB) {
     try {
       const { results } = await c.env.DB.prepare(
-        'SELECT * FROM appointments ORDER BY appointment_date ASC, appointment_time ASC'
+        'SELECT * FROM appointments ORDER BY appointment_date ASC, start_time ASC'
       ).all();
 
       const list = results?.map((r: any) => ({
@@ -246,7 +267,6 @@ app.post('/appointments', async (c) => {
   const id = 'app_' + crypto.randomUUID();
   const photoKeys: string[] = [];
 
-  // Si hay fotos y R2 está enlazado, guardar en R2
   if (body.photos && Array.isArray(body.photos) && c.env.PHOTOS_BUCKET) {
     for (let i = 0; i < Math.min(body.photos.length, 3); i++) {
       const photo = body.photos[i];
@@ -266,7 +286,6 @@ app.post('/appointments', async (c) => {
       }
     }
   } else if (body.photos && Array.isArray(body.photos)) {
-    // Si no hay R2 en dev, guardar base64
     body.photos.forEach((p: any) => photoKeys.push(p.dataUrl));
   }
 
@@ -275,7 +294,7 @@ app.post('/appointments', async (c) => {
       await c.env.DB.prepare(`
         INSERT INTO appointments (
           id, client_name, client_phone, client_address, service_type, problem_description,
-          appointment_date, appointment_time, duration_minutes, photo_keys_json, photos_deleted, status
+          appointment_date, start_time, end_time, photo_keys_json, photos_deleted, status
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 'pending')
       `).bind(
         id,
@@ -285,8 +304,8 @@ app.post('/appointments', async (c) => {
         body.service_type,
         body.problem_description,
         body.appointment_date,
-        body.appointment_time,
-        body.duration_minutes || 120,
+        body.start_time,
+        body.end_time,
         JSON.stringify(photoKeys)
       ).run();
     } catch (e) {
@@ -302,8 +321,8 @@ app.post('/appointments', async (c) => {
     service_type: body.service_type,
     problem_description: body.problem_description,
     appointment_date: body.appointment_date,
-    appointment_time: body.appointment_time,
-    duration_minutes: body.duration_minutes || 120,
+    start_time: body.start_time,
+    end_time: body.end_time,
     photo_keys: photoKeys,
     photos_deleted: 0,
     status: 'pending',
@@ -322,7 +341,6 @@ app.patch('/appointments/:id/status', async (c) => {
   if (c.env.DB) {
     try {
       if (status === 'completed' && c.env.PHOTOS_BUCKET) {
-        // Obtener fotos para borrarlas de R2
         const appRow = await c.env.DB.prepare('SELECT photo_keys_json FROM appointments WHERE id = ?').bind(id).first<any>();
         if (appRow?.photo_keys_json) {
           const keys: string[] = JSON.parse(appRow.photo_keys_json);
@@ -376,7 +394,6 @@ app.post('/admin/cleanup', async (c) => {
 
   if (c.env.DB) {
     try {
-      // Purgar fotos de citas completadas o pasadas
       const todayStr = new Date().toISOString().split('T')[0];
       const { results } = await c.env.DB.prepare(`
         SELECT id, photo_keys_json FROM appointments 
@@ -399,7 +416,6 @@ app.post('/admin/cleanup', async (c) => {
         }
       }
 
-      // Eliminar registros de más de 30 días
       const deleteResult = await c.env.DB.prepare(
         "DELETE FROM appointments WHERE date(appointment_date) < date('now', '-30 days')"
       ).run();

@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar as CalendarIcon, Clock, AlertCircle, Check, Loader2 } from 'lucide-react';
-import { AvailabilityResponse } from '../../../types/appointment';
+import { Calendar as CalendarIcon, Clock, AlertCircle, Check, Loader2, Sparkles } from 'lucide-react';
+import { AvailabilityResponse, TimeSlot } from '../../../types/appointment';
 import { api } from '../../../services/api';
 import { getNextDays, formatTime12h, formatDateToSpanish } from '../../../utils/dateFormatter';
 
 interface StepDateAndTimeProps {
   selectedDate: string;
-  selectedTime: string;
+  selectedSlot: TimeSlot | null;
   onSelectDate: (date: string) => void;
-  onSelectTime: (time: string) => void;
+  onSelectSlot: (slot: TimeSlot) => void;
   onNext: () => void;
 }
 
 export const StepDateAndTime: React.FC<StepDateAndTimeProps> = ({
   selectedDate,
-  selectedTime,
+  selectedSlot,
   onSelectDate,
-  onSelectTime,
+  onSelectSlot,
   onNext
 }) => {
   const days = getNextDays(14);
@@ -64,9 +64,8 @@ export const StepDateAndTime: React.FC<StepDateAndTimeProps> = ({
                 type="button"
                 onClick={() => {
                   onSelectDate(d.date);
-                  onSelectTime(''); // Reset time on date change
                 }}
-                className={`flex-shrink-0 snap-start w-20 py-3 px-2 rounded-2xl flex flex-col items-center justify-center border text-center transition-all ${
+                className={`flex-shrink-0 snap-start w-24 py-3 px-2 rounded-2xl flex flex-col items-center justify-center border text-center transition-all ${
                   isSelected
                     ? 'bg-brand-blue text-white border-brand-blue shadow-glow-blue scale-105'
                     : 'bg-white text-brand-dark border-slate-200 hover:border-brand-blue/50 hover:bg-brand-ice'
@@ -78,11 +77,11 @@ export const StepDateAndTime: React.FC<StepDateAndTimeProps> = ({
                 <span className="text-xl font-extrabold my-0.5">
                   {d.dayNumber}
                 </span>
-                {d.isToday && (
-                  <span className={`text-[9px] font-extrabold px-1.5 py-0.2 rounded-full ${isSelected ? 'bg-white text-brand-blue' : 'bg-brand-orange text-white'}`}>
-                    HOY
-                  </span>
-                )}
+                <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full mt-0.5 ${
+                  isSelected ? 'bg-white text-brand-blue' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                }`}>
+                  {d.isToday ? 'HOY' : 'Disponible'}
+                </span>
               </button>
             );
           })}
@@ -92,36 +91,47 @@ export const StepDateAndTime: React.FC<StepDateAndTimeProps> = ({
         </p>
       </div>
 
-      {/* 2. Selector de Horarios Disponibles */}
+      {/* 2. Cabecera Informativa de Rango y Bloques Horarios Disponibles */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <label className="flex items-center gap-2 text-sm font-extrabold text-brand-dark">
-            <Clock className="w-4 h-4 text-brand-blue" />
-            <span>2. Bloques Horarios Disponibles</span>
-          </label>
-          {availability && (
-            <span className="text-xs font-semibold text-brand-slate">
-              Cupos ocupados: {availability.total_booked} / {availability.max_allowed}
-            </span>
+        <div className="mb-3">
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="flex items-center gap-2 text-sm font-extrabold text-brand-dark">
+              <Clock className="w-4 h-4 text-brand-blue" />
+              <span>2. Bloques Horarios Disponibles (Rango Completo)</span>
+            </label>
+          </div>
+
+          {availability && availability.is_available && (
+            <div className="p-3 rounded-xl bg-brand-ice border border-brand-iceBorder flex items-center justify-between text-xs text-brand-dark font-semibold">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-brand-orange" />
+                <span>
+                  Horario de atención para este día: de <strong>{formatTime12h(availability.start_time)}</strong> a <strong>{formatTime12h(availability.end_time)}</strong>
+                </span>
+              </div>
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">
+                Quedan {availability.remaining_slots} espacios disponibles
+              </span>
+            </div>
           )}
         </div>
 
         {loading ? (
           <div className="flex items-center justify-center py-10 text-brand-blue gap-2">
             <Loader2 className="w-5 h-5 animate-spin" />
-            <span className="text-sm font-medium">Consultando agenda disponible...</span>
+            <span className="text-sm font-medium">Consultando agenda disponible en tiempo real...</span>
           </div>
         ) : availability && availability.slots.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {availability.slots.map((slot) => {
-              const isSelected = selectedTime === slot.time;
+              const isSelected = selectedSlot?.start_time === slot.start_time;
               return (
                 <button
-                  key={slot.time}
+                  key={slot.start_time}
                   type="button"
                   disabled={!slot.available}
-                  onClick={() => onSelectTime(slot.time)}
-                  className={`py-3 px-3 rounded-xl border text-center font-bold text-sm transition-all flex flex-col items-center justify-center gap-1 ${
+                  onClick={() => onSelectSlot(slot)}
+                  className={`p-3.5 rounded-2xl border text-left font-bold text-sm transition-all flex items-center justify-between ${
                     !slot.available
                       ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60'
                       : isSelected
@@ -129,15 +139,25 @@ export const StepDateAndTime: React.FC<StepDateAndTimeProps> = ({
                       : 'bg-white text-brand-dark border-slate-200 hover:border-brand-blue hover:bg-brand-ice'
                   }`}
                 >
-                  <div className="flex items-center gap-1.5">
-                    {isSelected && <Check className="w-3.5 h-3.5" />}
-                    <span>{formatTime12h(slot.time)}</span>
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-1.5">
+                      {isSelected && <Check className="w-4 h-4 text-white" />}
+                      <span className="text-sm font-extrabold">{slot.label}</span>
+                    </div>
+                    <p className={`text-[11px] font-medium ${isSelected ? 'text-orange-100' : 'text-slate-500'}`}>
+                      Turno de {slot.start_time} a {slot.end_time}
+                    </p>
                   </div>
-                  {!slot.available && (
-                    <span className="text-[10px] text-red-500 font-semibold leading-tight">
-                      {slot.reason || 'Ocupado'}
-                    </span>
-                  )}
+
+                  <span className={`px-2 py-0.5 rounded-lg text-[10px] font-extrabold ${
+                    isSelected
+                      ? 'bg-white text-brand-orange'
+                      : slot.available
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : 'bg-red-100 text-red-700'
+                  }`}>
+                    {slot.available ? 'Disponible' : (slot.reason || 'Ocupado')}
+                  </span>
                 </button>
               );
             })}
@@ -146,7 +166,7 @@ export const StepDateAndTime: React.FC<StepDateAndTimeProps> = ({
           <div className="p-6 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center gap-3">
             <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
             <p className="text-sm">
-              No hay horarios disponibles para esta fecha o el día no es laborable. Por favor seleccione otro día en el calendario.
+              No hay horarios disponibles para esta fecha o el día está marcado como sin cupo. Por favor selecciona otro día en el calendario.
             </p>
           </div>
         )}
@@ -156,7 +176,7 @@ export const StepDateAndTime: React.FC<StepDateAndTimeProps> = ({
       <div className="pt-4 flex justify-end">
         <button
           type="button"
-          disabled={!selectedDate || !selectedTime}
+          disabled={!selectedDate || !selectedSlot}
           onClick={onNext}
           className="w-full sm:w-auto px-8 py-3.5 rounded-xl font-extrabold text-white bg-brand-blue hover:bg-brand-lightBlue disabled:bg-slate-300 disabled:cursor-not-allowed shadow-md transition-all flex items-center justify-center gap-2"
         >

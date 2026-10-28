@@ -19,12 +19,12 @@ VALUES (1, 120, 4, '08:00', '17:00', '1234');
 -- 2. Tabla de Días de Trabajo / Disponibilidad Específica
 CREATE TABLE IF NOT EXISTS work_days (
   date TEXT PRIMARY KEY, -- Formato YYYY-MM-DD
-  is_available INTEGER NOT NULL DEFAULT 1, -- 1 = disponible, 0 = no laborable
+  is_available INTEGER NOT NULL DEFAULT 1, -- 1 = disponible, 0 = cerrado/no laborable
   start_time TEXT, -- '08:00'
   end_time TEXT,   -- '17:00'
-  custom_slot_minutes INTEGER,
-  custom_max_appointments INTEGER,
-  blocked_slots_json TEXT -- JSON array con horarios bloqueados manualmente ej. '["10:00", "14:00"]'
+  slot_duration_minutes INTEGER,
+  max_appointments INTEGER,
+  blocked_slots_json TEXT -- JSON array con horarios bloqueados manualmente ej. '["08:00 - 10:00"]'
 );
 
 -- 3. Tabla de Citas
@@ -36,8 +36,8 @@ CREATE TABLE IF NOT EXISTS appointments (
   service_type TEXT NOT NULL,
   problem_description TEXT NOT NULL,
   appointment_date TEXT NOT NULL, -- YYYY-MM-DD
-  appointment_time TEXT NOT NULL, -- HH:MM
-  duration_minutes INTEGER NOT NULL DEFAULT 120,
+  start_time TEXT NOT NULL, -- HH:MM (ej. '08:00')
+  end_time TEXT NOT NULL,   -- HH:MM (ej. '10:00')
   photo_keys_json TEXT, -- JSON array con keys en R2: '["fuga_uuid_1.webp"]'
   photos_deleted INTEGER NOT NULL DEFAULT 0, -- 1 si las fotos ya fueron purgadas de R2
   status TEXT NOT NULL DEFAULT 'pending', -- 'pending', 'confirmed', 'completed', 'cancelled'

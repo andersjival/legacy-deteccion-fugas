@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, MessageSquare, Phone, Calendar, MapPin, Clock, RotateCcw } from 'lucide-react';
+import { CheckCircle2, MessageSquare, Calendar, MapPin, Clock, RotateCcw } from 'lucide-react';
 import { Appointment } from '../../../types/appointment';
 import { formatDateToSpanish, formatTime12h } from '../../../utils/dateFormatter';
 
@@ -12,12 +12,14 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
   appointment,
   onReset
 }) => {
+  const timeRange = `${formatTime12h(appointment.start_time)} - ${formatTime12h(appointment.end_time)}`;
+
   const whatsappMessage = encodeURIComponent(
     `¡Hola Legacy Detección de Fugas! Acabo de agendar una inspección:\n\n` +
     `• Nombre: ${appointment.client_name}\n` +
     `• Servicio: ${appointment.service_type}\n` +
     `• Fecha: ${formatDateToSpanish(appointment.appointment_date)}\n` +
-    `• Hora: ${formatTime12h(appointment.appointment_time)}\n` +
+    `• Horario: ${timeRange}\n` +
     `• Dirección: ${appointment.client_address}\n` +
     `• Detalle: ${appointment.problem_description}\n\n` +
     `Por favor me confirman. ¡Muchas gracias!`
@@ -54,7 +56,7 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
         <div className="flex items-center gap-3">
           <Clock className="w-4 h-4 text-brand-orange shrink-0" />
           <span className="font-semibold text-brand-dark">
-            {formatTime12h(appointment.appointment_time)} (Bloque reservado)
+            {timeRange} (Bloque reservado)
           </span>
         </div>
         <div className="flex items-center gap-3">

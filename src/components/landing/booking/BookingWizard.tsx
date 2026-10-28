@@ -3,7 +3,7 @@ import { StepDateAndTime } from './StepDateAndTime';
 import { StepClientDetails } from './StepClientDetails';
 import { StepPhotoUpload } from './StepPhotoUpload';
 import { StepConfirmation } from './StepConfirmation';
-import { Appointment, ServiceType } from '../../../types/appointment';
+import { Appointment, ServiceType, TimeSlot } from '../../../types/appointment';
 import { CompressedImage } from '../../../utils/imageCompressor';
 import { api } from '../../../services/api';
 
@@ -16,7 +16,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
 }) => {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [selectedDate, setSelectedDate] = useState('');
-  const [selectedTime, setSelectedTime] = useState('');
+  const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedAppointment, setConfirmedAppointment] = useState<Appointment | null>(null);
 
@@ -45,6 +45,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
   };
 
   const handleSubmit = async () => {
+    if (!selectedSlot) return;
     setIsSubmitting(true);
     try {
       const newApp = await api.createAppointment({
@@ -54,7 +55,8 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
         service_type: formData.service_type,
         problem_description: formData.problem_description,
         appointment_date: selectedDate,
-        appointment_time: selectedTime,
+        start_time: selectedSlot.start_time,
+        end_time: selectedSlot.end_time,
         photos: photos.map((p) => ({ name: p.name, dataUrl: p.dataUrl }))
       });
       setConfirmedAppointment(newApp);
@@ -69,7 +71,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
 
   const handleReset = () => {
     setStep(1);
-    setSelectedTime('');
+    setSelectedSlot(null);
     setFormData({
       client_name: '',
       client_phone: '',
@@ -105,7 +107,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
           {step < 4 && (
             <div className="flex items-center justify-between mb-8 pb-6 border-b border-slate-100 text-xs font-bold">
               {[
-                { s: 1, label: 'Fecha y Hora' },
+                { s: 1, label: 'Fecha y Rango Horario' },
                 { s: 2, label: 'Tus Datos' },
                 { s: 3, label: 'Evidencia' }
               ].map((item) => (
@@ -131,9 +133,9 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
           {step === 1 && (
             <StepDateAndTime
               selectedDate={selectedDate}
-              selectedTime={selectedTime}
+              selectedSlot={selectedSlot}
               onSelectDate={setSelectedDate}
-              onSelectTime={setSelectedTime}
+              onSelectSlot={setSelectedSlot}
               onNext={() => setStep(2)}
             />
           )}

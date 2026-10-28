@@ -7,13 +7,12 @@ import {
   TimeSlot, 
   WorkDay 
 } from '../types/appointment';
-import { getTodayDateString, getTomorrowDateString } from '../utils/dateFormatter';
+import { getTodayDateString, getTomorrowDateString, formatTime12h } from '../utils/dateFormatter';
 
 const STORAGE_KEYS = {
   SETTINGS: 'legacy_settings',
   WORK_DAYS: 'legacy_work_days',
-  APPOINTMENTS: 'legacy_appointments',
-  ADMIN_AUTH: 'legacy_admin_auth'
+  APPOINTMENTS: 'legacy_appointments'
 };
 
 const DEFAULT_SETTINGS: GlobalSettings = {
@@ -24,7 +23,6 @@ const DEFAULT_SETTINGS: GlobalSettings = {
   admin_pin_hash: '1234'
 };
 
-// Semilla inicial realista de demostración
 function getInitialDemoAppointments(): Appointment[] {
   const today = getTodayDateString();
   const tomorrow = getTomorrowDateString();
@@ -38,8 +36,8 @@ function getInitialDemoAppointments(): Appointment[] {
       service_type: 'Detección Especializada de Fugas',
       problem_description: 'El recibo de agua llegó con el triple del consumo normal. Se escucha sonido de agua corriendo bajo la losa de la cocina y el medidor sigue girando con llaves cerradas.',
       appointment_date: today,
-      appointment_time: '08:30',
-      duration_minutes: 120,
+      start_time: '08:00',
+      end_time: '10:00',
       photo_keys: [
         'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80',
         'https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&w=600&q=80'
@@ -56,8 +54,8 @@ function getInitialDemoAppointments(): Appointment[] {
       service_type: 'Rastreo y Diagnóstico de Tuberías',
       problem_description: 'Aparición de manchas de humedad y pintura abombada en la pared del pasillo. Requerimos mapear la tubería antes de remodelar para no dañarla.',
       appointment_date: today,
-      appointment_time: '13:00',
-      duration_minutes: 120,
+      start_time: '13:00',
+      end_time: '15:00',
       photo_keys: [
         'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80'
       ],
@@ -73,8 +71,8 @@ function getInitialDemoAppointments(): Appointment[] {
       service_type: 'Limpieza Técnica de Tuberías',
       problem_description: 'Disminución drástica de la presión de agua en los baños de la segunda planta por sarro y sedimentos acumulados.',
       appointment_date: tomorrow,
-      appointment_time: '09:00',
-      duration_minutes: 120,
+      start_time: '09:00',
+      end_time: '11:00',
       photo_keys: [],
       photos_deleted: 0,
       status: 'confirmed',
@@ -103,7 +101,6 @@ class ApiService {
     }
   }
 
-  // Inicializar almacenamiento local si está vacío
   constructor() {
     if (!localStorage.getItem(STORAGE_KEYS.SETTINGS)) {
       this.setStored(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS);
@@ -132,7 +129,6 @@ class ApiService {
     } catch {
       this.useLocalFallback = true;
     }
-
     const settings = this.getStored<GlobalSettings>(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS);
     return pin === settings.admin_pin_hash;
   }
@@ -208,66 +204,79 @@ class ApiService {
       this.useLocalFallback = true;
     }
 
-    // Cálculo dinámico local
     const settings = this.getStored<GlobalSettings>(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS);
     const workDays = this.getStored<Record<string, WorkDay>>(STORAGE_KEYS.WORK_DAYS, {});
     const workDay = workDays[date];
 
-    // Si el día está marcado explícitamente como no laborable
     if (workDay && !workDay.is_available) {
       return {
         date,
         is_available: false,
+        start_time: workDay.start_time || settings.default_start_time,
+        end_time: workDay.end_time || settings.default_end_time,
         slots: [],
         total_booked: 0,
-        max_allowed: 0
+        max_allowed: 0,
+        remaining_slots: 0
       };
     }
 
-    const durationMinutes = workDay?.custom_slot_minutes || settings.slot_duration_minutes;
-    const maxAppointments = workDay?.custom_max_appointments || settings.max_daily_appointments;
+    const durationMinutes = workDay?.slot_duration_minutes || settings.slot_duration_minutes;
+    const maxAppointments = workDay?.max_appointments || settings.max_daily_appointments;
     const startTimeStr = workDay?.start_time || settings.default_start_time;
     const endTimeStr = workDay?.end_time || settings.default_end_time;
 
-    // Calcular citas existentes para este día
     const allAppointments = this.getStored<Appointment[]>(STORAGE_KEYS.APPOINTMENTS, []);
     const dayAppointments = allAppointments.filter(
       (a) => a.appointment_date === date && a.status !== 'cancelled'
     );
 
     const isDayFull = dayAppointments.length >= maxAppointments;
-
-    // Generar bloques según intervalo
     const slots: TimeSlot[] = [];
+
     const [startH, startM] = startTimeStr.split(':').map(Number);
     const [endH, endM] = endTimeStr.split(':').map(Number);
     
-    let currentMinutes = startH * 60 + startM;
-    const endMinutes = endH * 60 + endM;
+    let currentMin = startH * 60 + startM;
+    const endMin = endH * 60 + endM;
 
-    while (currentMinutes + durationMinutes <= endMinutes) {
-      const h = Math.floor(currentMinutes / 60);
-      const m = currentMinutes % 60;
-      const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    while (currentMin + durationMinutes <= endMin) {
+      const sH = Math.floor(currentMin / 60);
+      const sM = currentMin % 60;
+      const startSlot = `${String(sH).padStart(2, '0')}:${String(sM).padStart(2, '0')}`;
 
-      const isBooked = dayAppointments.some((a) => a.appointment_time === timeStr);
-      const isManuallyBlocked = workDay?.blocked_slots?.includes(timeStr);
+      const nextMin = currentMin + durationMinutes;
+      const eH = Math.floor(nextMin / 60);
+      const eM = nextMin % 60;
+      const endSlot = `${String(eH).padStart(2, '0')}:${String(eM).padStart(2, '0')}`;
+
+      const isBooked = dayAppointments.some((a) => a.start_time === startSlot);
+      const isManuallyBlocked = workDay?.blocked_slots?.includes(startSlot);
+
+      const isAvailableSlot = !isDayFull && !isBooked && !isManuallyBlocked;
 
       slots.push({
-        time: timeStr,
-        available: !isDayFull && !isBooked && !isManuallyBlocked,
-        reason: isDayFull ? 'Cupo diario alcanzado' : (isBooked ? 'Horario reservado' : (isManuallyBlocked ? 'No disponible' : undefined))
+        start_time: startSlot,
+        end_time: endSlot,
+        label: `${formatTime12h(startSlot)} - ${formatTime12h(endSlot)}`,
+        available: isAvailableSlot,
+        reason: isDayFull ? 'Cupo diario completo' : (isBooked ? 'Ocupado' : (isManuallyBlocked ? 'Bloqueado por admin' : undefined))
       });
 
-      currentMinutes += durationMinutes;
+      currentMin += durationMinutes;
     }
+
+    const remaining = Math.max(0, maxAppointments - dayAppointments.length);
 
     return {
       date,
       is_available: true,
+      start_time: startTimeStr,
+      end_time: endTimeStr,
       slots,
       total_booked: dayAppointments.length,
-      max_allowed: maxAppointments
+      max_allowed: maxAppointments,
+      remaining_slots: remaining
     };
   }
 
@@ -297,7 +306,6 @@ class ApiService {
       this.useLocalFallback = true;
     }
 
-    // Modo local: simular guardado
     const newAppointment: Appointment = {
       id: 'app-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
       client_name: dto.client_name,
@@ -306,8 +314,8 @@ class ApiService {
       service_type: dto.service_type,
       problem_description: dto.problem_description,
       appointment_date: dto.appointment_date,
-      appointment_time: dto.appointment_time,
-      duration_minutes: dto.duration_minutes || 120,
+      start_time: dto.start_time,
+      end_time: dto.end_time,
       photo_keys: dto.photos?.map(p => p.dataUrl) || [],
       photos_deleted: 0,
       status: 'pending',
@@ -337,7 +345,6 @@ class ApiService {
     let updatedApp: Appointment | null = null;
     const updated = current.map((app) => {
       if (app.id === id) {
-        // Si se completa, simular purga de fotos
         const photosDeleted = status === 'completed' ? 1 : app.photos_deleted;
         const photoKeys = status === 'completed' ? [] : app.photo_keys;
         updatedApp = { ...app, status, photos_deleted: photosDeleted, photo_keys: photoKeys };
@@ -360,7 +367,6 @@ class ApiService {
       this.useLocalFallback = true;
     }
 
-    // Simulación local de limpieza: citas > 30 días o citas pasadas con fotos
     const current = this.getStored<Appointment[]>(STORAGE_KEYS.APPOINTMENTS, []);
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -377,7 +383,6 @@ class ApiService {
       }
       return true;
     }).map((app) => {
-      // Si la cita ya pasó o fue completada, purgar fotos
       if ((app.appointment_date < todayStr || app.status === 'completed') && app.photo_keys.length > 0) {
         deletedPhotosCount += app.photo_keys.length;
         return { ...app, photo_keys: [], photos_deleted: 1 };

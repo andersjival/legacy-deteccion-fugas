@@ -85,7 +85,7 @@ export const StorageManager: React.FC = () => {
           ) : (
             <Trash2 className="w-4 h-4" />
           )}
-          <span>Ejecutar Limpieza Ahora</span>
+          <span>Limpiar Fotos y Datos Antiguos Ahora</span>
         </button>
       </div>
     </div>

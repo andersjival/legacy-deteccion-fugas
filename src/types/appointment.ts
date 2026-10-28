@@ -13,8 +13,9 @@ export interface Appointment {
   service_type: ServiceType;
   problem_description: string;
   appointment_date: string; // YYYY-MM-DD
-  appointment_time: string; // HH:MM
-  duration_minutes: number;
+  start_time: string; // HH:MM ej. '08:00'
+  end_time: string;   // HH:MM ej. '10:00'
+  duration_minutes?: number;
   photo_keys: string[]; // R2 keys or local base64 / blob URLs
   photos_deleted: number; // 0 or 1
   status: AppointmentStatus;
@@ -28,8 +29,8 @@ export interface CreateAppointmentDto {
   service_type: ServiceType;
   problem_description: string;
   appointment_date: string;
-  appointment_time: string;
-  duration_minutes?: number;
+  start_time: string;
+  end_time: string;
   photos?: { name: string; dataUrl: string }[];
 }
 
@@ -38,9 +39,9 @@ export interface WorkDay {
   is_available: boolean;
   start_time: string; // '08:00'
   end_time: string;   // '17:00'
-  custom_slot_minutes?: number | null;
-  custom_max_appointments?: number | null;
-  blocked_slots?: string[];
+  slot_duration_minutes?: number | null;
+  max_appointments?: number | null;
+  blocked_slots?: string[]; // array de start_time ej. ['08:00']
 }
 
 export interface GlobalSettings {
@@ -52,7 +53,9 @@ export interface GlobalSettings {
 }
 
 export interface TimeSlot {
-  time: string; // '08:00'
+  start_time: string; // '08:00'
+  end_time: string;   // '10:00'
+  label: string;      // '08:00 AM - 10:00 AM'
   available: boolean;
   reason?: string;
 }
@@ -60,7 +63,10 @@ export interface TimeSlot {
 export interface AvailabilityResponse {
   date: string;
   is_available: boolean;
+  start_time: string;
+  end_time: string;
   slots: TimeSlot[];
   total_booked: number;
   max_allowed: number;
+  remaining_slots: number;
 }

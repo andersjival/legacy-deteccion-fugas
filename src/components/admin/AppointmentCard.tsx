@@ -16,6 +16,7 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
 }) => {
   const rawDigits = appointment.client_phone.replace(/\D/g, '');
   const phoneWithCountry = rawDigits.startsWith('506') ? rawDigits : `506${rawDigits}`;
+  const rango_hora = `${formatTime12h(appointment.start_time)} - ${formatTime12h(appointment.end_time)}`;
 
   const statusConfig = {
     pending: { label: 'Pendiente', color: 'bg-amber-100 text-amber-800 border-amber-300' },
@@ -30,8 +31,7 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
 
     // 2. Formatear mensaje y abrir WhatsApp
     const fecha = formatDateToSpanish(appointment.appointment_date);
-    const hora = formatTime12h(appointment.appointment_time);
-    const mensaje = `Hola *${appointment.client_name}*, le saludamos de *Legacy Detección de Fugas* 💧. Hemos revisado los detalles de su solicitud y le confirmamos su cita para el servicio de *${appointment.service_type}* el día *${fecha}* a las *${hora}*. Por favor envíenos la ubicación exacta por este medio para nuestro registro de ruta. ¡Muchas gracias!`;
+    const mensaje = `Hola *${appointment.client_name}*, le saludamos de *Legacy Detección de Fugas* 💧. Hemos revisado los detalles de su solicitud y le confirmamos su cita para el servicio de *${appointment.service_type}* el día *${fecha}* en el horario de *${rango_hora}*. Por favor envíenos la ubicación exacta por este medio para nuestro registro de ruta. ¡Muchas gracias!`;
 
     const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(mensaje)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -54,7 +54,7 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
         </div>
       </div>
 
-      {/* Info de Fecha, Hora y Dirección */}
+      {/* Info de Fecha, Rango Horario y Dirección */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-brand-slate font-medium">
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-brand-blue shrink-0" />
@@ -62,7 +62,7 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
         </div>
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-brand-orange shrink-0" />
-          <span className="font-bold text-brand-dark">{formatTime12h(appointment.appointment_time)}</span>
+          <span className="font-bold text-brand-dark">{rango_hora}</span>
         </div>
         <div className="flex items-center gap-2 sm:col-span-2">
           <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
@@ -107,14 +107,14 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
         </p>
       )}
 
-      {/* Botón Destacado de Confirmación Rápida por WhatsApp */}
+      {/* Botón Destacado Verde WhatsApp */}
       <button
         type="button"
         onClick={handleQuickConfirmWhatsApp}
         className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-extrabold text-white bg-[#25D366] hover:bg-[#20ba5a] shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all"
       >
         <MessageSquare className="w-4 h-4 fill-white text-[#25D366]" />
-        <span>Confirmar Cita al Cliente</span>
+        <span>Confirmar Cita al Cliente por WhatsApp</span>
       </button>
 
       {/* Botones Secundarios de Llamada y Otros Estados */}
