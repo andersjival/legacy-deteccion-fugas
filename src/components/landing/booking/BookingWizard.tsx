@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { StepDateAndTime } from './StepDateAndTime';
 import { StepClientDetails } from './StepClientDetails';
 import { StepPhotoUpload } from './StepPhotoUpload';
@@ -93,81 +93,101 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
     setConfirmedAppointment(null);
   };
 
+  const wizardTopRef = useRef<HTMLDivElement>(null);
+
+  const goToStep = (nextStep: 1 | 2 | 3 | 4) => {
+    setStep(nextStep);
+    setTimeout(() => {
+      if (wizardTopRef.current) {
+        wizardTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 40);
+  };
+
   return (
-    <div className="w-full">
-      {/* Cabecera del Wizard */}
-      <div className="text-center mb-8 space-y-2">
-        <span className="text-xs sm:text-sm font-bold text-brand-blue tracking-widest uppercase">
+    <div ref={wizardTopRef} className="w-full scroll-mt-20">
+      {/* Cabecera del Wizard Compacta */}
+      <div className="text-center mb-3 sm:mb-5 space-y-1">
+        <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black bg-brand-ice text-brand-blue border border-brand-iceBorder uppercase tracking-wider">
           Disponibilidad en Vivo
         </span>
-        <h2 className="text-2xl sm:text-4xl font-extrabold text-brand-dark tracking-tight">
+        <h2 className="text-lg sm:text-2xl font-extrabold text-brand-dark tracking-tight leading-tight">
           AGENDA TU INSPECCIÓN TÉCNICA
         </h2>
-        <p className="text-sm text-brand-slate max-w-xl mx-auto">
-          Elige el horario conveniente, escribe o fija tu dirección en el mapa y describe tu caso.
+        <p className="text-[11px] sm:text-xs text-brand-slate max-w-md mx-auto hidden sm:block">
+          Elige el horario, completa tus datos con mapa GPS y confirma tu cita.
         </p>
       </div>
 
       {/* Tarjeta Principal del Formulario Interactivo */}
-      <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-100 shadow-card">
+      <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-8 border border-slate-100 shadow-card">
           
-          {/* Barra de Pasos */}
-          {step < 4 && (
-            <div className="flex items-center justify-between mb-8 pb-6 border-b border-slate-100 text-xs font-bold">
-              {[
-                { s: 1, label: 'Fecha y Horario' },
-                { s: 2, label: 'Datos y Mapa' },
-                { s: 3, label: 'Evidencia' }
-              ].map((item) => (
-                <div key={item.s} className="flex items-center gap-2">
+        {/* Barra de Pasos Estrecha y Compacta */}
+        {step < 4 && (
+          <div className="max-w-xs sm:max-w-sm mx-auto flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+            {[
+              { s: 1, label: 'Horario' },
+              { s: 2, label: 'Datos' },
+              { s: 3, label: 'Fotos' }
+            ].map((item, idx) => (
+              <React.Fragment key={item.s}>
+                <div className="flex items-center gap-1.5">
                   <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
-                      step >= item.s
-                        ? 'bg-brand-blue text-white shadow-sm'
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-black transition-all ${
+                      step > item.s
+                        ? 'bg-emerald-500 text-white shadow-xs'
+                        : step === item.s
+                        ? 'bg-brand-blue text-white shadow-sm ring-2 ring-brand-blue/20'
                         : 'bg-slate-100 text-slate-400'
                     }`}
                   >
-                    {item.s}
+                    {step > item.s ? '✓' : item.s}
                   </div>
-                  <span className={`hidden sm:inline ${step >= item.s ? 'text-brand-dark' : 'text-slate-400'}`}>
+                  <span className={`text-[11px] font-bold ${step >= item.s ? 'text-brand-dark' : 'text-slate-400'}`}>
                     {item.label}
                   </span>
                 </div>
-              ))}
-            </div>
-          )}
+                {idx < 2 && (
+                  <div className={`flex-1 mx-2 h-0.5 rounded-full ${step > idx + 1 ? 'bg-emerald-500' : 'bg-slate-200'}`} />
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        )}
 
-          {/* Renderizado de Pasos */}
-          {step === 1 && (
-            <StepDateAndTime
-              selectedDate={selectedDate}
-              selectedSlot={selectedSlot}
-              onSelectDate={setSelectedDate}
-              onSelectSlot={setSelectedSlot}
-              onNext={() => setStep(2)}
-            />
-          )}
+        {/* Renderizado de Pasos */}
+        {step === 1 && (
+          <StepDateAndTime
+            selectedDate={selectedDate}
+            selectedSlot={selectedSlot}
+            onSelectDate={setSelectedDate}
+            onSelectSlot={setSelectedSlot}
+            onNext={() => goToStep(2)}
+          />
+        )}
 
-          {step === 2 && (
-            <StepClientDetails
-              formData={formData}
-              onChange={handleFieldChange}
-              onChangeLocation={handleLocationChange}
-              onBack={() => setStep(1)}
-              onNext={() => setStep(3)}
-            />
-          )}
+        {step === 2 && (
+          <StepClientDetails
+            formData={formData}
+            onChange={handleFieldChange}
+            onChangeLocation={handleLocationChange}
+            onBack={() => goToStep(1)}
+            onNext={() => goToStep(3)}
+          />
+        )}
 
-          {step === 3 && (
-            <StepPhotoUpload
-              photos={photos}
-              onAddPhoto={handleAddPhoto}
-              onRemovePhoto={handleRemovePhoto}
-              onBack={() => setStep(2)}
-              onSubmit={handleSubmit}
-              isSubmitting={isSubmitting}
-            />
-          )}
+        {step === 3 && (
+          <StepPhotoUpload
+            photos={photos}
+            onAddPhoto={handleAddPhoto}
+            onRemovePhoto={handleRemovePhoto}
+            onBack={() => goToStep(2)}
+            onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+          />
+        )}
 
           {step === 4 && confirmedAppointment && (
             <StepConfirmation

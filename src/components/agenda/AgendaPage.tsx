@@ -18,22 +18,22 @@ export const AgendaPage: React.FC<AgendaPageProps> = ({
     <div className="min-h-screen bg-gradient-to-b from-brand-ice via-white to-brand-ice/30 flex flex-col justify-between selection:bg-brand-blue selection:text-white">
       
       {/* Cabecera Limpia Sin Distracciones */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 py-4 px-4 sm:px-8">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 py-2.5 px-3 sm:px-8">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           
           {/* Botón Volver Atrás */}
           <button
             type="button"
             onClick={onBackToHome}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold text-brand-dark bg-slate-50 hover:bg-slate-100 border border-slate-200 shadow-sm transition-all group"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold text-brand-dark bg-slate-50 hover:bg-slate-100 border border-slate-200 shadow-sm transition-all group"
           >
-            <ArrowLeft className="w-4 h-4 text-brand-blue group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft className="w-3.5 h-3.5 text-brand-blue group-hover:-translate-x-1 transition-transform" />
             <span>Volver al inicio</span>
           </button>
 
           {/* Logo Corporativo */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-white border border-slate-200/80 shadow-soft p-0.5 flex items-center justify-center overflow-hidden">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-white border border-slate-200/80 shadow-soft p-0.5 flex items-center justify-center overflow-hidden">
               <img
                 src="/logo.png"
                 alt="Logo Legacy Detección de Fugas"
@@ -41,10 +41,10 @@ export const AgendaPage: React.FC<AgendaPageProps> = ({
               />
             </div>
             <div>
-              <span className="block text-base font-extrabold tracking-tight text-brand-dark leading-none">
+              <span className="block text-sm sm:text-base font-extrabold tracking-tight text-brand-dark leading-none">
                 LEGACY
               </span>
-              <span className="block text-[10px] font-bold text-brand-blue tracking-wider uppercase">
+              <span className="block text-[9px] sm:text-[10px] font-bold text-brand-blue tracking-wider uppercase">
                 Agenda Oficial
               </span>
             </div>
@@ -53,7 +53,7 @@ export const AgendaPage: React.FC<AgendaPageProps> = ({
           {/* Teléfono de Soporte Inmediato */}
           <a
             href="tel:+50664080124"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-brand-dark bg-brand-ice border border-brand-iceBorder hover:bg-brand-iceBorder transition-all"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold text-brand-dark bg-brand-ice border border-brand-iceBorder hover:bg-brand-iceBorder transition-all"
             title="Llamar para asistencia inmediata"
           >
             <Phone className="w-3.5 h-3.5 text-brand-blue animate-pulse" />
@@ -64,7 +64,7 @@ export const AgendaPage: React.FC<AgendaPageProps> = ({
       </header>
 
       {/* Contenido Central: Proceso de Agendamiento Sin Salidas */}
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-8 sm:py-12">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-3 sm:px-6 py-2.5 sm:py-6">
         <BookingWizard initialService={initialService} />
       </main>
 

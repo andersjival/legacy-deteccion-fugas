@@ -15,6 +15,16 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.0.0] - 2026-10-28 - UX Móvil Compacta en Agenda: Auto-Scroll, Checks Verdes y Rediseño de Pasos
+- **Botón de Paso 1 Mejorado (`StepDateAndTime.tsx`):**
+  - Texto actualizado a *"Siguiente: Indicar Ubicación y Contacto →"*, comunicando claramente la acción siguiente.
+- **Auto-Scroll al Inicio de Cada Paso (`BookingWizard.tsx`):**
+  - Al pulsar continuar, la pantalla se desplaza de forma fluida y automática a la parte superior del formulario, permitiendo ver el primer campo a llenar de inmediato.
+- **Feedback Visual con Checks Verdes en Tiempo Real (`StepClientDetails.tsx`):**
+  - A medida que el cliente completa cada dato (Nombre, Teléfono WhatsApp, Dirección, GPS fijado en el mapa, Síntomas), el campo se ilumina en verde esmeralda con una insignia y un icono de check (`✓ Listo`).
+- **Compactación Vertical y Rediseño Angosto (`BookingWizard.tsx`, `AgendaPage.tsx`):**
+  - Erradicado el exceso de espacio en móvil: cabecera reducida, márgenes ajustados y barra de progreso de pasos (`1 2 3`) más angosta y conectada con líneas sutiles para evitar scroll innecesario.
+
 ### [v1.9.0] - 2026-10-28 - Transparencia Glassmorphism en Tarjeta Flotante del Hero (Commit: `d7780ce`)
 - **Efecto Traslúcido de Alto Contraste (`HeroSection.tsx`):**
   - Transformada la tarjeta flotante *"Rastreo Acústico Activo / Geófono Digital y Gas Trazador"* de opaca (`bg-brand-dark/95`) a cristal translúcido (`bg-brand-dark/35 backdrop-blur-sm border-white/25`).

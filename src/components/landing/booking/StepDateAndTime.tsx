@@ -180,7 +180,7 @@ export const StepDateAndTime: React.FC<StepDateAndTimeProps> = ({
           onClick={onNext}
           className="w-full sm:w-auto px-8 py-3.5 rounded-xl font-extrabold text-white bg-brand-blue hover:bg-brand-lightBlue disabled:bg-slate-300 disabled:cursor-not-allowed shadow-md transition-all flex items-center justify-center gap-2"
         >
-          <span>Continuar con Datos del Cliente</span>
+          <span>Siguiente: Indicar Ubicación y Contacto</span>
           <span>→</span>
         </button>
       </div>
