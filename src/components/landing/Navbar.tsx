@@ -14,14 +14,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda })
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           
-          {/* Logo Técnico */}
+          {/* Logo Oficial */}
           <a href="#inicio" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-dark to-brand-blue flex items-center justify-center shadow-soft group-hover:scale-105 transition-transform">
-              <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" fill="#FF5722" stroke="#FF5722"/>
-                <circle cx="12" cy="12" r="3" fill="white"/>
-                <path d="M4.93 19.07a10 10 0 0 1 0-14.14" stroke="white" strokeDasharray="2 2" opacity="0.6"/>
-              </svg>
+            <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200/80 shadow-soft p-1 flex items-center justify-center group-hover:scale-105 transition-transform overflow-hidden">
+              <img
+                src="/logo.png"
+                alt="Logo Legacy Detección de Fugas"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
               <span className="block text-xl font-extrabold tracking-tight text-brand-dark font-sans leading-none">

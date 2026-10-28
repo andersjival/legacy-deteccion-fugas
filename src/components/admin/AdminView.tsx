@@ -59,8 +59,8 @@ export const AdminView: React.FC<AdminViewProps> = ({
       {/* Top Mobile App Header */}
       <header className="bg-brand-dark text-white px-4 py-3.5 flex items-center justify-between shrink-0 shadow-md">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-blue to-sky-400 flex items-center justify-center font-black text-xs">
-            L
+          <div className="w-8 h-8 rounded-xl bg-white p-0.5 flex items-center justify-center overflow-hidden shadow-sm">
+            <img src="/logo.png" alt="Logo Legacy" className="w-full h-full object-contain" />
           </div>
           <div>
             <h1 className="text-sm font-black tracking-tight leading-none">Legacy Panel</h1>

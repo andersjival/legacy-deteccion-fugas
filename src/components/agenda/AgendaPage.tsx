@@ -33,11 +33,12 @@ export const AgendaPage: React.FC<AgendaPageProps> = ({
 
           {/* Logo Corporativo */}
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-dark to-brand-blue flex items-center justify-center shadow-soft">
-              <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" fill="#FF5722" stroke="#FF5722"/>
-                <circle cx="12" cy="12" r="3" fill="white"/>
-              </svg>
+            <div className="w-9 h-9 rounded-xl bg-white border border-slate-200/80 shadow-soft p-0.5 flex items-center justify-center overflow-hidden">
+              <img
+                src="/logo.png"
+                alt="Logo Legacy Detección de Fugas"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
               <span className="block text-base font-extrabold tracking-tight text-brand-dark leading-none">

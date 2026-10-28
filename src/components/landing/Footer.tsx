@@ -23,11 +23,12 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Columna 1: Marca y Misión */}
           <div className="space-y-4 md:col-span-1">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-brand-blue flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" fill="#FF5722" stroke="#FF5722"/>
-                  <circle cx="12" cy="12" r="3" fill="white"/>
-                </svg>
+              <div className="w-10 h-10 rounded-xl bg-white border border-slate-700/50 p-1 flex items-center justify-center shadow-sm overflow-hidden">
+                <img
+                  src="/logo.png"
+                  alt="Logo Legacy Detección de Fugas"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <span className="text-xl font-extrabold tracking-tight">LEGACY</span>
             </div>

@@ -15,6 +15,18 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v1.5.0] - 2026-10-28 - Integración del Logo Oficial de Águila de Legacy
+- **Navbar Principal (`Navbar.tsx`):**
+  - Reemplazo del isotipo temporal por el logo oficial del águila azul (`/logo.png`) en contenedor estilizado con micro-hover.
+- **Página de Agenda Aislada (`AgendaPage.tsx`):**
+  - Inclusión del logo oficial en la cabecera limpia de `/agenda`.
+- **Pie de Página (`Footer.tsx`):**
+  - Actualización del identificador visual de marca en la sección inferior.
+- **Panel Administrativo Móvil (`AdminView.tsx`):**
+  - Logo oficial incorporado en la cabecera del panel de control de despacho en campo.
+- **Iconografía PWA y Favicon (`index.html`, `manifest.webmanifest`):**
+  - Vinculación de `/logo.png` en `apple-touch-icon`, `favicon` y manifiesto para acceso directo en pantalla de inicio.
+
 ### [v1.4.0] - 2026-10-28 - Panel de Administrador Adaptado 100% a Celular (Modo App Nativa) (Commit: `2426eae`)
 - **Barra de Navegación Inferior Móvil (`AdminBottomNav`):**
   - Barra fija inferior con 4 pestañas accesibles con el pulgar: *Ruta Hoy* (con contador de citas activas), *Citas* (historial completo y filtros), *Horarios* (planificador y bloqueos) y *Ajustes* (notificaciones, PWA y mantenimiento).
