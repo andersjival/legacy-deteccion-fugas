@@ -15,6 +15,16 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.6.0] - 2026-10-28 - Simplificación de Almacenamiento Cero Basura e Historial de Borrado de Datos
+- **Eliminación de Tecnicismos de Infraestructura (`StorageManager.tsx`):**
+  - Removidas todas las referencias a "Cloudflare 2" (R2) y "Cloudflare 1" (D1).
+  - Texto conciso e intuitivo para el administrador: *"La limpieza se ejecuta automáticamente 24 horas después de agendar la cita"*.
+- **Eliminación del Botón Manual Innecesario:**
+  - Suprimido el botón *"Limpiar fotos y datos antiguos ahora"*, ya que la depuración opera de forma 100% automática y desatendida.
+- **Nuevo Historial de Borrado de Datos en el Panel:**
+  - Incorporada lista con el historial de citas cuyos archivos pesados y fotos fueron liberados tras 24 horas.
+  - El administrador confirma que los archivos fueron depurados del almacenamiento, manteniendo los registros intactos en su panel para su control contable.
+
 ### [v2.5.0] - 2026-10-28 - Auto-Purga de Fotos a las 24h con Preservación Permanente de Registros y KPIs Semanales/Mensuales
 - **Auto-Purga Automática de Fotos 24h tras la Cita (`functions/api/[[route]].ts`):**
   - Implementado algoritmo de verificación temporal que purga automáticamente de Cloudflare R2 los archivos y fotos pesadas 24 horas después de transcurrida la hora programada de la cita.

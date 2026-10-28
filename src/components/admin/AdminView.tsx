@@ -211,6 +211,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
             onRequestNotifications={onRequestNotifications}
             isInstallable={isInstallable}
             notificationsGranted={notificationsGranted}
+            appointments={appointments}
           />
         )}
 

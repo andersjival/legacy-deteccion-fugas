@@ -3,6 +3,7 @@ import { Download, Bell, Volume2, LogOut, ShieldCheck, Database, Smartphone } fr
 import { StorageManager } from './StorageManager';
 import { ServicesCatalogManager } from './ServicesCatalogManager';
 import { playNotificationChime } from '../../utils/soundAlert';
+import { Appointment } from '../../types/appointment';
 
 interface AdminSettingsTabProps {
   onLogout: () => void;
@@ -10,6 +11,7 @@ interface AdminSettingsTabProps {
   onRequestNotifications?: () => void;
   isInstallable?: boolean;
   notificationsGranted?: boolean;
+  appointments?: Appointment[];
 }
 
 export const AdminSettingsTab: React.FC<AdminSettingsTabProps> = ({
@@ -17,7 +19,8 @@ export const AdminSettingsTab: React.FC<AdminSettingsTabProps> = ({
   onInstallPWA,
   onRequestNotifications,
   isInstallable = false,
-  notificationsGranted = false
+  notificationsGranted = false,
+  appointments = []
 }) => {
   return (
     <div className="space-y-5">
@@ -76,7 +79,7 @@ export const AdminSettingsTab: React.FC<AdminSettingsTabProps> = ({
       <ServicesCatalogManager />
 
       {/* 3. Gestor de Limpieza y Almacenamiento */}
-      <StorageManager />
+      <StorageManager appointments={appointments} />
 
       {/* 4. Cerrar Sesión */}
       <div className="pt-2">

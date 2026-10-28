@@ -1,92 +1,111 @@
-import React, { useState } from 'react';
-import { Database, Trash2, ShieldCheck, AlertTriangle, Loader2 } from 'lucide-react';
-import { api } from '../../services/api';
+import React from 'react';
+import { Database, ShieldCheck, Clock, CheckCircle2, FileText, Calendar } from 'lucide-react';
+import { Appointment } from '../../types/appointment';
+import { formatDateToSpanish, formatTime12h } from '../../utils/dateFormatter';
 
-export const StorageManager: React.FC = () => {
-  const [cleaning, setCleaning] = useState(false);
-  const [result, setResult] = useState<{ deletedPhotos: number; deletedOldAppointments: number } | null>(null);
+interface StorageManagerProps {
+  appointments?: Appointment[];
+}
 
-  const handleRunCleanup = async () => {
-    if (!confirm('¿Deseas ejecutar la purga manual ahora? Se eliminarán fotos de citas con más de 24 horas transcurridas o completadas (los registros se conservan para métricas).')) {
-      return;
-    }
-    setCleaning(true);
-    try {
-      const res = await api.cleanupStorage();
-      setResult(res);
-    } catch {
-      alert('Error al ejecutar la limpieza de almacenamiento.');
-    } finally {
-      setCleaning(false);
-    }
-  };
+export const StorageManager: React.FC<StorageManagerProps> = ({ appointments = [] }) => {
+  const nowMillis = Date.now();
+
+  // Filtrar citas cuyos datos pesados y fotos han sido depurados automáticamente tras 24 horas
+  const depuratedAppointments = appointments.filter((a) => {
+    if (a.photos_deleted === 1) return true;
+    if (a.status === 'completed') return true;
+    const utcMillis = Date.parse(`${a.appointment_date}T${a.end_time || a.start_time || '17:00'}:00-06:00`);
+    return !isNaN(utcMillis) && nowMillis >= utcMillis + 24 * 60 * 60 * 1000;
+  });
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-soft space-y-5">
+    <div className="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-soft space-y-4">
+      {/* Cabecera Principal */}
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-        <div className="flex items-center gap-2">
-          <Database className="w-5 h-5 text-brand-blue" />
-          <h3 className="text-base font-extrabold text-brand-dark">
-            Almacenamiento y Retención Automática (Cero Basura)
-          </h3>
-        </div>
-        <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">
-          Cron Trigger: 03:00 AM
-        </span>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 space-y-1.5">
-          <div className="flex items-center gap-2 font-bold text-slate-800">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Fotos en Cloudflare R2</span>
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-brand-ice text-brand-blue flex items-center justify-center shrink-0">
+            <Database className="w-4 h-4" />
           </div>
-          <p className="text-slate-500">
-            Se borran automáticamente <strong>24 horas después</strong> de la hora agendada o al marcarla como <strong>"Completada"</strong>.
-          </p>
-        </div>
-
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 space-y-1.5">
-          <div className="flex items-center gap-2 font-bold text-slate-800">
-            <ShieldCheck className="w-4 h-4 text-brand-blue" />
-            <span>Control Histórico en Cloudflare D1</span>
-          </div>
-          <p className="text-slate-500">
-            Los registros se conservan de forma permanente para el control de métricas semanales, mensuales y anuales del administrador.
-          </p>
-        </div>
-      </div>
-
-      {result && (
-        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>
-              Purga completada: <strong>{result.deletedPhotos} fotos eliminadas de R2</strong>. Los registros históricos se preservan intactos.
+          <div>
+            <h3 className="text-sm sm:text-base font-extrabold text-brand-dark">
+              Almacenamiento y Retención Automática (Cero Basura)
+            </h3>
+            <span className="text-[10px] text-slate-400 font-bold block">
+              Depuración desatendida diaria
             </span>
           </div>
         </div>
-      )}
+        <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
+          100% Automático
+        </span>
+      </div>
 
-      <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-xs text-slate-400">
-          <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
-          <span>La auto-limpieza se ejecuta todos los días a las 3:00 AM de forma desatendida.</span>
+      {/* Mensaje Informativo para el Administrador */}
+      <div className="p-4 rounded-2xl bg-brand-ice/60 border border-brand-iceBorder text-xs text-brand-dark space-y-1.5">
+        <div className="flex items-center gap-2 font-black text-brand-blue">
+          <Clock className="w-4 h-4 shrink-0 text-brand-orange" />
+          <span className="text-xs sm:text-sm">
+            La limpieza se ejecuta automáticamente 24 horas después de agendar la cita
+          </span>
+        </div>
+        <p className="text-slate-600 leading-relaxed text-[11px] sm:text-xs">
+          El sistema depura fotos y archivos pesados todos los días para no saturar memoria. 
+          Los registros de sus citas <strong>se conservan siempre intactos</strong> en su panel de administración para que usted lleve el control semanal, mensual y anual de todos sus clientes atendidos.
+        </p>
+      </div>
+
+      {/* Historial de Borrado de Datos */}
+      <div className="pt-2 space-y-3">
+        <div className="flex items-center justify-between">
+          <h4 className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+            <FileText className="w-3.5 h-3.5 text-brand-blue" />
+            <span>Historial de Borrado de Datos ({depuratedAppointments.length})</span>
+          </h4>
+          <span className="text-[10px] text-slate-400 font-bold">
+            Fotos borradas • Registros guardados
+          </span>
         </div>
 
-        <button
-          type="button"
-          disabled={cleaning}
-          onClick={handleRunCleanup}
-          className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white text-xs font-extrabold shadow-sm flex items-center justify-center gap-2 transition-all"
-        >
-          {cleaning ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Trash2 className="w-4 h-4" />
-          )}
-          <span>Limpiar Fotos y Datos Antiguos Ahora</span>
-        </button>
+        {depuratedAppointments.length === 0 ? (
+          <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/70 text-center space-y-1">
+            <CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto" />
+            <p className="text-xs font-bold text-brand-dark">El sistema está al día</p>
+            <p className="text-[11px] text-slate-500">
+              Conforme pasen 24 horas de cada cita agendada, aquí se listará el historial de depuración automática.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+            {depuratedAppointments.map((app) => (
+              <div
+                key={app.id}
+                className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
+              >
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-extrabold text-brand-dark">{app.client_name}</span>
+                    <span className="text-[10px] text-brand-blue font-bold">
+                      {app.service_type}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-500 font-medium mt-0.5">
+                    <Calendar className="w-3 h-3 text-slate-400" />
+                    <span>{formatDateToSpanish(app.appointment_date)}</span>
+                    <span>•</span>
+                    <span>{formatTime12h(app.start_time)} - {formatTime12h(app.end_time)}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-black bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    <span>Fotos depuradas a las 24h</span>
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
