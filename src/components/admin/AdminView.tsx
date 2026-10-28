@@ -8,6 +8,7 @@ import { AdminSettingsTab } from './AdminSettingsTab';
 import { KPICards } from './KPICards';
 import { FinancialReportCard } from './FinancialReportCard';
 import { AdminReviewsCard } from './AdminReviewsCard';
+import { AnimatedEagleLogo } from '../common/AnimatedEagleLogo';
 import { useAppointments } from '../../hooks/useAppointments';
 import { useReviews } from '../../hooks/useReviews';
 import { getTodayDateString, getTomorrowDateString } from '../../utils/dateFormatter';
@@ -85,12 +86,10 @@ export const AdminView: React.FC<AdminViewProps> = ({
         
         {/* Izquierda: Logo, Título y Modo de Dispositivo Detectado */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-white p-1 flex items-center justify-center overflow-hidden shadow-sm">
-            <img src="/logo.png" alt="Logo Legacy" className="w-full h-full object-contain" />
-          </div>
+          <AnimatedEagleLogo className="w-9 h-9 rounded-xl shadow-sm" />
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-sm md:text-base font-black tracking-tight leading-none">Legacy Panel</h1>
+              <h1 className="text-sm md:text-base font-black tracking-tight leading-none">Royality Panel</h1>
               <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-slate-800 text-slate-300 border border-slate-700">
                 {isDesktop ? <Laptop className="w-3 h-3 text-brand-blue" /> : <Smartphone className="w-3 h-3 text-brand-orange" />}
                 <span>{isDesktop ? 'Vista PC / Escritorio' : 'Vista Móvil'}</span>

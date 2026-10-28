@@ -15,6 +15,16 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.12.0] - 2026-10-28 - Iluminado Especial Royality, Águila con Animación y Acordeón Exclusivo de Instalación Móvil
+- **Iluminado Especial en "Royality" y "Detección de Fugas" (`Navbar.tsx` / `HeroSection.tsx` / `TechShowcase.tsx`):**
+  - Implementado efecto lumínico metálico (*shimmer sweep* y resplandor cian/zafiro) en la tipografía principal con animaciones fluidas por GPU.
+- **Águila Oficial con Animación Dinámica (`AnimatedEagleLogo.tsx` / `index.css`):**
+  - Creado componente animado del águila con barrido de luz diagonal (*sheen*), respiración lumínica y aura pulsante en el borde.
+- **Eliminación Total de PWA Pública (`Footer.tsx`):**
+  - Suprimida la sección pública de "Aplicación Móvil" e instalación del pie de página; los visitantes generales ya no ven accesos de app.
+- **Acordeón Exclusivo de Instalación en Panel Administrativo (`AdminSettingsTab.tsx`):**
+  - Diseñado botón acordeón plegable para el administrador con botón directo de instalación en celular y guía visual paso a paso para Android (Chrome) e iPhone (Safari).
+
 ### [v2.11.0] - 2026-10-28 - Diseño Responsivo Adaptativo para PC / Computadora y Celular en el Panel Administrativo
 - **Detección Automática de Dispositivo (`AdminView.tsx`):**
   - Detección reactiva de resolución y dispositivo (Computadora vs Celular) con indicador dinámico en el encabezado (`Vista PC / Escritorio` o `Vista Móvil`).

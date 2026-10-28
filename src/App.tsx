@@ -124,8 +124,6 @@ export function App() {
           <Footer
             onOpenAdmin={() => navigateTo('/detec/panel')}
             onNavigateAgenda={() => navigateTo('/agenda')}
-            onInstallPWA={promptInstall}
-            isInstallable={isInstallable}
           />
         </>
       )}

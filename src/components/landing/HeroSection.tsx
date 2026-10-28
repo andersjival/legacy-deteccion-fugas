@@ -16,15 +16,29 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigateAgenda }) =>
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
             
             {/* Badge de Precisión */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-brand-blue/20 text-brand-blue text-xs sm:text-sm font-bold shadow-sm">
-              <span className="flex h-2 w-2 rounded-full bg-brand-orange animate-ping" />
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-sm border border-cyan-400/40 shadow-[0_0_20px_rgba(56,189,248,0.25)] text-xs sm:text-sm font-bold">
+              <span className="flex h-2.5 w-2.5 rounded-full bg-cyan-400 animate-ping" />
               <ShieldCheck className="w-4 h-4 text-brand-blue" />
-              <span>Tecnología No Invasiva de Alta Precisión</span>
+              <span className="font-black tracking-wide uppercase bg-gradient-to-r from-blue-700 via-sky-400 to-blue-700 bg-[length:200%_auto] animate-shimmer-fast bg-clip-text text-transparent">
+                Royality Detección de Fugas
+              </span>
+              <span className="text-slate-300">|</span>
+              <span className="text-slate-600 font-semibold">Tecnología Acústica No Invasiva</span>
             </div>
 
-            {/* Título Principal H1 */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5.5xl font-extrabold text-brand-dark tracking-tight leading-[1.12]">
-              DETECCIÓN ESPECIALIZADA DE FUGAS{' '}
+            {/* Título Principal H1 con Iluminado Especial */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5.5xl font-extrabold text-brand-dark tracking-tight leading-[1.14]">
+              <span className="relative inline-block mr-2 sm:mr-3">
+                <span className="bg-gradient-to-r from-blue-700 via-sky-400 via-cyan-300 to-blue-700 bg-[length:200%_auto] animate-shimmer-fast bg-clip-text text-transparent drop-shadow-[0_4px_25px_rgba(14,165,233,0.45)]">
+                  ROYALITY
+                </span>
+              </span>
+              <span className="relative inline-block">
+                <span className="bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-700 bg-clip-text text-transparent drop-shadow-[0_2px_15px_rgba(6,182,212,0.35)]">
+                  DETECCIÓN DE FUGAS
+                </span>
+              </span>{' '}
+              <br className="hidden sm:inline" />
               <span className="text-brand-blue underline decoration-brand-orange/40 decoration-wavy">
                 SIN ROMPER
               </span>{' '}

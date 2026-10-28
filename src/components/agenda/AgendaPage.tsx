@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowLeft, Phone, ShieldCheck, Lock } from 'lucide-react';
 import { BookingWizard } from '../landing/booking/BookingWizard';
 import { ServiceType } from '../../types/appointment';
+import { AnimatedEagleLogo } from '../common/AnimatedEagleLogo';
 
 interface AgendaPageProps {
   onBackToHome: () => void;
@@ -31,21 +32,15 @@ export const AgendaPage: React.FC<AgendaPageProps> = ({
             <span>Volver al inicio</span>
           </button>
 
-          {/* Logo Corporativo */}
+          {/* Logo Corporativo con Águila Animada */}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-white border border-slate-200/80 shadow-soft p-0.5 flex items-center justify-center overflow-hidden">
-              <img
-                src="/logo.png"
-                alt="Logo Legacy Detección de Fugas"
-                className="w-full h-full object-contain"
-              />
-            </div>
+            <AnimatedEagleLogo className="w-8 h-8 rounded-xl" />
             <div>
-              <span className="block text-sm sm:text-base font-extrabold tracking-tight text-brand-dark leading-none">
-                LEGACY
+              <span className="block text-sm sm:text-base font-black tracking-tight leading-none bg-gradient-to-r from-blue-700 via-sky-400 to-blue-700 bg-[length:200%_auto] animate-shimmer-fast bg-clip-text text-transparent">
+                ROYALITY
               </span>
-              <span className="block text-[9px] sm:text-[10px] font-bold text-brand-blue tracking-wider uppercase">
-                Agenda Oficial
+              <span className="block text-[9px] sm:text-[10px] font-extrabold text-brand-blue tracking-wider uppercase">
+                Detección de Fugas
               </span>
             </div>
           </div>

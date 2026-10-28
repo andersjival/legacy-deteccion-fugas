@@ -1,5 +1,6 @@
 import React from 'react';
-import { Phone, MapPin, Clock, Lock, Download, ShieldCheck } from 'lucide-react';
+import { Phone, MapPin, Clock, Lock, ShieldCheck } from 'lucide-react';
+import { AnimatedEagleLogo } from '../common/AnimatedEagleLogo';
 
 interface FooterProps {
   onOpenAdmin: () => void;
@@ -10,9 +11,7 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({
   onOpenAdmin,
-  onNavigateAgenda,
-  onInstallPWA,
-  isInstallable = false
+  onNavigateAgenda
 }) => {
   return (
     <footer className="bg-brand-dark text-white pt-16 pb-12 border-t border-slate-800">
@@ -20,17 +19,18 @@ export const Footer: React.FC<FooterProps> = ({
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-slate-800">
           
-          {/* Columna 1: Marca y Misión */}
+          {/* Columna 1: Marca y Misión con Águila Animada */}
           <div className="space-y-4 md:col-span-1">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white border border-slate-700/50 p-1 flex items-center justify-center shadow-sm overflow-hidden">
-                <img
-                  src="/logo.png"
-                  alt="Logo Legacy Detección de Fugas"
-                  className="w-full h-full object-contain"
-                />
+              <AnimatedEagleLogo className="w-10 h-10 rounded-xl" />
+              <div className="flex flex-col">
+                <span className="text-xl font-black tracking-tight leading-none bg-gradient-to-r from-blue-400 via-sky-300 to-cyan-300 bg-[length:200%_auto] animate-shimmer-fast bg-clip-text text-transparent">
+                  ROYALITY
+                </span>
+                <span className="text-[10px] font-bold text-sky-400 tracking-wider uppercase mt-1">
+                  Detección de Fugas
+                </span>
               </div>
-              <span className="text-xl font-extrabold tracking-tight">LEGACY</span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
               Especialistas en detección no invasiva de fugas, rastreo de tuberías y desincrustación técnica en todo el país.
@@ -85,37 +85,29 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
           </div>
 
-          {/* Columna 4: PWA y Acceso Seguro */}
+          {/* Columna 4: Garantía y Portal Técnico Privado */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Aplicación Móvil</h4>
-            <p className="text-xs text-slate-400">
-              Instala la aplicación en tu teléfono para acceso instantáneo a reservas y gestión técnica.
+            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Atención Especializada</h4>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Equipos de geófono digital de alta fidelidad, inspección acústica subterránea y termografía infrarroja para residencias, comercios e industrias.
             </p>
-            {isInstallable && (
+            <div className="pt-2">
               <button
                 type="button"
-                onClick={onInstallPWA}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-blue hover:bg-brand-lightBlue text-white text-xs font-bold transition-all shadow-sm"
+                onClick={onOpenAdmin}
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs text-slate-400 hover:text-slate-200 border border-slate-800 transition-colors"
               >
-                <Download className="w-4 h-4" />
-                <span>Instalar App en Celular</span>
+                <Lock className="w-3.5 h-3.5" />
+                <span>Acceso Administrativo Privado</span>
               </button>
-            )}
-            <button
-              type="button"
-              onClick={onOpenAdmin}
-              className="inline-flex items-center gap-2 text-xs text-slate-500 hover:text-slate-300 transition-colors pt-2"
-            >
-              <Lock className="w-3.5 h-3.5" />
-              <span>Acceso Administrativo Privado</span>
-            </button>
+            </div>
           </div>
 
         </div>
 
         {/* Copyright */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-          <p>© {new Date().getFullYear()} Legacy Detección de Fugas. Todos los derechos reservados.</p>
+          <p>© {new Date().getFullYear()} Royality Detección de Fugas. Todos los derechos reservados.</p>
           <p className="text-[11px]">Diseño y Arquitectura de Alta Precisión.</p>
         </div>
 

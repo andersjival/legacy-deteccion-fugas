@@ -40,7 +40,7 @@ export const TechShowcase: React.FC<TechShowcaseProps> = ({ onNavigateAgenda }) 
               </span>
 
               <h2 className="text-3xl sm:text-4xl font-extrabold text-brand-dark tracking-tight leading-tight">
-                ¿POR QUÉ ELEGIR A <span className="text-brand-blue">LEGACY</span> PARA TUS FUGAS?
+                ¿POR QUÉ ELEGIR A <span className="bg-gradient-to-r from-blue-700 via-sky-400 to-blue-700 bg-[length:200%_auto] animate-shimmer-fast bg-clip-text text-transparent drop-shadow-sm">ROYALITY</span> PARA TUS FUGAS?
               </h2>
 
               <p className="text-base text-brand-slate leading-relaxed">

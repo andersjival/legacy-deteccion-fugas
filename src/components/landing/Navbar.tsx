@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Phone, Calendar, Lock, Menu, X } from 'lucide-react';
+import { AnimatedEagleLogo } from '../common/AnimatedEagleLogo';
 
 interface NavbarProps {
   onOpenAdmin: () => void;
@@ -14,20 +15,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda })
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           
-          {/* Logo Oficial */}
+          {/* Logo Oficial con Águila Animada e Iluminado Especial */}
           <a href="#inicio" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200/80 shadow-soft p-1 flex items-center justify-center group-hover:scale-105 transition-transform overflow-hidden">
-              <img
-                src="/logo.png"
-                alt="Logo Legacy Detección de Fugas"
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div>
-              <span className="block text-xl font-extrabold tracking-tight text-brand-dark font-sans leading-none">
-                LEGACY
+            <AnimatedEagleLogo className="w-12 h-12 rounded-2xl" />
+            <div className="flex flex-col">
+              <span className="block text-xl sm:text-2xl font-black tracking-tight leading-none bg-gradient-to-r from-blue-700 via-sky-400 via-cyan-300 to-blue-700 bg-[length:200%_auto] animate-shimmer-fast bg-clip-text text-transparent drop-shadow-[0_2px_12px_rgba(14,165,233,0.4)]">
+                ROYALITY
               </span>
-              <span className="block text-xs font-semibold text-brand-blue tracking-wider uppercase mt-0.5">
+              <span className="block text-[11px] sm:text-xs font-extrabold tracking-widest uppercase mt-1 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent drop-shadow-[0_1px_6px_rgba(6,182,212,0.3)]">
                 Detección de Fugas
               </span>
             </div>

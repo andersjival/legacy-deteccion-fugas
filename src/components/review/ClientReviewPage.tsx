@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, CheckCircle, Send, ArrowLeft, ShieldCheck, HeartHandshake } from 'lucide-react';
 import { api } from '../../services/api';
+import { AnimatedEagleLogo } from '../common/AnimatedEagleLogo';
 
 interface ClientReviewPageProps {
   onBackToHome: () => void;
@@ -72,12 +73,12 @@ export const ClientReviewPage: React.FC<ClientReviewPageProps> = ({ onBackToHome
       {/* Header Superior con Logo */}
       <div className="max-w-xl mx-auto w-full flex items-center justify-between pb-6 border-b border-slate-200/80">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-white shadow-card border border-slate-200 p-1 flex items-center justify-center">
-            <img src="/logo.png" alt="Legacy Fugas" className="w-full h-full object-contain" />
-          </div>
+          <AnimatedEagleLogo className="w-10 h-10 rounded-2xl" />
           <div>
-            <h1 className="text-sm font-black tracking-tight text-brand-dark">Legacy Detección de Fugas</h1>
-            <p className="text-[11px] text-brand-blue font-bold flex items-center gap-1">
+            <h1 className="text-sm font-black tracking-tight leading-none bg-gradient-to-r from-blue-700 via-sky-400 to-blue-700 bg-[length:200%_auto] animate-shimmer-fast bg-clip-text text-transparent">
+              ROYALITY
+            </h1>
+            <p className="text-[11px] text-brand-blue font-bold flex items-center gap-1 mt-0.5">
               <ShieldCheck className="w-3.5 h-3.5 text-brand-blue" />
               <span>Portal de Opiniones Verificadas</span>
             </p>

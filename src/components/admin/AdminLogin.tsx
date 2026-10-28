@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Lock, User, KeyRound, AlertCircle, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { AnimatedEagleLogo } from '../common/AnimatedEagleLogo';
 
 interface AdminLoginProps {
   onLogin: (username: string, password?: string) => Promise<boolean>;
@@ -64,9 +65,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
           
           {/* Logo y Título */}
           <div className="text-center space-y-2">
-            <div className="w-14 h-14 rounded-2xl bg-brand-ice text-brand-blue flex items-center justify-center mx-auto shadow-sm p-2">
-              <img src="/logo.png" alt="Legacy" className="w-full h-full object-contain" />
-            </div>
+            <AnimatedEagleLogo className="w-14 h-14 rounded-2xl mx-auto shadow-md" />
             <h2 className="text-xl sm:text-2xl font-black text-brand-dark tracking-tight">
               Panel Administrativo
             </h2>
