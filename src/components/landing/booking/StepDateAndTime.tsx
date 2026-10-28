@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar as CalendarIcon, Clock, AlertCircle, Check, Loader2, Sparkles } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, AlertCircle, Check, Loader2 } from 'lucide-react';
 import { AvailabilityResponse, TimeSlot } from '../../../types/appointment';
 import { api } from '../../../services/api';
 import { getNextDays, formatTime12h, formatDateToSpanish } from '../../../utils/dateFormatter';
@@ -104,7 +104,7 @@ export const StepDateAndTime: React.FC<StepDateAndTimeProps> = ({
           {availability && availability.is_available && (
             <div className="p-3 rounded-xl bg-brand-ice border border-brand-iceBorder flex items-center justify-between text-xs text-brand-dark font-semibold">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-brand-orange" />
+                <Clock className="w-4 h-4 text-brand-orange" />
                 <span>
                   Horario de atención para este día: de <strong>{formatTime12h(availability.start_time)}</strong> a <strong>{formatTime12h(availability.end_time)}</strong>
                 </span>

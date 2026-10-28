@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigation, Calendar, Clock, Settings, Sparkles } from 'lucide-react';
+import { Navigation, Calendar, Clock, Settings } from 'lucide-react';
 
 export type AdminTab = 'route' | 'all' | 'schedule' | 'settings';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, Calendar, ShieldCheck, Zap, Crosshair } from 'lucide-react';
+import { Phone, Calendar, ShieldCheck, Zap } from 'lucide-react';
 import { WaveDivider } from '../common/WaveDivider';
 
 interface HeroSectionProps {
@@ -18,7 +18,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigateAgenda }) =>
             {/* Badge de Precisión */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-brand-blue/20 text-brand-blue text-xs sm:text-sm font-bold shadow-sm">
               <span className="flex h-2 w-2 rounded-full bg-brand-orange animate-ping" />
-              <Crosshair className="w-4 h-4 text-brand-blue" />
+              <ShieldCheck className="w-4 h-4 text-brand-blue" />
               <span>Tecnología No Invasiva de Alta Precisión</span>
             </div>
 

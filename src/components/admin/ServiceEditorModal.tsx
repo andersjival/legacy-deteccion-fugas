@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Check, Plus, Wrench, Sparkles, CheckCircle2 } from 'lucide-react';
+import { X, Check, Plus, Wrench, CheckCircle2 } from 'lucide-react';
 import { api } from '../../services/api';
 import { DEFAULT_SERVICES, ServiceItem } from '../../types/appointment';
 
@@ -118,7 +118,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
           {/* Instrucción */}
           <div className="bg-blue-50/70 p-3 rounded-2xl border border-blue-200/60 text-xs text-blue-900 leading-relaxed">
             <p className="font-bold flex items-center gap-1.5 mb-0.5">
-              <Sparkles className="w-3.5 h-3.5 text-brand-blue" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-brand-blue" />
               <span>Múltiples servicios permitidos</span>
             </p>
             Puedes marcar uno o varios servicios para el cliente. Los servicios seleccionados se sincronizan en la cita y se incluirán en el mensaje de confirmación de WhatsApp.

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Compass, Sparkles, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Search, Radar, Droplets, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
 
 interface ServicesSectionProps {
   onSelectService: (serviceName: string) => void;
@@ -20,7 +20,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ onSelectServic
       id: 'rastreo',
       title: 'Rastreo y Diagnóstico de Tuberías',
       badge: 'Sin Romper',
-      icon: Compass,
+      icon: Radar,
       color: 'from-brand-dark to-brand-blue',
       description: 'Mapeo técnico de redes hidrosanitarias ocultas, identificación de obstrucciones y evaluación estructural sin destrucción innecesaria.',
       features: ['Mapeo de trayectoria 3D', 'Sonda electromagnética', 'Detección de taponamientos']
@@ -29,7 +29,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ onSelectServic
       id: 'limpieza',
       title: 'Limpieza Técnica de Tuberías',
       badge: '24/7 Emergencia',
-      icon: Sparkles,
+      icon: Droplets,
       color: 'from-amber-600 to-orange-500',
       description: 'Desinfección, desincrustación y mantenimiento preventivo/correctivo de tuberías de agua potable y desagües para restaurar el flujo y presión óptimos.',
       features: ['Eliminación de sarro profundo', 'Recuperación de presión', 'Desinfección antibacterial']

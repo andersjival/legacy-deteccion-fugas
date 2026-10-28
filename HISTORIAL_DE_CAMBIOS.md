@@ -15,6 +15,13 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.4.0] - 2026-10-28 - Erradicación de Iconos de Guía / IA en Toda la Web
+- **Sustitución Integral de Iconos de Guía / IA:**
+  - En la sección principal de servicios (`ServicesSection.tsx`): reemplazado el icono `Compass` (brújula/guía) por `Radar` en el servicio de Rastreo y Diagnóstico, y reemplazado el icono `Sparkles` (icono genérico de IA/chispitas) por `Droplets` en el servicio de Limpieza Técnica.
+  - En el Hero (`HeroSection.tsx`): reemplazado el icono de mira/guía `Crosshair` por `ShieldCheck`.
+  - En el formulario de agendamiento (`StepDateAndTime.tsx`, `StepPhotoUpload.tsx`): eliminados los iconos `Sparkles`, sustituidos por `Clock` y `Camera`.
+  - En los módulos administrativos (`ServiceEditorModal.tsx`, `ServicesCatalogManager.tsx`, `StorageManager.tsx`): purgados todos los iconos `Sparkles` restantes.
+
 ### [v2.3.0] - 2026-10-28 - Botón "Adelantar Cita" con Mensaje Pregrabado por WhatsApp
 - **Botón "Adelantar Cita por WhatsApp" (`AppointmentCard.tsx`, `TodayRouteCard.tsx`):**
   - Implementado botón rápido en tono ámbar tanto en la tarjeta de Plan de Ruta del día como en el listado general de citas.

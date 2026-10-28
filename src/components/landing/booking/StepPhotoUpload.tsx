@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Camera, Trash2, ArrowLeft, CheckCircle, Loader2, Sparkles, Check } from 'lucide-react';
+import { Camera, Trash2, ArrowLeft, CheckCircle, Loader2, Check } from 'lucide-react';
 import { CompressedImage, compressImageToWebP } from '../../../utils/imageCompressor';
 
 interface StepPhotoUploadProps {
@@ -53,7 +53,7 @@ export const StepPhotoUpload: React.FC<StepPhotoUploadProps> = ({
       <div className="bg-emerald-50/60 p-3.5 sm:p-4 rounded-2xl border border-emerald-200">
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2 text-emerald-800 font-extrabold text-xs sm:text-sm">
-            <Sparkles className="w-4 h-4 text-emerald-600" />
+            <Camera className="w-4 h-4 text-emerald-600" />
             <span>Evidencia Fotográfica</span>
           </div>
           <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">

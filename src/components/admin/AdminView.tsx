@@ -7,7 +7,7 @@ import { AvailabilityManager } from './AvailabilityManager';
 import { AdminSettingsTab } from './AdminSettingsTab';
 import { useAppointments } from '../../hooks/useAppointments';
 import { getTodayDateString, getTomorrowDateString } from '../../utils/dateFormatter';
-import { Bell, RefreshCw, X, Sparkles, Navigation } from 'lucide-react';
+import { Bell, RefreshCw, X, Navigation } from 'lucide-react';
 
 interface AdminViewProps {
   onClose: () => void;

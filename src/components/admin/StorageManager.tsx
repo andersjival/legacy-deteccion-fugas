@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Database, Trash2, ShieldCheck, AlertTriangle, Loader2, Sparkles } from 'lucide-react';
+import { Database, Trash2, ShieldCheck, AlertTriangle, Loader2 } from 'lucide-react';
 import { api } from '../../services/api';
 
 export const StorageManager: React.FC = () => {
@@ -60,7 +60,7 @@ export const StorageManager: React.FC = () => {
       {result && (
         <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-emerald-600" />
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
             <span>
               Limpieza completada: <strong>{result.deletedPhotos} fotos purgadas</strong> y <strong>{result.deletedOldAppointments} registros antiguos eliminados</strong>.
             </span>

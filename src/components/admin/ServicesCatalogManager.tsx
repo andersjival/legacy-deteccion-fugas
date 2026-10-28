@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wrench, Plus, Trash2, CheckCircle2, Loader2, Sparkles } from 'lucide-react';
+import { Wrench, Plus, Trash2, CheckCircle2, Loader2 } from 'lucide-react';
 import { api } from '../../services/api';
 import { DEFAULT_SERVICES, ServiceItem } from '../../types/appointment';
 
@@ -103,7 +103,7 @@ export const ServicesCatalogManager: React.FC<ServicesCatalogManagerProps> = ({
       {showAddForm && (
         <form onSubmit={handleCreateService} className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 animate-fadeIn">
           <div className="flex items-center gap-1.5 text-xs font-black text-brand-dark">
-            <Sparkles className="w-3.5 h-3.5 text-brand-orange" />
+            <Plus className="w-3.5 h-3.5 text-brand-orange" />
             <span>Crear Nuevo Servicio para Clientes y Citas</span>
           </div>
 
