@@ -1,19 +1,23 @@
-import React from 'react';
-import { Phone, MessageSquare, MapPin, Calendar, Clock, Image as ImageIcon, Navigation, ExternalLink } from 'lucide-react';
+import React, { useState } from 'react';
+import { Phone, MessageSquare, MapPin, Calendar, Clock, Image as ImageIcon, Navigation, ExternalLink, Edit3 } from 'lucide-react';
 import { Appointment, AppointmentStatus } from '../../types/appointment';
 import { formatDateToSpanish, formatTime12h } from '../../utils/dateFormatter';
+import { ServiceEditorModal } from './ServiceEditorModal';
 
 interface AppointmentCardProps {
   appointment: Appointment;
   onUpdateStatus: (id: string, status: AppointmentStatus) => void;
   onOpenLightbox: (photos: string[], index: number) => void;
+  onUpdateService?: (id: string, newServiceType: string) => Promise<void>;
 }
 
 export const AppointmentCard: React.FC<AppointmentCardProps> = ({
   appointment,
   onUpdateStatus,
-  onOpenLightbox
+  onOpenLightbox,
+  onUpdateService
 }) => {
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
   const rawDigits = appointment.client_phone.replace(/\D/g, '');
   const phoneWithCountry = rawDigits.startsWith('506') ? rawDigits : `506${rawDigits}`;
   const rango_hora = `${formatTime12h(appointment.start_time)} - ${formatTime12h(appointment.end_time)}`;
@@ -49,11 +53,24 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
   return (
     <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-soft hover:shadow-card transition-all space-y-4">
       {/* Top: Cliente, Servicio y Estado */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
-        <div>
-          <span className="text-[11px] font-extrabold text-brand-blue uppercase tracking-wider block">
-            {appointment.service_type}
-          </span>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[11px] font-extrabold text-brand-blue uppercase tracking-wider block">
+              {appointment.service_type}
+            </span>
+            {onUpdateService && (
+              <button
+                type="button"
+                onClick={() => setIsEditorOpen(true)}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-blue-50 hover:bg-blue-100 text-brand-blue border border-blue-200 transition-colors cursor-pointer"
+                title="Cambiar o agregar más servicios a esta cita"
+              >
+                <Edit3 className="w-2.5 h-2.5" />
+                <span>Editar / +Servicios</span>
+              </button>
+            )}
+          </div>
           <h4 className="text-lg font-extrabold text-brand-dark">{appointment.client_name}</h4>
         </div>
         <div className="flex items-center gap-2">
@@ -183,6 +200,20 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Modal para Editar o Agregar Múltiples Servicios */}
+      {isEditorOpen && (
+        <ServiceEditorModal
+          isOpen={isEditorOpen}
+          onClose={() => setIsEditorOpen(false)}
+          appointmentId={appointment.id}
+          clientName={appointment.client_name}
+          currentServiceType={appointment.service_type}
+          onSaveService={async (id, srv) => {
+            if (onUpdateService) await onUpdateService(id, srv);
+          }}
+        />
+      )}
     </div>
   );
 };

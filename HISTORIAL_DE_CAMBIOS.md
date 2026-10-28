@@ -15,6 +15,17 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.2.0] - 2026-10-28 - Edición y Adición de Múltiples Servicios por Cita y Catálogo Dinámico en D1
+- **Edición y Combinación de Servicios por Cita (`AppointmentCard.tsx`, `TodayRouteCard.tsx`, `ServiceEditorModal.tsx`):**
+  - Añadido botón rápido `[✏️ Editar / +Servicios]` en cada tarjeta de cita tanto en vista general como en modo ruta callejera.
+  - Modal interactivo con selección múltiple tipo chip para combinar múltiples servicios (`Servicio A + Servicio B`) o redactar servicios personalizados al vuelo.
+  - Sincronización instantánea con el mensaje automático de confirmación por WhatsApp y el registro de ruta.
+- **Catálogo Dinámico de Servicios en Cloudflare D1 (`functions/api/[[route]].ts`, `ServicesCatalogManager.tsx`, `AdminSettingsTab.tsx`):**
+  - Creada tabla `services` en Cloudflare D1 y endpoints REST (`GET`, `POST`, `DELETE /api/services`).
+  - Panel de administración con gestor de catálogo en la pestaña Ajustes para dar de alta nuevos servicios o eliminar obsoletos.
+- **Sincronización con el Formulario de Agendamiento del Cliente (`StepClientDetails.tsx`):**
+  - El selector desplegable de servicios en el Paso 2 carga automáticamente el catálogo actualizado desde la API, reflejando cualquier nuevo servicio agregado por el administrador.
+
 ### [v2.1.0] - 2026-10-28 - Fotos 100% Opcionales y Visibilidad Móvil de Síntomas (Commit: `034ac60`)
 - **Subida de Fotos 100% Opcional (`StepClientDetails.tsx`, `StepPhotoUpload.tsx`):**
   - Añadido botón de confirmación directa en el Paso 2: *"Confirmar Cita (Sin Fotos)"* para que el usuario pueda agendar en 1 clic sin pasar por el paso de imágenes.

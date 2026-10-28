@@ -85,6 +85,13 @@ export function useAppointments(isPollingActive = true) {
     }
   };
 
+  const updateService = async (id: string, service_type: string) => {
+    const updated = await api.updateAppointmentService(id, service_type);
+    if (updated) {
+      setAppointments((prev) => prev.map((a) => (a.id === id ? updated : a)));
+    }
+  };
+
   const dismissAlert = () => setNewAppointmentAlert(null);
 
   return {
@@ -94,6 +101,7 @@ export function useAppointments(isPollingActive = true) {
     newAppointmentAlert,
     dismissAlert,
     refresh: () => fetchAppointments(false),
-    updateStatus
+    updateStatus,
+    updateService
   };
 }

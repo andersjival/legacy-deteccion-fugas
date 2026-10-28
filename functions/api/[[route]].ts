@@ -376,6 +376,98 @@ app.patch('/appointments/:id/status', async (c) => {
   return c.json({ id, status, success: true });
 });
 
+// 6.1 Actualización General de Cita (ej. Cambiar o Agregar Servicios)
+app.patch('/appointments/:id', async (c) => {
+  const id = c.req.param('id');
+  const body = await c.req.json();
+  const serviceType = body.service_type;
+
+  if (c.env.DB) {
+    try {
+      if (serviceType) {
+        await c.env.DB.prepare('UPDATE appointments SET service_type = ? WHERE id = ?')
+          .bind(serviceType, id).run();
+      }
+      if (body.status) {
+        await c.env.DB.prepare('UPDATE appointments SET status = ? WHERE id = ?')
+          .bind(body.status, id).run();
+      }
+
+      const updated = await c.env.DB.prepare('SELECT * FROM appointments WHERE id = ?').bind(id).first<any>();
+      if (updated) {
+        return c.json({
+          ...updated,
+          photo_keys: updated.photo_keys_json ? JSON.parse(updated.photo_keys_json) : []
+        });
+      }
+    } catch (e) {
+      console.warn('D1 update appointment error:', e);
+    }
+  }
+
+  return c.json({ id, ...body, success: true });
+});
+
+// 6.2 Catálogo Dinámico de Servicios
+app.get('/services', async (c) => {
+  const defaults = [
+    { id: 'srv_1', title: 'Detección Especializada de Fugas', badge: 'Alta Precisión', description: 'Localización acústica y térmica de fugas ocultas' },
+    { id: 'srv_2', title: 'Rastreo y Diagnóstico de Tuberías', badge: 'Sin Romper', description: 'Mapeo electromagnético y gas trazador' },
+    { id: 'srv_3', title: 'Limpieza Técnica de Tuberías', badge: 'Desincrustación', description: 'Eliminación profunda de sarro y sedimentos' }
+  ];
+
+  if (c.env.DB) {
+    try {
+      const { results } = await c.env.DB.prepare('SELECT * FROM services ORDER BY created_at ASC').all();
+      if (results && results.length > 0) {
+        return c.json(results);
+      }
+    } catch (e) {
+      console.warn('D1 get services error:', e);
+    }
+  }
+
+  return c.json(defaults);
+});
+
+app.post('/services', async (c) => {
+  const body = await c.req.json();
+  const id = 'srv_' + crypto.randomUUID().substring(0, 8);
+  const title = (body.title || '').trim();
+  const badge = (body.badge || '').trim() || 'Servicio Extra';
+  const description = (body.description || '').trim();
+
+  if (!title) {
+    return c.json({ error: 'El título del servicio es requerido' }, 400);
+  }
+
+  const newService = { id, title, badge, description, created_at: new Date().toISOString() };
+
+  if (c.env.DB) {
+    try {
+      await c.env.DB.prepare(
+        'INSERT INTO services (id, title, badge, description) VALUES (?, ?, ?, ?)'
+      ).bind(id, title, badge, description).run();
+    } catch (e) {
+      console.warn('D1 insert service error:', e);
+    }
+  }
+
+  return c.json(newService, 201);
+});
+
+app.delete('/services/:id', async (c) => {
+  const id = c.req.param('id');
+  if (c.env.DB) {
+    try {
+      await c.env.DB.prepare('DELETE FROM services WHERE id = ?').bind(id).run();
+    } catch (e) {
+      console.warn('D1 delete service error:', e);
+    }
+  }
+  return c.json({ success: true, id });
+});
+
 // 7. Servir Fotos desde R2
 app.get('/photos/:key', async (c) => {
   const key = c.req.param('key');

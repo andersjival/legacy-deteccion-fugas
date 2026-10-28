@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Phone, MapPin, Wrench, FileText, ArrowLeft, ArrowRight, CheckCircle2, CheckCircle, Camera, Loader2 } from 'lucide-react';
-import { ServiceType } from '../../../types/appointment';
+import { ServiceType, ServiceItem, DEFAULT_SERVICES } from '../../../types/appointment';
+import { api } from '../../../services/api';
 import { LocationPickerMap } from '../../common/LocationPickerMap';
 
 interface StepClientDetailsProps {
@@ -30,6 +31,16 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
   onSubmitDirectly,
   isSubmitting = false
 }) => {
+  const [services, setServices] = useState<ServiceItem[]>(DEFAULT_SERVICES);
+
+  useEffect(() => {
+    api.getServices().then((srvs) => {
+      if (srvs && srvs.length > 0) {
+        setServices(srvs);
+      }
+    }).catch(() => {});
+  }, []);
+
   const isNameValid = formData.client_name.trim().length >= 3;
   const isPhoneValid = formData.client_phone.replace(/\D/g, '').length >= 8;
   const isAddressWritten = formData.client_address.trim().length >= 5;
@@ -137,11 +148,16 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
           <select
             value={formData.service_type}
             onChange={(e) => onChange('service_type', e.target.value as ServiceType)}
-            className="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-xl border border-emerald-500 bg-emerald-50/20 text-sm font-semibold text-brand-dark focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all appearance-none"
+            className="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-xl border border-emerald-500 bg-emerald-50/20 text-sm font-semibold text-brand-dark focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all appearance-none cursor-pointer"
           >
-            <option value="Detección Especializada de Fugas">Detección Especializada de Fugas (Acústica / FLIR)</option>
-            <option value="Rastreo y Diagnóstico de Tuberías">Rastreo y Diagnóstico de Tuberías (Trazador)</option>
-            <option value="Limpieza Técnica de Tuberías">Limpieza Técnica de Tuberías (Desincrustación)</option>
+            {services.map((s) => (
+              <option key={s.id} value={s.title}>
+                {s.title} {s.badge ? `(${s.badge})` : ''}
+              </option>
+            ))}
+            {formData.service_type && !services.some((s) => s.title === formData.service_type) && (
+              <option value={formData.service_type}>{formData.service_type}</option>
+            )}
           </select>
         </div>
       </div>

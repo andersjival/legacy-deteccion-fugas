@@ -1,22 +1,26 @@
 import React, { useState } from 'react';
-import { Navigation, Phone, MessageSquare, CheckCircle, MapPin, ChevronDown, ChevronUp, Image as ImageIcon, Clock } from 'lucide-react';
+import { Navigation, Phone, MessageSquare, CheckCircle, MapPin, ChevronDown, ChevronUp, Image as ImageIcon, Clock, Edit3 } from 'lucide-react';
 import { Appointment, AppointmentStatus } from '../../types/appointment';
 import { formatTime12h, formatDateToSpanish } from '../../utils/dateFormatter';
+import { ServiceEditorModal } from './ServiceEditorModal';
 
 interface TodayRouteCardProps {
   appointment: Appointment;
   index: number;
   onUpdateStatus: (id: string, status: AppointmentStatus) => void;
   onOpenLightbox: (photos: string[], index: number) => void;
+  onUpdateService?: (id: string, newServiceType: string) => Promise<void>;
 }
 
 export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
   appointment,
   index,
   onUpdateStatus,
-  onOpenLightbox
+  onOpenLightbox,
+  onUpdateService
 }) => {
   const [expanded, setExpanded] = useState(false);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
   const rawDigits = appointment.client_phone.replace(/\D/g, '');
   const phoneWithCountry = rawDigits.startsWith('506') ? rawDigits : `506${rawDigits}`;
   const rangoHora = `${formatTime12h(appointment.start_time)} - ${formatTime12h(appointment.end_time)}`;
@@ -67,9 +71,22 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
         <h3 className="text-base font-extrabold text-brand-dark leading-snug">
           {appointment.client_name}
         </h3>
-        <p className="text-xs font-bold text-brand-blue">
-          {appointment.service_type}
-        </p>
+        <div className="flex items-center gap-2 flex-wrap">
+          <p className="text-xs font-bold text-brand-blue">
+            {appointment.service_type}
+          </p>
+          {onUpdateService && (
+            <button
+              type="button"
+              onClick={() => setIsEditorOpen(true)}
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-blue-50 hover:bg-blue-100 text-brand-blue border border-blue-200 transition-colors cursor-pointer"
+              title="Cambiar o agregar más servicios a esta cita"
+            >
+              <Edit3 className="w-2.5 h-2.5" />
+              <span>Editar / +Servicios</span>
+            </button>
+          )}
+        </div>
         <div className="flex items-start gap-1.5 text-xs text-brand-slate font-medium pt-1">
           <MapPin className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
           <span className="line-clamp-2">{appointment.client_address}</span>
@@ -164,6 +181,19 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
         )}
       </div>
 
+      {/* Modal para Editar o Agregar Múltiples Servicios */}
+      {isEditorOpen && (
+        <ServiceEditorModal
+          isOpen={isEditorOpen}
+          onClose={() => setIsEditorOpen(false)}
+          appointmentId={appointment.id}
+          clientName={appointment.client_name}
+          currentServiceType={appointment.service_type}
+          onSaveService={async (id, srv) => {
+            if (onUpdateService) await onUpdateService(id, srv);
+          }}
+        />
+      )}
     </div>
   );
 };

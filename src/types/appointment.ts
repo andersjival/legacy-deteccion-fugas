@@ -1,7 +1,17 @@
-export type ServiceType = 
-  | 'Detección Especializada de Fugas'
-  | 'Rastreo y Diagnóstico de Tuberías'
-  | 'Limpieza Técnica de Tuberías';
+export type ServiceType = string;
+
+export interface ServiceItem {
+  id: string;
+  title: string;
+  badge?: string;
+  description?: string;
+}
+
+export const DEFAULT_SERVICES: ServiceItem[] = [
+  { id: 'srv_1', title: 'Detección Especializada de Fugas', badge: 'Alta Precisión', description: 'Localización acústica y térmica de fugas ocultas' },
+  { id: 'srv_2', title: 'Rastreo y Diagnóstico de Tuberías', badge: 'Sin Romper', description: 'Mapeo electromagnético y gas trazador' },
+  { id: 'srv_3', title: 'Limpieza Técnica de Tuberías', badge: 'Desincrustación', description: 'Eliminación profunda de sarro y sedimentos' }
+];
 
 export type AppointmentStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 

@@ -3,7 +3,9 @@ import {
   AppointmentStatus, 
   AvailabilityResponse, 
   CreateAppointmentDto, 
+  DEFAULT_SERVICES,
   GlobalSettings, 
+  ServiceItem,
   TimeSlot, 
   WorkDay 
 } from '../types/appointment';
@@ -12,7 +14,8 @@ import { getTodayDateString, getTomorrowDateString, formatTime12h } from '../uti
 const STORAGE_KEYS = {
   SETTINGS: 'legacy_settings',
   WORK_DAYS: 'legacy_work_days',
-  APPOINTMENTS: 'legacy_appointments'
+  APPOINTMENTS: 'legacy_appointments',
+  SERVICES: 'legacy_services'
 };
 
 const DEFAULT_SETTINGS: GlobalSettings = {
@@ -363,6 +366,104 @@ class ApiService {
 
     this.setStored(STORAGE_KEYS.APPOINTMENTS, updated);
     return updatedApp;
+  }
+
+  async updateAppointmentService(id: string, service_type: string): Promise<Appointment | null> {
+    try {
+      if (!this.useLocalFallback) {
+        const res = await fetch(`/api/appointments/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ service_type })
+        });
+        if (res.ok) return await res.json();
+      }
+    } catch {
+      this.useLocalFallback = true;
+    }
+
+    const current = this.getStored<Appointment[]>(STORAGE_KEYS.APPOINTMENTS, []);
+    let updatedApp: Appointment | null = null;
+    const updated = current.map((app) => {
+      if (app.id === id) {
+        updatedApp = { ...app, service_type };
+        return updatedApp;
+      }
+      return app;
+    });
+
+    this.setStored(STORAGE_KEYS.APPOINTMENTS, updated);
+    return updatedApp;
+  }
+
+  async getServices(): Promise<ServiceItem[]> {
+    try {
+      if (!this.useLocalFallback) {
+        const res = await fetch('/api/services');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            this.setStored(STORAGE_KEYS.SERVICES, data);
+            return data;
+          }
+        }
+      }
+    } catch {
+      this.useLocalFallback = true;
+    }
+
+    return this.getStored<ServiceItem[]>(STORAGE_KEYS.SERVICES, DEFAULT_SERVICES);
+  }
+
+  async createService(item: { title: string; badge?: string; description?: string }): Promise<ServiceItem> {
+    const fallbackService: ServiceItem = {
+      id: 'srv_' + Date.now().toString(36),
+      title: item.title,
+      badge: item.badge || 'Servicio Extra',
+      description: item.description || ''
+    };
+
+    try {
+      if (!this.useLocalFallback) {
+        const res = await fetch('/api/services', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(item)
+        });
+        if (res.ok) {
+          const created = await res.json();
+          const current = await this.getServices();
+          this.setStored(STORAGE_KEYS.SERVICES, [...current, created]);
+          return created;
+        }
+      }
+    } catch {
+      this.useLocalFallback = true;
+    }
+
+    const current = this.getStored<ServiceItem[]>(STORAGE_KEYS.SERVICES, DEFAULT_SERVICES);
+    const updated = [...current, fallbackService];
+    this.setStored(STORAGE_KEYS.SERVICES, updated);
+    return fallbackService;
+  }
+
+  async deleteService(id: string): Promise<boolean> {
+    try {
+      if (!this.useLocalFallback) {
+        const res = await fetch(`/api/services/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          const current = this.getStored<ServiceItem[]>(STORAGE_KEYS.SERVICES, DEFAULT_SERVICES);
+          this.setStored(STORAGE_KEYS.SERVICES, current.filter(s => s.id !== id));
+          return true;
+        }
+      }
+    } catch {
+      this.useLocalFallback = true;
+    }
+
+    const current = this.getStored<ServiceItem[]>(STORAGE_KEYS.SERVICES, DEFAULT_SERVICES);
+    this.setStored(STORAGE_KEYS.SERVICES, current.filter(s => s.id !== id));
+    return true;
   }
 
   async cleanupStorage(): Promise<{ deletedPhotos: number; deletedOldAppointments: number }> {

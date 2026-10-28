@@ -1,6 +1,7 @@
 import React from 'react';
 import { Download, Bell, Volume2, LogOut, ShieldCheck, Database, Smartphone } from 'lucide-react';
 import { StorageManager } from './StorageManager';
+import { ServicesCatalogManager } from './ServicesCatalogManager';
 import { playNotificationChime } from '../../utils/soundAlert';
 
 interface AdminSettingsTabProps {
@@ -71,10 +72,13 @@ export const AdminSettingsTab: React.FC<AdminSettingsTabProps> = ({
         </button>
       </div>
 
-      {/* 2. Gestor de Limpieza y Almacenamiento */}
+      {/* 2. Catálogo Oficial de Servicios (Agregar / Modificar Servicios) */}
+      <ServicesCatalogManager />
+
+      {/* 3. Gestor de Limpieza y Almacenamiento */}
       <StorageManager />
 
-      {/* 3. Cerrar Sesión */}
+      {/* 4. Cerrar Sesión */}
       <div className="pt-2">
         <button
           type="button"

@@ -33,7 +33,8 @@ export const AdminView: React.FC<AdminViewProps> = ({
     newAppointmentAlert,
     dismissAlert,
     refresh,
-    updateStatus
+    updateStatus,
+    updateService
   } = useAppointments(true);
 
   const [activeTab, setActiveTab] = useState<AdminTab>('route');
@@ -141,6 +142,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                   appointment={app}
                   index={idx}
                   onUpdateStatus={updateStatus}
+                  onUpdateService={updateService}
                   onOpenLightbox={(photos, index) => setLightboxState({ photos, index })}
                 />
               ))
@@ -186,6 +188,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                   key={app.id}
                   appointment={app}
                   onUpdateStatus={updateStatus}
+                  onUpdateService={updateService}
                   onOpenLightbox={(photos, index) => setLightboxState({ photos, index })}
                 />
               ))
