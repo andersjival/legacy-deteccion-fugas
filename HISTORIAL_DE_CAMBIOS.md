@@ -15,6 +15,12 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.13.0] - 2026-10-28 - Reducción del 45% en la Barra de Menú Superior (Navbar Compacto)
+- **Compactación del Encabezado Principal (`Navbar.tsx`):**
+  - Reducida la altura vertical de la barra de navegación de 80px (`h-20`) a 44-48px (`h-11 sm:h-12`), logrando exactamente una reducción de espacio del 45%.
+  - Reescalado el logotipo del águila y la tipografía a proporciones ultracompactas y elegantes (`w-8 h-8`, fuentes proporcionadas y paddings ligeros).
+  - Ajustados los botones de llamada, agendamiento y menú móvil para maximizar el área visible de la página web.
+
 ### [v2.12.0] - 2026-10-28 - Iluminado Especial Royality, Águila con Animación y Acordeón Exclusivo de Instalación Móvil
 - **Iluminado Especial en "Royality" y "Detección de Fugas" (`Navbar.tsx` / `HeroSection.tsx` / `TechShowcase.tsx`):**
   - Implementado efecto lumínico metálico (*shimmer sweep* y resplandor cian/zafiro) en la tipografía principal con animaciones fluidas por GPU.

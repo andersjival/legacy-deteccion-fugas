@@ -13,23 +13,23 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda })
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-11 sm:h-12">
           
-          {/* Logo Oficial con Águila Animada e Iluminado Especial */}
-          <a href="#inicio" className="flex items-center gap-3 group">
-            <AnimatedEagleLogo className="w-12 h-12 rounded-2xl" />
+          {/* Logo Oficial con Águila Animada e Iluminado Especial (Reducido 45%) */}
+          <a href="#inicio" className="flex items-center gap-2 group">
+            <AnimatedEagleLogo className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl" />
             <div className="flex flex-col">
-              <span className="block text-xl sm:text-2xl font-black tracking-tight leading-none bg-gradient-to-r from-blue-700 via-sky-400 via-cyan-300 to-blue-700 bg-[length:200%_auto] animate-shimmer-fast bg-clip-text text-transparent drop-shadow-[0_2px_12px_rgba(14,165,233,0.4)]">
+              <span className="block text-base sm:text-lg font-black tracking-tight leading-none bg-gradient-to-r from-blue-700 via-sky-400 via-cyan-300 to-blue-700 bg-[length:200%_auto] animate-shimmer-fast bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(14,165,233,0.35)]">
                 ROYALITY
               </span>
-              <span className="block text-[11px] sm:text-xs font-extrabold tracking-widest uppercase mt-1 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent drop-shadow-[0_1px_6px_rgba(6,182,212,0.3)]">
+              <span className="block text-[8px] sm:text-[9px] font-extrabold tracking-wider uppercase mt-0.5 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 Detección de Fugas
               </span>
             </div>
           </a>
 
           {/* Enlaces Desktop */}
-          <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold text-brand-slate">
+          <nav className="hidden lg:flex items-center gap-5 text-xs font-bold text-brand-slate">
             <a href="#inicio" className="hover:text-brand-blue transition-colors">Inicio</a>
             <a href="#servicios" className="hover:text-brand-blue transition-colors">Servicios</a>
             <a href="#tecnologia" className="hover:text-brand-blue transition-colors">Tecnología</a>
@@ -39,7 +39,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda })
                 e.preventDefault();
                 onNavigateAgenda();
               }}
-              className="hover:text-brand-blue transition-colors font-semibold cursor-pointer"
+              className="hover:text-brand-blue transition-colors cursor-pointer"
             >
               Agendar
             </a>
@@ -47,12 +47,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda })
           </nav>
 
           {/* Acciones Derecha */}
-          <div className="hidden sm:flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-2">
             <a
               href="tel:+50664080124"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-bold text-brand-dark bg-brand-ice hover:bg-brand-iceBorder border border-brand-iceBorder transition-all"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-brand-dark bg-brand-ice hover:bg-brand-iceBorder border border-brand-iceBorder transition-all"
             >
-              <Phone className="w-4 h-4 text-brand-blue animate-pulse" />
+              <Phone className="w-3.5 h-3.5 text-brand-blue animate-pulse" />
               <span>6408-0124</span>
             </a>
 
@@ -62,9 +62,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda })
                 e.preventDefault();
                 onNavigateAgenda();
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-extrabold text-white bg-brand-orange hover:bg-brand-orangeHover shadow-glow-orange hover:shadow-lg transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black text-white bg-brand-orange hover:bg-brand-orangeHover shadow-glow-orange hover:shadow-md transition-all cursor-pointer"
             >
-              <Calendar className="w-4 h-4" />
+              <Calendar className="w-3.5 h-3.5" />
               <span>Agendar Cita</span>
             </a>
 
@@ -73,27 +73,27 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda })
               onClick={onOpenAdmin}
               aria-label="Panel Administrador"
               title="Panel de Control Privado"
-              className="p-2.5 rounded-xl text-slate-400 hover:text-brand-dark hover:bg-slate-100 transition-colors ml-1"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-brand-dark hover:bg-slate-100 transition-colors ml-0.5"
             >
-              <Lock className="w-4 h-4" />
+              <Lock className="w-3.5 h-3.5" />
             </button>
           </div>
 
           {/* Hamburguesa Móvil */}
-          <div className="flex sm:hidden items-center gap-2">
+          <div className="flex sm:hidden items-center gap-1">
             <button
               onClick={onOpenAdmin}
               aria-label="Panel Admin"
-              className="p-2 text-slate-400 hover:text-brand-dark"
+              className="p-1.5 text-slate-400 hover:text-brand-dark"
             >
-              <Lock className="w-4 h-4" />
+              <Lock className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-brand-dark hover:bg-slate-100"
+              className="p-1.5 rounded-lg text-brand-dark hover:bg-slate-100"
               aria-label="Menú principal"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
