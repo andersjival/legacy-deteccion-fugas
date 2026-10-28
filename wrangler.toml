@@ -6,18 +6,16 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "legacy-fugas-db"
-database_id = "legacy-fugas-d1-id"
+database_id = "ace95c8a-7891-420e-a8f9-f84ecef59f8e"
 
 # Configuración de Almacenamiento Cloudflare R2
-[[r2_buckets]]
-binding = "PHOTOS_BUCKET"
-bucket_name = "legacy-fugas-photos"
+# Descomentar una vez creado el bucket 'legacy-fugas-photos' en el dashboard de Cloudflare:
+# [[r2_buckets]]
+# binding = "PHOTOS_BUCKET"
+# bucket_name = "legacy-fugas-photos"
 
-# Cron Trigger diario a las 3:00 AM para auto-limpieza
-[triggers]
-crons = ["0 3 * * *"]
-
-# Variables de Entorno Públicas
+# Variables de Entorno
 [vars]
 ENVIRONMENT = "production"
 ADMIN_PIN = "1234"
+
