@@ -46,7 +46,7 @@ export const AdminBottomNav: React.FC<AdminBottomNavProps> = ({
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-slate-200/90 shadow-2xl safe-area-pb">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-slate-200/90 shadow-2xl safe-area-pb">
       <div className="max-w-md mx-auto flex items-center justify-around py-2 px-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;

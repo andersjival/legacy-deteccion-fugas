@@ -15,6 +15,17 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.11.0] - 2026-10-28 - Diseño Responsivo Adaptativo para PC / Computadora y Celular en el Panel Administrativo
+- **Detección Automática de Dispositivo (`AdminView.tsx`):**
+  - Detección reactiva de resolución y dispositivo (Computadora vs Celular) con indicador dinámico en el encabezado (`Vista PC / Escritorio` o `Vista Móvil`).
+- **Navegación Superior Integrada en Computadora (`AdminView.tsx`):**
+  - En pantallas de escritorio (`md:`), la navegación por pestañas se traslada a la barra superior con iconos, nombres completos y contadores en vivo.
+  - La barra inferior flotante de celular (`AdminBottomNav.tsx`) se oculta automáticamente en computadoras (`md:hidden`), eliminando el aspecto de emulador estrecho.
+- **Distribución en Cuadrícula Panorámica (`AdminView.tsx`):**
+  - El ancho del contenedor se amplía dinámicamente (`max-w-6xl` / `xl:max-w-7xl` en PC) manteniendo el centrado móvil (`max-w-lg`) en celulares.
+  - Las paradas de ruta de hoy y las citas se reorganizan en cuadrículas fluidas de 2 y 3 columnas (`grid-cols-1 md:grid-cols-2 xl:grid-cols-3`).
+  - Las tarjetas de métricas, cierre financiero y reseñas de clientes se alinean horizontalmente en 3 columnas en escritorio.
+
 ### [v2.10.0] - 2026-10-28 - Sistema de Calificaciones (1-5★), Reseñas WhatsApp, Notificaciones y Publicación Inmediata
 - **Ruta Exclusiva de Calificación de Clientes (`ClientReviewPage.tsx` / `/calificar`):**
   - Portal móvil limpio y accesible sin código para calificar el servicio con 1 a 5 estrellas doradas interactivas, nombre del cliente, tipo de servicio y comentario de experiencia.

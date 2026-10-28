@@ -11,7 +11,7 @@ import { AdminReviewsCard } from './AdminReviewsCard';
 import { useAppointments } from '../../hooks/useAppointments';
 import { useReviews } from '../../hooks/useReviews';
 import { getTodayDateString, getTomorrowDateString } from '../../utils/dateFormatter';
-import { Bell, RefreshCw, X, Navigation, Star } from 'lucide-react';
+import { Bell, RefreshCw, X, Navigation, Star, Laptop, Smartphone, Calendar, Clock, Settings } from 'lucide-react';
 
 interface AdminViewProps {
   onClose: () => void;
@@ -53,6 +53,17 @@ export const AdminView: React.FC<AdminViewProps> = ({
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'confirmed' | 'tomorrow'>('all');
   const [lightboxState, setLightboxState] = useState<{ photos: string[]; index: number } | null>(null);
 
+  const [isDesktop, setIsDesktop] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth >= 768;
+  });
+
+  React.useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const todayStr = getTodayDateString();
   const tomorrowStr = getTomorrowDateString();
 
@@ -69,37 +80,83 @@ export const AdminView: React.FC<AdminViewProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-[#F1F5F9] flex flex-col overflow-hidden text-brand-dark font-sans select-none">
       
-      {/* Top Mobile App Header */}
-      <header className="bg-brand-dark text-white px-4 py-3.5 flex items-center justify-between shrink-0 shadow-md">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-white p-0.5 flex items-center justify-center overflow-hidden shadow-sm">
+      {/* Header Adaptativo: Móvil y Computadora */}
+      <header className="bg-brand-dark text-white px-4 md:px-8 py-3 flex items-center justify-between shrink-0 shadow-md border-b border-slate-800">
+        
+        {/* Izquierda: Logo, Título y Modo de Dispositivo Detectado */}
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-white p-1 flex items-center justify-center overflow-hidden shadow-sm">
             <img src="/logo.png" alt="Logo Legacy" className="w-full h-full object-contain" />
           </div>
           <div>
-            <h1 className="text-sm font-black tracking-tight leading-none">Legacy Panel</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-sm md:text-base font-black tracking-tight leading-none">Legacy Panel</h1>
+              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-slate-800 text-slate-300 border border-slate-700">
+                {isDesktop ? <Laptop className="w-3 h-3 text-brand-blue" /> : <Smartphone className="w-3 h-3 text-brand-orange" />}
+                <span>{isDesktop ? 'Vista PC / Escritorio' : 'Vista Móvil'}</span>
+              </span>
+            </div>
             <div className="flex items-center gap-1.5 mt-1">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">En Vivo</span>
+              <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">En Vivo D1</span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-1">
+        {/* Centro (Desktop): Barra de Pestañas Superior para Computadora */}
+        <nav className="hidden md:flex items-center gap-1 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shadow-inner">
+          {[
+            { id: 'route' as AdminTab, label: 'Ruta de Hoy', icon: Navigation, count: todayAppointments.length },
+            { id: 'all' as AdminTab, label: 'Todas las Citas', icon: Calendar, count: pendingAppointments.length },
+            { id: 'schedule' as AdminTab, label: 'Horarios', icon: Clock, count: 0 },
+            { id: 'settings' as AdminTab, label: 'Ajustes', icon: Settings, count: 0 }
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-brand-blue text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                <span>{tab.label}</span>
+                {tab.count > 0 && (
+                  <span className={`px-1.5 py-0.2 min-w-[18px] text-[10px] font-black rounded-full flex items-center justify-center ${
+                    tab.id === 'route' ? 'bg-brand-orange text-white' : 'bg-red-500 text-white'
+                  }`}>
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Derecha: Botones de Acción (Refrescar, Salir) */}
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={refresh}
             title="Refrescar"
-            className="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white active:scale-95 transition-all"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 active:scale-95 transition-all cursor-pointer"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline text-xs font-bold">Refrescar</span>
           </button>
           <button
             type="button"
             onClick={onClose}
             title="Salir"
-            className="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white active:scale-95 transition-all"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-red-900/60 active:scale-95 transition-all cursor-pointer"
           >
             <X className="w-4 h-4" />
+            <span className="hidden sm:inline text-xs font-bold">Cerrar</span>
           </button>
         </div>
       </header>
@@ -132,15 +189,15 @@ export const AdminView: React.FC<AdminViewProps> = ({
         </div>
       )}
 
-      {/* Área de Contenido con Scroll Móvil */}
-      <main className="flex-1 overflow-y-auto px-4 py-4 pb-28 max-w-lg w-full mx-auto space-y-4">
+      {/* Área de Contenido Adaptativo (Móvil centrado / PC pantalla ancha con rejillas) */}
+      <main className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 py-4 sm:py-6 pb-28 md:pb-12 max-w-lg md:max-w-6xl xl:max-w-7xl w-full mx-auto space-y-6">
         
-        {/* TAB 1: RUTA DE HOY (Modo Calle) */}
+        {/* TAB 1: RUTA DE HOY (Modo Calle en Móvil / Cuadrícula de Paradas en PC) */}
         {activeTab === 'route' && (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="flex items-center justify-between pb-1">
               <div>
-                <h2 className="text-base font-black text-brand-dark">Plan de Ruta de Hoy</h2>
+                <h2 className="text-base sm:text-lg font-black text-brand-dark">Plan de Ruta de Hoy</h2>
                 <p className="text-xs text-slate-500 font-medium">
                   {todayAppointments.length} trabajos agendados para hoy
                 </p>
@@ -156,7 +213,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
             {loading ? (
               <div className="text-center py-12 text-xs font-bold text-brand-blue">Cargando ruta de hoy...</div>
             ) : todayAppointments.length === 0 ? (
-              <div className="bg-white p-8 rounded-3xl border border-slate-200 text-center space-y-2">
+              <div className="bg-white p-8 rounded-3xl border border-slate-200 text-center space-y-2 max-w-md mx-auto">
                 <div className="w-12 h-12 rounded-2xl bg-brand-ice text-brand-blue flex items-center justify-center mx-auto">
                   <Navigation className="w-6 h-6" />
                 </div>
@@ -166,32 +223,32 @@ export const AdminView: React.FC<AdminViewProps> = ({
                 </p>
               </div>
             ) : (
-              todayAppointments.map((app, idx) => (
-                <TodayRouteCard
-                  key={app.id}
-                  appointment={app}
-                  index={idx}
-                  onUpdateStatus={updateStatus}
-                  onUpdateService={updateService}
-                  onUpdatePayment={updatePayment}
-                  onOpenLightbox={(photos, index) => setLightboxState({ photos, index })}
-                />
-              ))
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {todayAppointments.map((app, idx) => (
+                  <TodayRouteCard
+                    key={app.id}
+                    appointment={app}
+                    index={idx}
+                    onUpdateStatus={updateStatus}
+                    onUpdateService={updateService}
+                    onUpdatePayment={updatePayment}
+                    onOpenLightbox={(photos, index) => setLightboxState({ photos, index })}
+                  />
+                ))}
+              </div>
             )}
           </div>
         )}
 
-        {/* TAB 2: TODAS LAS CITAS CON FILTROS RÁPIDOS Y MÉTRICAS */}
+        {/* TAB 2: TODAS LAS CITAS CON FILTROS RÁPIDOS Y MÉTRICAS (1 Col en Celular / 3 Cols en PC) */}
         {activeTab === 'all' && (
-          <div className="space-y-3">
-            {/* Control de Citas: Hoy, Semana y Mes */}
-            <KPICards appointments={appointments} />
-
-            {/* Reporte Financiero Diario y Semanal */}
-            <FinancialReportCard appointments={appointments} />
-
-            {/* Testimonios y Reseñas de Clientes Verificados */}
-            <AdminReviewsCard reviews={reviews} onDeleteReview={removeReview} />
+          <div className="space-y-4">
+            {/* Control de Citas: Hoy, Semana y Mes, Cierre Financiero y Reseñas */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <KPICards appointments={appointments} />
+              <FinancialReportCard appointments={appointments} />
+              <AdminReviewsCard reviews={reviews} onDeleteReview={removeReview} />
+            </div>
 
             {/* Filtros Rápidos Estilo Pastilla */}
             <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs font-bold">
@@ -223,33 +280,41 @@ export const AdminView: React.FC<AdminViewProps> = ({
                 No hay citas en este filtro.
               </div>
             ) : (
-              filteredAppointments.map((app) => (
-                <AppointmentCard
-                  key={app.id}
-                  appointment={app}
-                  onUpdateStatus={updateStatus}
-                  onUpdateService={updateService}
-                  onUpdatePayment={updatePayment}
-                  onOpenLightbox={(photos, index) => setLightboxState({ photos, index })}
-                />
-              ))
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {filteredAppointments.map((app) => (
+                  <AppointmentCard
+                    key={app.id}
+                    appointment={app}
+                    onUpdateStatus={updateStatus}
+                    onUpdateService={updateService}
+                    onUpdatePayment={updatePayment}
+                    onOpenLightbox={(photos, index) => setLightboxState({ photos, index })}
+                  />
+                ))}
+              </div>
             )}
           </div>
         )}
 
         {/* TAB 3: HORARIOS Y "MAÑANA VOY A TRABAJAR" */}
-        {activeTab === 'schedule' && <AvailabilityManager />}
+        {activeTab === 'schedule' && (
+          <div className="max-w-4xl mx-auto">
+            <AvailabilityManager />
+          </div>
+        )}
 
         {/* TAB 4: AJUSTES, PWA Y LIMPIEZA */}
         {activeTab === 'settings' && (
-          <AdminSettingsTab
-            onLogout={onLogout}
-            onInstallPWA={onInstallPWA}
-            onRequestNotifications={onRequestNotifications}
-            isInstallable={isInstallable}
-            notificationsGranted={notificationsGranted}
-            appointments={appointments}
-          />
+          <div className="max-w-4xl mx-auto">
+            <AdminSettingsTab
+              onLogout={onLogout}
+              onInstallPWA={onInstallPWA}
+              onRequestNotifications={onRequestNotifications}
+              isInstallable={isInstallable}
+              notificationsGranted={notificationsGranted}
+              appointments={appointments}
+            />
+          </div>
         )}
 
       </main>
