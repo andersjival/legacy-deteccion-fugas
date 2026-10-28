@@ -15,7 +15,7 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
-### [v2.1.0] - 2026-10-28 - Fotos 100% Opcionales y Visibilidad Móvil de Síntomas
+### [v2.1.0] - 2026-10-28 - Fotos 100% Opcionales y Visibilidad Móvil de Síntomas (Commit: `034ac60`)
 - **Subida de Fotos 100% Opcional (`StepClientDetails.tsx`, `StepPhotoUpload.tsx`):**
   - Añadido botón de confirmación directa en el Paso 2: *"Confirmar Cita (Sin Fotos)"* para que el usuario pueda agendar en 1 clic sin pasar por el paso de imágenes.
   - El botón secundario *"Subir Fotos (Opcional)"* queda disponible para quienes sí deseen adjuntar evidencia.
