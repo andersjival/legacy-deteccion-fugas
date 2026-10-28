@@ -27,7 +27,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <span className="text-xl font-black tracking-tight leading-none bg-gradient-to-r from-blue-400 via-sky-300 to-cyan-300 bg-[length:200%_auto] animate-shimmer-fast bg-clip-text text-transparent">
                   ROYALITY
                 </span>
-                <span className="text-[10px] font-bold text-sky-400 tracking-wider uppercase mt-1">
+                <span className="text-[10px] font-black tracking-widest uppercase mt-1 bg-gradient-to-r from-cyan-400 via-sky-200 via-cyan-300 to-blue-400 bg-[length:200%_auto] animate-shimmer-fast bg-clip-text text-transparent">
                   Detección de Fugas
                 </span>
               </div>

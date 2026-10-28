@@ -34,12 +34,12 @@ export const AgendaPage: React.FC<AgendaPageProps> = ({
 
           {/* Logo Corporativo con Águila Animada */}
           <div className="flex items-center gap-2">
-            <AnimatedEagleLogo className="w-8 h-8 rounded-xl" />
+            <AnimatedEagleLogo className="w-8 h-8" />
             <div>
               <span className="block text-sm sm:text-base font-black tracking-tight leading-none bg-gradient-to-r from-blue-700 via-sky-400 to-blue-700 bg-[length:200%_auto] animate-shimmer-fast bg-clip-text text-transparent">
                 ROYALITY
               </span>
-              <span className="block text-[9px] sm:text-[10px] font-extrabold text-brand-blue tracking-wider uppercase">
+              <span className="block text-[9px] sm:text-[10px] font-black tracking-widest uppercase bg-gradient-to-r from-cyan-600 via-sky-300 via-cyan-400 to-blue-700 bg-[length:200%_auto] animate-shimmer-fast bg-clip-text text-transparent">
                 Detección de Fugas
               </span>
             </div>

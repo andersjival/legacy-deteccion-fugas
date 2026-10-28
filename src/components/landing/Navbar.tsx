@@ -17,12 +17,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda })
           
           {/* Logo Oficial con Águila Animada e Iluminado Especial (Reducido 45%) */}
           <a href="#inicio" className="flex items-center gap-2 group">
-            <AnimatedEagleLogo className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl" />
+            <AnimatedEagleLogo className="w-7 h-7 sm:w-8 sm:h-8" />
             <div className="flex flex-col">
               <span className="block text-base sm:text-lg font-black tracking-tight leading-none bg-gradient-to-r from-blue-700 via-sky-400 via-cyan-300 to-blue-700 bg-[length:200%_auto] animate-shimmer-fast bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(14,165,233,0.35)]">
                 ROYALITY
               </span>
-              <span className="block text-[8px] sm:text-[9px] font-extrabold tracking-wider uppercase mt-0.5 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <span className="block text-[8px] sm:text-[9px] font-black tracking-widest uppercase mt-0.5 bg-gradient-to-r from-cyan-600 via-sky-300 via-cyan-400 to-blue-700 bg-[length:200%_auto] animate-shimmer-fast bg-clip-text text-transparent drop-shadow-[0_1px_8px_rgba(6,182,212,0.4)]">
                 Detección de Fugas
               </span>
             </div>

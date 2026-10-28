@@ -34,7 +34,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigateAgenda }) =>
                 </span>
               </span>
               <span className="relative inline-block">
-                <span className="bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-700 bg-clip-text text-transparent drop-shadow-[0_2px_15px_rgba(6,182,212,0.35)]">
+                <span className="bg-gradient-to-r from-cyan-600 via-sky-300 via-cyan-400 to-blue-700 bg-[length:200%_auto] animate-shimmer-fast bg-clip-text text-transparent drop-shadow-[0_4px_25px_rgba(6,182,212,0.4)]">
                   DETECCIÓN DE FUGAS
                 </span>
               </span>{' '}

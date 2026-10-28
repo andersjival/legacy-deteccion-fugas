@@ -15,6 +15,13 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.14.0] - 2026-10-28 - Rediseño del Logo en Blanco con Aura Celeste Posterior y Luz en Detección de Fugas
+- **Rediseño del Logo del Águila (`AnimatedEagleLogo.tsx`):**
+  - Eliminado el recuadro celeste con círculo; el contenedor ahora es 100% blanco puro con esquinas redondeadas.
+  - Implementado resplandor celeste/cian sutil (*backlight aura*) ubicado por detrás del cuadro blanco, proyectando un brillo limpio sin bordes rígidos.
+- **Haz de Luz Animado en "Detección de Fugas" (`Navbar.tsx` / `HeroSection.tsx` / `AgendaPage.tsx` / `Footer.tsx`):**
+  - Aplicado barrido lumínico continuo (*shimmer light sweep*) a las palabras *"Detección de Fugas"* en la barra de navegación, portada principal y secciones clave.
+
 ### [v2.13.0] - 2026-10-28 - Reducción del 45% en la Barra de Menú Superior (Navbar Compacto)
 - **Compactación del Encabezado Principal (`Navbar.tsx`):**
   - Reducida la altura vertical de la barra de navegación de 80px (`h-20`) a 44-48px (`h-11 sm:h-12`), logrando exactamente una reducción de espacio del 45%.
