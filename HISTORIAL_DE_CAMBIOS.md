@@ -15,6 +15,15 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.8.0] - 2026-10-28 - Intervalos Configurables por Bloque: Cuarta Opción y Personalización Libre
+- **Ampliación de Opciones Predeterminadas (`AvailabilityManager.tsx`):**
+  - Añadida una 4ta opción estándar (4 horas / 240 min) e intervalos de 1 hora (60 min), 1.5 horas (90 min), 2 horas (120 min) y 3 horas (180 min).
+- **Modo Personalizado Libre de Minutos:**
+  - Incorporado selector con panel interactivo que permite ingresar cualquier cantidad exacta de minutos por bloque (ej. 45, 75, 105, 150 min) con pastillas de selección rápida.
+- **Previsualización Reactiva y Anulación por Día Específico:**
+  - Los bloques horarios del día se recalculan en tiempo real según el intervalo seleccionado.
+  - El planificador *"Mañana voy a trabajar"* permite además sobrescribir el intervalo para una fecha específica sin alterar la regla global.
+
 ### [v2.7.0] - 2026-10-28 - Aislamiento del Panel Admin en URL Separada `/detec/panel` con Formulario de Usuario y Contraseña
 - **Ruta Exclusiva Separada `/detec/panel` (`App.tsx`):**
   - El acceso administrativo y el inicio de sesión ya no operan como modal superpuesto en la misma URL; ahora residen en su propia URL dedicada `/detec/panel`.
