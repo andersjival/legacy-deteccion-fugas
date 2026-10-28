@@ -15,6 +15,22 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v1.4.0] - 2026-10-28 - Panel de Administrador Adaptado 100% a Celular (Modo App Nativa)
+- **Barra de Navegación Inferior Móvil (`AdminBottomNav`):**
+  - Barra fija inferior con 4 pestañas accesibles con el pulgar: *Ruta Hoy* (con contador de citas activas), *Citas* (historial completo y filtros), *Horarios* (planificador y bloqueos) y *Ajustes* (notificaciones, PWA y mantenimiento).
+- **Despacho Rápido "Ruta Hoy" (`TodayRouteCard`):**
+  - Vista cronológica prioritaria pensada para técnicos en la calle y conduciendo.
+  - Botón táctil gigante en azul Waze (`#33CCFF`) **"🚗 Iniciar Ruta en Waze"** con enlace directo a navegación por coordenadas GPS o dirección.
+  - Botones táctiles rápidos: **"📞 Llamar"**, **"💬 WhatsApp"** (confirmación instantánea con mensaje pre-redactado), y **"Finalizar Trabajo"**.
+  - Acordeón colapsable con fotos de evidencia y descripción del problema.
+- **Pestaña de Ajustes Integrada (`AdminSettingsTab`):**
+  - Instalación de PWA en pantalla de inicio de Android/iOS.
+  - Suscripción y prueba de Notificaciones Push Web (VAPID).
+  - Prueba de timbre sonoro y gatillo de limpieza de datos/fotos en D1 y R2.
+- **Shell Móvil de Pantalla Completa (`AdminView`):**
+  - Contenedor táctil `fixed inset-0` anti-scroll fantasma y anti-selección accidental.
+  - Indicador de sincronización en vivo con backend Edge (Cloudflare D1).
+
 ### [v1.3.0] - 2026-10-28 - Página Aislada de Agenda Sin Distracciones (Commit: `32b7c7a`)
 - **Ruta Dedicada `/agenda`:**
   - Al pulsar *"Verificar Disponibilidad y Agendar"*, *"Agendar Cita"* o seleccionar servicio, el usuario navega a `/agenda`.
