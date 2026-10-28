@@ -15,7 +15,7 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
-### [v2.0.0] - 2026-10-28 - UX Móvil Compacta en Agenda: Auto-Scroll, Checks Verdes y Rediseño de Pasos
+### [v2.0.0] - 2026-10-28 - UX Móvil Compacta en Agenda: Auto-Scroll, Checks Verdes y Rediseño de Pasos (Commit: `db29d1b`)
 - **Botón de Paso 1 Mejorado (`StepDateAndTime.tsx`):**
   - Texto actualizado a *"Siguiente: Indicar Ubicación y Contacto →"*, comunicando claramente la acción siguiente.
 - **Auto-Scroll al Inicio de Cada Paso (`BookingWizard.tsx`):**
