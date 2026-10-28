@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navigation, Phone, MessageSquare, CheckCircle, MapPin, ChevronDown, ChevronUp, Image as ImageIcon, Clock, Edit3 } from 'lucide-react';
+import { Navigation, Phone, MessageSquare, CheckCircle, MapPin, ChevronDown, ChevronUp, Image as ImageIcon, Clock, Edit3, FastForward } from 'lucide-react';
 import { Appointment, AppointmentStatus } from '../../types/appointment';
 import { formatTime12h, formatDateToSpanish } from '../../utils/dateFormatter';
 import { ServiceEditorModal } from './ServiceEditorModal';
@@ -36,6 +36,13 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
     onUpdateStatus(appointment.id, 'confirmed');
     const fecha = formatDateToSpanish(appointment.appointment_date);
     const mensaje = `Hola *${appointment.client_name}*, le saludamos de *Legacy Detección de Fugas* 💧. Hemos revisado los detalles de su solicitud y le confirmamos su cita para el servicio de *${appointment.service_type}* el día *${fecha}* en el horario de *${rangoHora}*. Por favor envíenos la ubicación exacta por este medio para nuestro registro de ruta. ¡Muchas gracias!`;
+    const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleAdvanceAppointmentWhatsApp = () => {
+    const fecha = formatDateToSpanish(appointment.appointment_date);
+    const mensaje = `Hola *${appointment.client_name}*, le saluda el técnico de *Legacy Detección de Fugas* 💧.\n\nLe consultamos sobre su cita para *${appointment.service_type}*, programada para el día *${fecha}* (${rangoHora}).\n\nAcabamos de terminar un trabajo previo más rápido de lo esperado y ya contamos con disponibilidad inmediata en este momento. ¿Le sería posible atendernos más temprano el día de hoy?\n\nQuedamos atentos a su confirmación. ¡Muchas gracias!`;
     const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(mensaje)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };
@@ -125,6 +132,18 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
             <span>WhatsApp</span>
           </button>
         </div>
+
+        {/* Botón Adelantar Cita por WhatsApp (en caso de terminar rápido el trabajo previo) */}
+        {!isCompleted && (
+          <button
+            type="button"
+            onClick={handleAdvanceAppointmentWhatsApp}
+            className="w-full flex items-center justify-center gap-2 py-3 px-3 rounded-2xl text-xs font-black text-amber-950 bg-amber-100 hover:bg-amber-200 border border-amber-300 shadow-xs active:scale-98 transition-all"
+          >
+            <FastForward className="w-4 h-4 text-amber-700 fill-amber-700" />
+            <span>Adelantar Cita por WhatsApp</span>
+          </button>
+        )}
 
         {/* Botón Finalizar */}
         {!isCompleted && (

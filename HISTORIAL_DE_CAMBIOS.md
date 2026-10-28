@@ -15,6 +15,11 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.3.0] - 2026-10-28 - Botón "Adelantar Cita" con Mensaje Pregrabado por WhatsApp
+- **Botón "Adelantar Cita por WhatsApp" (`AppointmentCard.tsx`, `TodayRouteCard.tsx`):**
+  - Implementado botón rápido en tono ámbar tanto en la tarjeta de Plan de Ruta del día como en el listado general de citas.
+  - Al presionarlo en caso de terminar antes un servicio previo, abre automáticamente el chat de WhatsApp con el número del cliente y redacta un mensaje estructurado y formal preguntando si puede ser atendido más temprano hoy mismo con disponibilidad inmediata.
+
 ### [v2.2.0] - 2026-10-28 - Edición y Adición de Múltiples Servicios por Cita y Catálogo Dinámico en D1
 - **Edición y Combinación de Servicios por Cita (`AppointmentCard.tsx`, `TodayRouteCard.tsx`, `ServiceEditorModal.tsx`):**
   - Añadido botón rápido `[✏️ Editar / +Servicios]` en cada tarjeta de cita tanto en vista general como en modo ruta callejera.

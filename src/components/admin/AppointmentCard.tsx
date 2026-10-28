@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Phone, MessageSquare, MapPin, Calendar, Clock, Image as ImageIcon, Navigation, ExternalLink, Edit3 } from 'lucide-react';
+import { Phone, MessageSquare, MapPin, Calendar, Clock, Image as ImageIcon, Navigation, ExternalLink, Edit3, FastForward } from 'lucide-react';
 import { Appointment, AppointmentStatus } from '../../types/appointment';
 import { formatDateToSpanish, formatTime12h } from '../../utils/dateFormatter';
 import { ServiceEditorModal } from './ServiceEditorModal';
@@ -45,6 +45,14 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
 
     const fecha = formatDateToSpanish(appointment.appointment_date);
     const mensaje = `Hola *${appointment.client_name}*, le saludamos de *Legacy Detección de Fugas* 💧. Hemos revisado los detalles de su solicitud y le confirmamos su cita para el servicio de *${appointment.service_type}* el día *${fecha}* en el horario de *${rango_hora}*. Por favor envíenos la ubicación exacta por este medio para nuestro registro de ruta. ¡Muchas gracias!`;
+
+    const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleAdvanceAppointmentWhatsApp = () => {
+    const fecha = formatDateToSpanish(appointment.appointment_date);
+    const mensaje = `Hola *${appointment.client_name}*, le saluda el técnico de *Legacy Detección de Fugas* 💧.\n\nLe consultamos sobre su cita para *${appointment.service_type}*, programada para el día *${fecha}* (${rango_hora}).\n\nAcabamos de terminar un trabajo previo más rápido de lo esperado y ya contamos con disponibilidad inmediata en este momento. ¿Le sería posible atendernos más temprano el día de hoy?\n\nQuedamos atentos a su confirmación. ¡Muchas gracias!`;
 
     const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(mensaje)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -160,15 +168,28 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
         </div>
       )}
 
-      {/* Botón Destacado Verde WhatsApp */}
-      <button
-        type="button"
-        onClick={handleQuickConfirmWhatsApp}
-        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-extrabold text-white bg-[#25D366] hover:bg-[#20ba5a] shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all"
-      >
-        <MessageSquare className="w-4 h-4 fill-white text-[#25D366]" />
-        <span>Confirmar Cita al Cliente por WhatsApp</span>
-      </button>
+      {/* Botones de WhatsApp: Confirmar Cita y Adelantar Cita */}
+      <div className="space-y-2">
+        <button
+          type="button"
+          onClick={handleQuickConfirmWhatsApp}
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-extrabold text-white bg-[#25D366] hover:bg-[#20ba5a] shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all"
+        >
+          <MessageSquare className="w-4 h-4 fill-white text-[#25D366]" />
+          <span>Confirmar Cita al Cliente por WhatsApp</span>
+        </button>
+
+        {appointment.status !== 'completed' && appointment.status !== 'cancelled' && (
+          <button
+            type="button"
+            onClick={handleAdvanceAppointmentWhatsApp}
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-black text-amber-950 bg-amber-100 hover:bg-amber-200 border border-amber-300 shadow-xs hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
+          >
+            <FastForward className="w-4 h-4 text-amber-700 fill-amber-700" />
+            <span>Adelantar Cita por WhatsApp</span>
+          </button>
+        )}
+      </div>
 
       {/* Botones Secundarios de Llamada y Otros Estados */}
       <div className="pt-1 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100">
