@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS work_days (
   end_time TEXT,   -- '17:00'
   slot_duration_minutes INTEGER,
   max_appointments INTEGER,
-  blocked_slots_json TEXT -- JSON array con horarios bloqueados manualmente ej. '["08:00 - 10:00"]'
+  blocked_slots_json TEXT -- JSON array con horarios bloqueados manualmente
 );
 
 -- 3. Tabla de Citas
@@ -33,6 +33,8 @@ CREATE TABLE IF NOT EXISTS appointments (
   client_name TEXT NOT NULL,
   client_phone TEXT NOT NULL,
   client_address TEXT NOT NULL,
+  latitude REAL,
+  longitude REAL,
   service_type TEXT NOT NULL,
   problem_description TEXT NOT NULL,
   appointment_date TEXT NOT NULL, -- YYYY-MM-DD

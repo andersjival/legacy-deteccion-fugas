@@ -1,16 +1,20 @@
 import React from 'react';
 import { User, Phone, MapPin, Wrench, FileText, ArrowLeft, ArrowRight } from 'lucide-react';
 import { ServiceType } from '../../../types/appointment';
+import { LocationPickerMap } from '../../common/LocationPickerMap';
 
 interface StepClientDetailsProps {
   formData: {
     client_name: string;
     client_phone: string;
     client_address: string;
+    latitude: number | null;
+    longitude: number | null;
     service_type: ServiceType;
     problem_description: string;
   };
   onChange: (field: string, value: string) => void;
+  onChangeLocation: (lat: number, lng: number) => void;
   onBack: () => void;
   onNext: () => void;
 }
@@ -18,15 +22,25 @@ interface StepClientDetailsProps {
 export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
   formData,
   onChange,
+  onChangeLocation,
   onBack,
   onNext
 }) => {
   const isPhoneValid = formData.client_phone.replace(/\D/g, '').length >= 8;
+  const isAddressValid = formData.client_address.trim().length >= 5 || (formData.latitude !== null && formData.longitude !== null);
   const isFormValid =
     formData.client_name.trim().length >= 3 &&
     isPhoneValid &&
-    formData.client_address.trim().length >= 5 &&
+    isAddressValid &&
     formData.problem_description.trim().length >= 10;
+
+  const handleLocationPicked = (lat: number, lng: number) => {
+    onChangeLocation(lat, lng);
+    // Si la dirección escrita está vacía o es muy corta, sugerir texto de apoyo
+    if (!formData.client_address || formData.client_address.trim().length < 5) {
+      onChange('client_address', `Ubicación fijada en mapa GPS (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -90,25 +104,34 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
         </div>
       </div>
 
-      {/* Dirección Exacta */}
-      <div>
-        <label className="block text-xs font-bold text-brand-dark uppercase tracking-wider mb-1.5">
-          Dirección Exacta o Cantón / Distrito *
-        </label>
-        <div className="relative">
-          <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-          <input
-            type="text"
-            required
-            placeholder="Ej. San José, Escazú, 200m este del parque central"
-            value={formData.client_address}
-            onChange={(e) => onChange('client_address', e.target.value)}
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 text-sm font-medium focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition-all"
-          />
+      {/* Dirección Escrita + Mapa Interactivo */}
+      <div className="space-y-3">
+        <div>
+          <label className="block text-xs font-bold text-brand-dark uppercase tracking-wider mb-1.5">
+            Dirección Exacta o Cantón / Distrito (Escríbela o márcala en el mapa) *
+          </label>
+          <div className="relative">
+            <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+            <input
+              type="text"
+              required
+              placeholder="Ej. San José, Escazú, 200m este del parque o Condominio Los Reyes casa 4"
+              value={formData.client_address}
+              onChange={(e) => onChange('client_address', e.target.value)}
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 text-sm font-medium focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition-all"
+            />
+          </div>
         </div>
+
+        {/* Mapa Interactivo con Pin y GPS */}
+        <LocationPickerMap
+          latitude={formData.latitude}
+          longitude={formData.longitude}
+          onChangeLocation={handleLocationPicked}
+        />
       </div>
 
-      {/* Descripción Detallada del Problema (Obligatorio) */}
+      {/* Descripción Detallada del Problema */}
       <div>
         <label className="block text-xs font-bold text-brand-dark uppercase tracking-wider mb-1.5">
           Descripción del Problema o Síntomas *
@@ -124,9 +147,6 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
             className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 text-sm font-medium focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition-all"
           />
         </div>
-        <p className="text-[11px] text-slate-400 mt-1">
-          Proporciona detalles para preparar el equipo técnico adecuado (mínimo 10 caracteres).
-        </p>
       </div>
 
       {/* Botones de Navegación */}

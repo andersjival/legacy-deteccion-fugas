@@ -24,6 +24,8 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
     client_name: '',
     client_phone: '',
     client_address: '',
+    latitude: null as number | null,
+    longitude: null as number | null,
     service_type: initialService,
     problem_description: ''
   });
@@ -32,6 +34,10 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
 
   const handleFieldChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleLocationChange = (latitude: number, longitude: number) => {
+    setFormData((prev) => ({ ...prev, latitude, longitude }));
   };
 
   const handleAddPhoto = (photo: CompressedImage) => {
@@ -52,6 +58,8 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
         client_name: formData.client_name,
         client_phone: formData.client_phone,
         client_address: formData.client_address,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
         service_type: formData.service_type,
         problem_description: formData.problem_description,
         appointment_date: selectedDate,
@@ -76,6 +84,8 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
       client_name: '',
       client_phone: '',
       client_address: '',
+      latitude: null,
+      longitude: null,
       service_type: 'Detección Especializada de Fugas',
       problem_description: ''
     });
@@ -96,7 +106,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
             AGENDA TU INSPECCIÓN TÉCNICA
           </h2>
           <p className="text-sm text-brand-slate max-w-xl mx-auto">
-            Elige el horario conveniente y describe tu caso. Recibirás atención prioritaria y confirmación inmediata.
+            Elige el horario conveniente, escribe o fija tu dirección en el mapa y describe tu caso.
           </p>
         </div>
 
@@ -107,8 +117,8 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
           {step < 4 && (
             <div className="flex items-center justify-between mb-8 pb-6 border-b border-slate-100 text-xs font-bold">
               {[
-                { s: 1, label: 'Fecha y Rango Horario' },
-                { s: 2, label: 'Tus Datos' },
+                { s: 1, label: 'Fecha y Horario' },
+                { s: 2, label: 'Datos y Mapa' },
                 { s: 3, label: 'Evidencia' }
               ].map((item) => (
                 <div key={item.s} className="flex items-center gap-2">
@@ -144,6 +154,7 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
             <StepClientDetails
               formData={formData}
               onChange={handleFieldChange}
+              onChangeLocation={handleLocationChange}
               onBack={() => setStep(1)}
               onNext={() => setStep(3)}
             />

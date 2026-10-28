@@ -10,6 +10,8 @@ export interface Appointment {
   client_name: string;
   client_phone: string;
   client_address: string;
+  latitude?: number | null;
+  longitude?: number | null;
   service_type: ServiceType;
   problem_description: string;
   appointment_date: string; // YYYY-MM-DD
@@ -26,6 +28,8 @@ export interface CreateAppointmentDto {
   client_name: string;
   client_phone: string;
   client_address: string;
+  latitude?: number | null;
+  longitude?: number | null;
   service_type: ServiceType;
   problem_description: string;
   appointment_date: string;
@@ -41,21 +45,21 @@ export interface WorkDay {
   end_time: string;   // '17:00'
   slot_duration_minutes?: number | null;
   max_appointments?: number | null;
-  blocked_slots?: string[]; // array de start_time ej. ['08:00']
+  blocked_slots?: string[];
 }
 
 export interface GlobalSettings {
-  slot_duration_minutes: number; // 90 (1.5h), 120 (2h), 180 (3h)
-  max_daily_appointments: number; // 3, 4, 5...
-  default_start_time: string; // '08:00'
-  default_end_time: string;   // '17:00'
+  slot_duration_minutes: number;
+  max_daily_appointments: number;
+  default_start_time: string;
+  default_end_time: string;
   admin_pin_hash: string;
 }
 
 export interface TimeSlot {
-  start_time: string; // '08:00'
-  end_time: string;   // '10:00'
-  label: string;      // '08:00 AM - 10:00 AM'
+  start_time: string;
+  end_time: string;
+  label: string;
   available: boolean;
   reason?: string;
 }

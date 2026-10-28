@@ -293,14 +293,16 @@ app.post('/appointments', async (c) => {
     try {
       await c.env.DB.prepare(`
         INSERT INTO appointments (
-          id, client_name, client_phone, client_address, service_type, problem_description,
+          id, client_name, client_phone, client_address, latitude, longitude, service_type, problem_description,
           appointment_date, start_time, end_time, photo_keys_json, photos_deleted, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 'pending')
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 'pending')
       `).bind(
         id,
         body.client_name,
         body.client_phone,
         body.client_address,
+        body.latitude || null,
+        body.longitude || null,
         body.service_type,
         body.problem_description,
         body.appointment_date,
@@ -318,6 +320,8 @@ app.post('/appointments', async (c) => {
     client_name: body.client_name,
     client_phone: body.client_phone,
     client_address: body.client_address,
+    latitude: body.latitude || null,
+    longitude: body.longitude || null,
     service_type: body.service_type,
     problem_description: body.problem_description,
     appointment_date: body.appointment_date,

@@ -38,6 +38,8 @@ function getInitialDemoAppointments(): Appointment[] {
       appointment_date: today,
       start_time: '08:00',
       end_time: '10:00',
+      latitude: 9.9324,
+      longitude: -84.1432,
       photo_keys: [
         'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80',
         'https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&w=600&q=80'
@@ -56,6 +58,8 @@ function getInitialDemoAppointments(): Appointment[] {
       appointment_date: today,
       start_time: '13:00',
       end_time: '15:00',
+      latitude: 10.0076,
+      longitude: -84.1614,
       photo_keys: [
         'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80'
       ],
@@ -73,6 +77,8 @@ function getInitialDemoAppointments(): Appointment[] {
       appointment_date: tomorrow,
       start_time: '09:00',
       end_time: '11:00',
+      latitude: 9.9702,
+      longitude: -84.2798,
       photo_keys: [],
       photos_deleted: 0,
       status: 'confirmed',
@@ -316,6 +322,8 @@ class ApiService {
       appointment_date: dto.appointment_date,
       start_time: dto.start_time,
       end_time: dto.end_time,
+      latitude: dto.latitude || null,
+      longitude: dto.longitude || null,
       photo_keys: dto.photos?.map(p => p.dataUrl) || [],
       photos_deleted: 0,
       status: 'pending',
