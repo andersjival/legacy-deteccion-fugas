@@ -15,7 +15,7 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
-### [v1.8.0] - 2026-10-28 - Desbloqueo de Caché PWA y Encabezados Anti-Freeze
+### [v1.8.0] - 2026-10-28 - Desbloqueo de Caché PWA y Encabezados Anti-Freeze (Commit: `54dcdea`)
 - **Actualización de Service Worker (`sw.js` a `legacy-pwa-v2`):**
   - Implementada estrategia *Network-First* obligatoria para navegación HTML. Si hay internet, siempre pide la versión fresca de la nube en lugar de servir el archivo local congelado.
   - Purga automática de cachés anteriores (`legacy-pwa-v1`) con `caches.delete()` en el evento `activate`.
