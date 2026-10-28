@@ -15,6 +15,18 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v1.2.0] - 2026-10-28 - Selector de Dirección con Mapa Interactivo y Waze (Commit: `de32265`)
+- **Paso de Datos del Cliente (`StepClientDetails`):**
+  - Entrada de texto para dirección exacta manual.
+  - Mapa interactivo integrado (Leaflet + OpenStreetMap) con fijación de punto mediante clic o arrastre de pin.
+  - Botón *"Detectar con GPS"* para cargar la ubicación exacta automáticamente con la API de Geolocalización.
+- **Panel de Administrador (`AppointmentCard`):**
+  - Muestra la dirección escrita y las coordenadas GPS exactas fijadas por el cliente.
+  - Botón directo **"Cómo llegar en Waze"** (`waze.com/ul?ll={lat},{lng}&navigate=yes`).
+  - Botón auxiliar **"Google Maps"**.
+- **Backend Edge & Cloudflare D1:**
+  - Migración en D1 agregando columnas `latitude REAL` y `longitude REAL` a la tabla `appointments`.
+
 ### [v1.1.0] - 2026-10-28 - Motor de Verificación Dinámica de Horarios y Bloques (Commit: `f3fbc97`)
 - **Motor de Agendamiento (`#agendar`):**
   - Calendario mensual en vivo con indicador de disponibilidad por día.
