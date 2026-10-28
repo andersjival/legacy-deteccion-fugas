@@ -143,6 +143,14 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
         <p className="text-brand-slate italic leading-relaxed">"{appointment.problem_description}"</p>
       </div>
 
+      {/* Nota si las fotos ya fueron purgadas automáticamente a las 24h */}
+      {appointment.photos_deleted === 1 && (!appointment.photo_keys || appointment.photo_keys.length === 0) && (
+        <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-semibold bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+          <ImageIcon className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          <span>Fotos depuradas automáticamente de R2 tras 24h (registro guardado para control)</span>
+        </div>
+      )}
+
       {/* Galería de Fotos */}
       {appointment.photo_keys && appointment.photo_keys.length > 0 && (
         <div>

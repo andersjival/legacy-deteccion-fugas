@@ -5,6 +5,7 @@ import { AppointmentCard } from './AppointmentCard';
 import { PhotoLightbox } from './PhotoLightbox';
 import { AvailabilityManager } from './AvailabilityManager';
 import { AdminSettingsTab } from './AdminSettingsTab';
+import { KPICards } from './KPICards';
 import { useAppointments } from '../../hooks/useAppointments';
 import { getTodayDateString, getTomorrowDateString } from '../../utils/dateFormatter';
 import { Bell, RefreshCw, X, Navigation } from 'lucide-react';
@@ -150,9 +151,12 @@ export const AdminView: React.FC<AdminViewProps> = ({
           </div>
         )}
 
-        {/* TAB 2: TODAS LAS CITAS CON FILTROS RÁPIDOS */}
+        {/* TAB 2: TODAS LAS CITAS CON FILTROS RÁPIDOS Y MÉTRICAS */}
         {activeTab === 'all' && (
           <div className="space-y-3">
+            {/* Control de Citas: Hoy, Semana y Mes */}
+            <KPICards appointments={appointments} />
+
             {/* Filtros Rápidos Estilo Pastilla */}
             <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs font-bold">
               {[

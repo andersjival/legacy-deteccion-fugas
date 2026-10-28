@@ -15,6 +15,19 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.5.0] - 2026-10-28 - Auto-Purga de Fotos a las 24h con Preservación Permanente de Registros y KPIs Semanales/Mensuales
+- **Auto-Purga Automática de Fotos 24h tras la Cita (`functions/api/[[route]].ts`):**
+  - Implementado algoritmo de verificación temporal que purga automáticamente de Cloudflare R2 los archivos y fotos pesadas 24 horas después de transcurrida la hora programada de la cita.
+- **Preservación Histórica de Registros en D1:**
+  - El registro de la cita (nombre, teléfono, fecha, horario, tipo de servicio) permanece guardado permanentemente en la base de datos D1. Se eliminó la cláusula destructiva `DELETE FROM appointments` para que nunca se pierda el historial contable.
+- **Control Visual de Métricas para el Administrador (`KPICards.tsx`, `AdminView.tsx`):**
+  - Integradas tarjetas de control en la pestaña de citas del panel móvil que calculan en tiempo real:
+    - Citas de Hoy (con desglose de pendientes).
+    - Citas de Esta Semana (total de citas de lunes a domingo de la semana en curso).
+    - Citas de Este Mes (acumulado histórico del mes).
+- **Indicador Visual de Fotos Depuradas (`AppointmentCard.tsx`):**
+  - Muestra una nota informativa confirmando que las fotos fueron liberadas de R2 mientras el registro de control sigue activo.
+
 ### [v2.4.0] - 2026-10-28 - Erradicación de Iconos de Guía / IA en Toda la Web
 - **Sustitución Integral de Iconos de Guía / IA:**
   - En la sección principal de servicios (`ServicesSection.tsx`): reemplazado el icono `Compass` (brújula/guía) por `Radar` en el servicio de Rastreo y Diagnóstico, y reemplazado el icono `Sparkles` (icono genérico de IA/chispitas) por `Droplets` en el servicio de Limpieza Técnica.

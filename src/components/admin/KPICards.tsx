@@ -14,15 +14,18 @@ export const KPICards: React.FC<KPICardsProps> = ({ appointments }) => {
   const todayApps = appointments.filter((a) => a.appointment_date === todayStr);
   const todayPending = todayApps.filter((a) => a.status === 'pending').length;
 
-  // Calcular citas de la semana (próximos 7 días)
-  const now = new Date();
-  const weekLimit = new Date();
-  weekLimit.setDate(weekLimit.getDate() + 7);
-  const weekLimitStr = weekLimit.toISOString().split('T')[0];
+  // Calcular citas de la semana en curso (Lunes a Domingo)
+  const d = new Date(todayStr + 'T12:00:00');
+  const day = d.getDay();
+  const diffToMonday = d.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(d);
+  monday.setDate(diffToMonday);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  const mondayStr = monday.toISOString().split('T')[0];
+  const sundayStr = sunday.toISOString().split('T')[0];
 
-  const weekApps = appointments.filter((a) => {
-    return a.appointment_date >= todayStr && a.appointment_date <= weekLimitStr;
-  });
+  const weekApps = appointments.filter((a) => a.appointment_date >= mondayStr && a.appointment_date <= sundayStr);
 
   // Calcular citas del mes actual
   const currentYearMonth = todayStr.substring(0, 7); // 'YYYY-MM'
@@ -30,49 +33,50 @@ export const KPICards: React.FC<KPICardsProps> = ({ appointments }) => {
 
   const kpis = [
     {
-      title: 'Citas Hoy',
+      title: 'Hoy',
       count: todayApps.length,
-      detail: `${todayPending} pendientes de confirmación`,
+      detail: `${todayPending} pendientes`,
       icon: Clock,
-      color: 'bg-blue-500 text-white',
-      badgeColor: todayPending > 0 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+      color: 'bg-blue-500 text-white'
     },
     {
       title: 'Esta Semana',
       count: weekApps.length,
-      detail: 'Próximos 7 días programados',
+      detail: 'Semana en curso',
       icon: Calendar,
-      color: 'bg-brand-blue text-white',
-      badgeColor: 'bg-blue-100 text-brand-blue'
+      color: 'bg-brand-blue text-white'
     },
     {
       title: 'Este Mes',
       count: monthApps.length,
-      detail: 'Total de servicios en el mes',
+      detail: 'Histórico del mes',
       icon: TrendingUp,
-      color: 'bg-brand-orange text-white',
-      badgeColor: 'bg-orange-100 text-brand-orange'
+      color: 'bg-brand-orange text-white'
     }
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div className="grid grid-cols-3 gap-2">
       {kpis.map((kpi, idx) => {
         const Icon = kpi.icon;
         return (
           <div
             key={idx}
-            className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-soft flex items-center justify-between"
+            className="bg-white p-3 rounded-2xl border border-slate-200/80 shadow-soft flex flex-col justify-between"
           >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider truncate">
+                {kpi.title}
+              </span>
+              <div className={`w-6 h-6 rounded-lg ${kpi.color} flex items-center justify-center shadow-xs shrink-0`}>
+                <Icon className="w-3.5 h-3.5" />
+              </div>
+            </div>
             <div>
-              <p className="text-xs font-bold text-brand-slate uppercase tracking-wider">{kpi.title}</p>
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-brand-dark my-1">
+              <h3 className="text-xl sm:text-2xl font-black text-brand-dark leading-none my-0.5">
                 {kpi.count}
               </h3>
-              <p className="text-[11px] font-semibold text-slate-500">{kpi.detail}</p>
-            </div>
-            <div className={`w-12 h-12 rounded-2xl ${kpi.color} flex items-center justify-center shadow-sm shrink-0`}>
-              <Icon className="w-6 h-6" />
+              <p className="text-[9px] font-semibold text-slate-400 truncate">{kpi.detail}</p>
             </div>
           </div>
         );

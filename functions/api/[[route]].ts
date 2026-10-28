@@ -242,7 +242,7 @@ app.get('/availability', async (c) => {
   });
 });
 
-// 5. Citas (Appointments)
+// 5. Citas (Appointments) con Purga Automática de Fotos 24h después de la Cita
 app.get('/appointments', async (c) => {
   if (c.env.DB) {
     try {
@@ -250,7 +250,39 @@ app.get('/appointments', async (c) => {
         'SELECT * FROM appointments ORDER BY appointment_date ASC, start_time ASC'
       ).all();
 
-      const list = results?.map((r: any) => ({
+      const nowMillis = Date.now();
+      const rows = results || [];
+
+      // Detección y purga automática de fotos 24 horas después de la hora programada de la cita
+      // El registro de la cita se mantiene de forma permanente para el control de métricas semanales/mensuales
+      for (const r of rows as any[]) {
+        if (r.photos_deleted === 0 && r.photo_keys_json && r.photo_keys_json !== '[]') {
+          const appointmentUtcMillis = Date.parse(`${r.appointment_date}T${r.end_time || r.start_time || '17:00'}:00-06:00`);
+          if (!isNaN(appointmentUtcMillis) && nowMillis >= appointmentUtcMillis + 24 * 60 * 60 * 1000) {
+            if (c.env.PHOTOS_BUCKET) {
+              try {
+                const keys: string[] = JSON.parse(r.photo_keys_json);
+                for (const k of keys) {
+                  const cleanKey = k.replace('/api/photos/', '');
+                  await c.env.PHOTOS_BUCKET.delete(cleanKey).catch(() => {});
+                }
+              } catch (err) {
+                console.warn('Error deleting photo keys from R2:', err);
+              }
+            }
+
+            await c.env.DB.prepare(
+              "UPDATE appointments SET photos_deleted = 1, photo_keys_json = '[]', status = CASE WHEN status = 'pending' THEN 'completed' ELSE status END WHERE id = ?"
+            ).bind(r.id).run().catch(() => {});
+
+            r.photos_deleted = 1;
+            r.photo_keys_json = '[]';
+            if (r.status === 'pending') r.status = 'completed';
+          }
+        }
+      }
+
+      const list = rows.map((r: any) => ({
         ...r,
         photo_keys: r.photo_keys_json ? JSON.parse(r.photo_keys_json) : []
       }));
@@ -483,45 +515,53 @@ app.get('/photos/:key', async (c) => {
   return c.text('Foto no encontrada o ya purgada', 404);
 });
 
-// 8. Auto-Limpieza / Purga Manual y Cron
+// 8. Auto-Limpieza / Purga de Fotos 24h (Conserva registros para KPIs)
 app.post('/admin/cleanup', async (c) => {
   let deletedPhotos = 0;
-  let deletedOldAppointments = 0;
 
   if (c.env.DB) {
     try {
-      const todayStr = new Date().toISOString().split('T')[0];
       const { results } = await c.env.DB.prepare(`
-        SELECT id, photo_keys_json FROM appointments 
-        WHERE (status = 'completed' OR appointment_date < ?) AND photos_deleted = 0
-      `).bind(todayStr).all();
+        SELECT id, photo_keys_json, appointment_date, end_time, start_time, status 
+        FROM appointments 
+        WHERE photos_deleted = 0
+      `).all();
+
+      const nowMillis = Date.now();
 
       if (results && results.length > 0) {
         for (const row of results as any[]) {
-          if (row.photo_keys_json && c.env.PHOTOS_BUCKET) {
-            const keys: string[] = JSON.parse(row.photo_keys_json);
-            for (const k of keys) {
-              const cleanKey = k.replace('/api/photos/', '');
-              await c.env.PHOTOS_BUCKET.delete(cleanKey).catch(() => {});
-              deletedPhotos++;
+          const appointmentUtcMillis = Date.parse(`${row.appointment_date}T${row.end_time || row.start_time || '17:00'}:00-06:00`);
+          const isOlderThan24h = !isNaN(appointmentUtcMillis) && nowMillis >= appointmentUtcMillis + 24 * 60 * 60 * 1000;
+
+          if (isOlderThan24h || row.status === 'completed') {
+            if (row.photo_keys_json && c.env.PHOTOS_BUCKET) {
+              try {
+                const keys: string[] = JSON.parse(row.photo_keys_json);
+                for (const k of keys) {
+                  const cleanKey = k.replace('/api/photos/', '');
+                  await c.env.PHOTOS_BUCKET.delete(cleanKey).catch(() => {});
+                  deletedPhotos++;
+                }
+              } catch (e) {
+                console.warn('Cleanup photo delete error:', e);
+              }
             }
+            await c.env.DB.prepare(
+              "UPDATE appointments SET photos_deleted = 1, photo_keys_json = '[]', status = CASE WHEN status = 'pending' THEN 'completed' ELSE status END WHERE id = ?"
+            ).bind(row.id).run().catch(() => {});
           }
-          await c.env.DB.prepare(
-            "UPDATE appointments SET photos_deleted = 1, photo_keys_json = '[]' WHERE id = ?"
-          ).bind(row.id).run();
         }
       }
 
-      const deleteResult = await c.env.DB.prepare(
-        "DELETE FROM appointments WHERE date(appointment_date) < date('now', '-30 days')"
-      ).run();
-      deletedOldAppointments = deleteResult?.meta?.changes || 0;
+      // No se eliminan los registros de citas de D1 para que el administrador
+      // conserve siempre el control histórico de citas por semana y por mes.
     } catch (e) {
       console.warn('D1 cleanup error:', e);
     }
   }
 
-  return c.json({ deletedPhotos, deletedOldAppointments });
+  return c.json({ deletedPhotos, deletedOldAppointments: 0 });
 });
 
 // 9. Suscripciones Web Push

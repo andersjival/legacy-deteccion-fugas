@@ -7,7 +7,7 @@ export const StorageManager: React.FC = () => {
   const [result, setResult] = useState<{ deletedPhotos: number; deletedOldAppointments: number } | null>(null);
 
   const handleRunCleanup = async () => {
-    if (!confirm('¿Deseas ejecutar la limpieza manual ahora? Se eliminarán fotos de citas completadas y registros con más de 30 días.')) {
+    if (!confirm('¿Deseas ejecutar la purga manual ahora? Se eliminarán fotos de citas con más de 24 horas transcurridas o completadas (los registros se conservan para métricas).')) {
       return;
     }
     setCleaning(true);
@@ -42,17 +42,17 @@ export const StorageManager: React.FC = () => {
             <span>Fotos en Cloudflare R2</span>
           </div>
           <p className="text-slate-500">
-            Se borran inmediatamente al marcar la cita como <strong>"Completada"</strong> o al transcurrir la fecha agendada.
+            Se borran automáticamente <strong>24 horas después</strong> de la hora agendada o al marcarla como <strong>"Completada"</strong>.
           </p>
         </div>
 
         <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 space-y-1.5">
           <div className="flex items-center gap-2 font-bold text-slate-800">
             <ShieldCheck className="w-4 h-4 text-brand-blue" />
-            <span>Registros en Cloudflare D1</span>
+            <span>Control Histórico en Cloudflare D1</span>
           </div>
           <p className="text-slate-500">
-            Citas de más de 30 días de antigüedad son purgadas automáticamente para mantener la base de datos ligera.
+            Los registros se conservan de forma permanente para el control de métricas semanales, mensuales y anuales del administrador.
           </p>
         </div>
       </div>
@@ -62,7 +62,7 @@ export const StorageManager: React.FC = () => {
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
             <span>
-              Limpieza completada: <strong>{result.deletedPhotos} fotos purgadas</strong> y <strong>{result.deletedOldAppointments} registros antiguos eliminados</strong>.
+              Purga completada: <strong>{result.deletedPhotos} fotos eliminadas de R2</strong>. Los registros históricos se preservan intactos.
             </span>
           </div>
         </div>
