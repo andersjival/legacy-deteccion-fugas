@@ -15,7 +15,7 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
-### [v1.7.0] - 2026-10-28 - Aislamiento Radical de la Agenda en Página Independiente `/agenda`
+### [v1.7.0] - 2026-10-28 - Aislamiento Radical de la Agenda en Página Independiente `/agenda` (Commit: `f70509b`)
 - **Extracción Total del Inicio (`App.tsx`):**
   - Eliminado por completo el componente de agendamiento (`BookingWizard`) de la página principal (`/`). La página de inicio ya no contiene el formulario, erradicando cualquier salto o scroll hacia abajo.
 - **Navegación Exclusiva a `/agenda`:**
