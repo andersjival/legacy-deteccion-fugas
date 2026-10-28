@@ -15,6 +15,13 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v1.3.0] - 2026-10-28 - Página Aislada de Agenda Sin Distracciones (Commit: `32b7c7a`)
+- **Ruta Dedicada `/agenda`:**
+  - Al pulsar *"Verificar Disponibilidad y Agendar"*, *"Agendar Cita"* o seleccionar servicio, el usuario navega a `/agenda`.
+  - Entorno 100% enfocado en conversión (sin barra de navegación con enlaces externos, sin testimonios ni secciones intermedias).
+  - Únicas acciones permitidas: completar el agendamiento o pulsar *"Volver al inicio"* (`/`).
+  - Archivo `public/_redirects` para soporte nativo de SPA en Cloudflare Pages (`/* /index.html 200`).
+
 ### [v1.2.0] - 2026-10-28 - Selector de Dirección con Mapa Interactivo y Waze (Commit: `de32265`)
 - **Paso de Datos del Cliente (`StepClientDetails`):**
   - Entrada de texto para dirección exacta manual.
