@@ -15,7 +15,7 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
-### [v1.5.0] - 2026-10-28 - Integración del Logo Oficial de Águila de Legacy
+### [v1.5.0] - 2026-10-28 - Integración del Logo Oficial de Águila de Legacy (Commit: `a6aed4a`)
 - **Navbar Principal (`Navbar.tsx`):**
   - Reemplazo del isotipo temporal por el logo oficial del águila azul (`/logo.png`) en contenedor estilizado con micro-hover.
 - **Página de Agenda Aislada (`AgendaPage.tsx`):**
