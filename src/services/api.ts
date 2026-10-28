@@ -9,13 +9,15 @@ import {
   TimeSlot, 
   WorkDay 
 } from '../types/appointment';
+import { Review, CreateReviewDTO } from '../types/review';
 import { getTodayDateString, getTomorrowDateString, formatTime12h } from '../utils/dateFormatter';
 
 const STORAGE_KEYS = {
   SETTINGS: 'legacy_settings',
   WORK_DAYS: 'legacy_work_days',
   APPOINTMENTS: 'legacy_appointments',
-  SERVICES: 'legacy_services'
+  SERVICES: 'legacy_services',
+  REVIEWS: 'legacy_reviews'
 };
 
 const DEFAULT_SETTINGS: GlobalSettings = {
@@ -529,6 +531,74 @@ class ApiService {
 
     this.setStored(STORAGE_KEYS.APPOINTMENTS, remaining);
     return { deletedPhotos: deletedPhotosCount, deletedOldAppointments: deletedAppsCount };
+  }
+
+  async getReviews(): Promise<Review[]> {
+    try {
+      if (!this.useLocalFallback) {
+        const res = await fetch('/api/reviews');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            this.setStored(STORAGE_KEYS.REVIEWS, data);
+            return data;
+          }
+        }
+      }
+    } catch {
+      this.useLocalFallback = true;
+    }
+    return this.getStored<Review[]>(STORAGE_KEYS.REVIEWS, []);
+  }
+
+  async createReview(dto: CreateReviewDTO): Promise<Review | null> {
+    try {
+      if (!this.useLocalFallback) {
+        const res = await fetch('/api/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dto)
+        });
+        if (res.ok) {
+          const created: Review = await res.json();
+          const current = this.getStored<Review[]>(STORAGE_KEYS.REVIEWS, []);
+          this.setStored(STORAGE_KEYS.REVIEWS, [created, ...current]);
+          return created;
+        }
+      }
+    } catch {
+      this.useLocalFallback = true;
+    }
+
+    const fallbackReview: Review = {
+      id: 'rev_' + Date.now(),
+      ...dto,
+      created_at: new Date().toISOString(),
+      is_verified: 1,
+      is_published: 1
+    };
+    const current = this.getStored<Review[]>(STORAGE_KEYS.REVIEWS, []);
+    this.setStored(STORAGE_KEYS.REVIEWS, [fallbackReview, ...current]);
+    return fallbackReview;
+  }
+
+  async deleteReview(id: string): Promise<boolean> {
+    try {
+      if (!this.useLocalFallback) {
+        const res = await fetch(`/api/reviews/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          const current = this.getStored<Review[]>(STORAGE_KEYS.REVIEWS, []);
+          this.setStored(STORAGE_KEYS.REVIEWS, current.filter(r => r.id !== id));
+          return true;
+        }
+      }
+    } catch {
+      this.useLocalFallback = true;
+    }
+
+    const current = this.getStored<Review[]>(STORAGE_KEYS.REVIEWS, []);
+    this.setStored(STORAGE_KEYS.REVIEWS, current.filter(r => r.id !== id));
+    return true;
   }
 }
 

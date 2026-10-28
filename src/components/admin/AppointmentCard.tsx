@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Phone, MessageSquare, MapPin, Calendar, Clock, Image as ImageIcon, Navigation, ExternalLink, Edit3, FastForward } from 'lucide-react';
+import { Phone, MessageSquare, MapPin, Calendar, Clock, Image as ImageIcon, Navigation, ExternalLink, Edit3, FastForward, Star } from 'lucide-react';
 import { Appointment, AppointmentStatus, PaymentMethod } from '../../types/appointment';
 import { formatDateToSpanish, formatTime12h } from '../../utils/dateFormatter';
 import { ServiceEditorModal } from './ServiceEditorModal';
@@ -57,6 +57,15 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
   const handleAdvanceAppointmentWhatsApp = () => {
     const fecha = formatDateToSpanish(appointment.appointment_date);
     const mensaje = `Hola *${appointment.client_name}*, le saluda el técnico de *Legacy Detección de Fugas* 💧.\n\nLe consultamos sobre su cita para *${appointment.service_type}*, programada para el día *${fecha}* (${rango_hora}).\n\nAcabamos de terminar un trabajo previo más rápido de lo esperado y ya contamos con disponibilidad inmediata en este momento. ¿Le sería posible atendernos más temprano el día de hoy?\n\nQuedamos atentos a su confirmación. ¡Muchas gracias!`;
+
+    const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleSendReviewLinkWhatsApp = () => {
+    const origin = window.location.origin;
+    const reviewUrl = `${origin}/calificar?id=${appointment.id}&cliente=${encodeURIComponent(appointment.client_name)}&servicio=${encodeURIComponent(appointment.service_type)}`;
+    const mensaje = `Hola *${appointment.client_name}*, le saluda el técnico de *Legacy Detección de Fugas* 💧.\n\nFue un placer haberle realizado el servicio de *${appointment.service_type}*. Le agradeceríamos enormemente si nos regala un minuto para calificar nuestra atención y dejarnos un breve comentario en nuestro enlace oficial de testimonios verificados:\n\n👉 ${reviewUrl}\n\n¡Muchas gracias por su confianza y preferencia!`;
 
     const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(mensaje)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -231,6 +240,16 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
             <span>Adelantar Cita por WhatsApp</span>
           </button>
         )}
+
+        {/* Botón Solicitar Reseña / Calificación por WhatsApp */}
+        <button
+          type="button"
+          onClick={handleSendReviewLinkWhatsApp}
+          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-black text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-300 shadow-xs hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
+        >
+          <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+          <span>Enviar Link de Calificación (1-5★) por WhatsApp</span>
+        </button>
       </div>
 
       {/* Botones Secundarios de Llamada y Otros Estados */}

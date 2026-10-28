@@ -15,6 +15,20 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.10.0] - 2026-10-28 - Sistema de Calificaciones (1-5★), Reseñas WhatsApp, Notificaciones y Publicación Inmediata
+- **Ruta Exclusiva de Calificación de Clientes (`ClientReviewPage.tsx` / `/calificar`):**
+  - Portal móvil limpio y accesible sin código para calificar el servicio con 1 a 5 estrellas doradas interactivas, nombre del cliente, tipo de servicio y comentario de experiencia.
+  - Pre-llenado automático de nombre y servicio mediante parámetros de enlace (`?id=...&cliente=...&servicio=...`).
+  - Al enviar, se guarda de inmediato en D1 y muestra pantalla de agradecimiento con opción de ver el testimonio en la web o cerrar la ventana.
+- **Generación y Envío de Enlace por WhatsApp (`AppointmentCard.tsx` / `TodayRouteCard.tsx`):**
+  - Botón integrado en cada cita (`Enviar Link de Calificación (1-5★) por WhatsApp`) que abre WhatsApp Web/App con un mensaje personalizado y el enlace exclusivo del cliente.
+- **Módulo de Gestión de Reseñas en el Panel (`AdminReviewsCard.tsx`):**
+  - Métricas de opiniones totales, promedio de estrellas, visor de testimonios recientes y botón para copiar enlace general al portapapeles.
+- **Notificación en Vivo de Nuevas Reseñas (`AdminView.tsx` / `useReviews.ts`):**
+  - Banner interactivo en tiempo real con alerta auditiva (`playNotificationChime()`) que notifica al administrador cuando entra un nuevo comentario o calificación.
+- **Sección Pública de Testimonios Verificados (`TestimonialsSection.tsx`):**
+  - Carga reactiva de testimonios reales desde `/api/reviews` con insignia *"Verificado"*, fecha y calificación, combinada armónicamente en el sitio oficial.
+
 ### [v2.9.0] - 2026-10-28 - Registro de Monto Cobrado, Medio de Pago (Sinpe Móvil / Tarjeta / Efectivo) y Reportes Financieros
 - **Registro de Cobro en Citas (`PaymentModal.tsx`):**
   - Modal interactivo con entrada de monto en Colones (₡), chips de monto rápido (₡25.000, ₡35.000, ₡45.000, ₡60.000, ₡80.000) y selector de método de pago: Sinpe Móvil, Tarjeta o Efectivo.

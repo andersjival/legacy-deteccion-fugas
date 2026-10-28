@@ -6,6 +6,7 @@ import { TechShowcase } from './components/landing/TechShowcase';
 import { TestimonialsSection } from './components/landing/TestimonialsSection';
 import { Footer } from './components/landing/Footer';
 import { AgendaPage } from './components/agenda/AgendaPage';
+import { ClientReviewPage } from './components/review/ClientReviewPage';
 import { AdminLogin } from './components/admin/AdminLogin';
 import { AdminView } from './components/admin/AdminView';
 import { useAdminAuth } from './hooks/useAdminAuth';
@@ -69,6 +70,7 @@ export function App() {
 
   const isAgendaRoute = currentPath === '/agenda' || currentPath === '/agendar';
   const isAdminRoute = currentPath === '/detec/panel' || currentPath === '/detec' || currentPath === '/panel' || currentPath === '/admin';
+  const isReviewRoute = currentPath === '/calificar' || currentPath === '/review' || currentPath === '/resena' || currentPath === '/valorar';
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-brand-dark selection:bg-brand-blue selection:text-white">
@@ -101,6 +103,9 @@ export function App() {
           initialService={selectedService}
           onOpenAdmin={() => navigateTo('/detec/panel')}
         />
+      ) : isReviewRoute ? (
+        /* Vista Exclusiva para Calificación de Clientes: /calificar */
+        <ClientReviewPage onBackToHome={() => navigateTo('/')} />
       ) : (
         /* Vista Principal Completa: / */
         <>

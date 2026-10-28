@@ -591,4 +591,75 @@ app.post('/push/subscribe', async (c) => {
   return c.json({ success: true });
 });
 
+// 10. Testimonios y Calificaciones de Clientes (Reviews)
+app.get('/reviews', async (c) => {
+  if (c.env.DB) {
+    try {
+      const { results } = await c.env.DB.prepare(
+        'SELECT * FROM reviews WHERE is_published = 1 ORDER BY created_at DESC'
+      ).all();
+      return c.json(results || []);
+    } catch (e) {
+      console.warn('D1 get reviews error:', e);
+    }
+  }
+  return c.json([]);
+});
+
+app.post('/reviews', async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  const clientName = (body.client_name || '').trim();
+  const comment = (body.comment || '').trim();
+  const rawRating = Number(body.rating || 5);
+  const rating = Math.min(5, Math.max(1, isNaN(rawRating) ? 5 : Math.round(rawRating)));
+  const serviceType = (body.service_type || 'Detección Especializada de Fugas').trim();
+  const appointmentId = body.appointment_id || null;
+  const clientPhone = body.client_phone || null;
+
+  if (!clientName || !comment) {
+    return c.json({ error: 'El nombre y el comentario son requeridos' }, 400);
+  }
+
+  const id = 'rev_' + crypto.randomUUID().substring(0, 10);
+  const createdAt = new Date().toISOString();
+
+  const newReview = {
+    id,
+    appointment_id: appointmentId,
+    client_name: clientName,
+    client_phone: clientPhone,
+    rating,
+    comment,
+    service_type: serviceType,
+    created_at: createdAt,
+    is_verified: 1,
+    is_published: 1
+  };
+
+  if (c.env.DB) {
+    try {
+      await c.env.DB.prepare(`
+        INSERT INTO reviews (id, appointment_id, client_name, client_phone, rating, comment, service_type, created_at, is_verified, is_published)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, 1)
+      `).bind(id, appointmentId, clientName, clientPhone, rating, comment, serviceType, createdAt).run();
+    } catch (e) {
+      console.warn('D1 insert review error:', e);
+    }
+  }
+
+  return c.json(newReview, 201);
+});
+
+app.delete('/reviews/:id', async (c) => {
+  const id = c.req.param('id');
+  if (c.env.DB) {
+    try {
+      await c.env.DB.prepare('DELETE FROM reviews WHERE id = ?').bind(id).run();
+    } catch (e) {
+      console.warn('D1 delete review error:', e);
+    }
+  }
+  return c.json({ success: true, id });
+});
+
 export const onRequest = handle(app);

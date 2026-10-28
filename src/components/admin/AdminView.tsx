@@ -7,9 +7,11 @@ import { AvailabilityManager } from './AvailabilityManager';
 import { AdminSettingsTab } from './AdminSettingsTab';
 import { KPICards } from './KPICards';
 import { FinancialReportCard } from './FinancialReportCard';
+import { AdminReviewsCard } from './AdminReviewsCard';
 import { useAppointments } from '../../hooks/useAppointments';
+import { useReviews } from '../../hooks/useReviews';
 import { getTodayDateString, getTomorrowDateString } from '../../utils/dateFormatter';
-import { Bell, RefreshCw, X, Navigation } from 'lucide-react';
+import { Bell, RefreshCw, X, Navigation, Star } from 'lucide-react';
 
 interface AdminViewProps {
   onClose: () => void;
@@ -39,6 +41,13 @@ export const AdminView: React.FC<AdminViewProps> = ({
     updateService,
     updatePayment
   } = useAppointments(true);
+
+  const {
+    reviews,
+    newReviewAlert,
+    dismissAlert: dismissReviewAlert,
+    removeReview
+  } = useReviews(true);
 
   const [activeTab, setActiveTab] = useState<AdminTab>('route');
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'confirmed' | 'tomorrow'>('all');
@@ -108,6 +117,21 @@ export const AdminView: React.FC<AdminViewProps> = ({
         </div>
       )}
 
+      {/* Alerta flotante en tiempo real si un cliente publica una calificación / reseña */}
+      {newReviewAlert && (
+        <div className="bg-amber-500 text-white px-4 py-3 shadow-lg flex items-center justify-between animate-bounce shrink-0">
+          <div className="flex items-center gap-2 text-xs font-black">
+            <Star className="w-4 h-4 shrink-0 fill-white" />
+            <span>
+              ¡NUEVO TESTIMONIO! {newReviewAlert.client_name} ({newReviewAlert.rating}★): "{newReviewAlert.comment.substring(0, 35)}..."
+            </span>
+          </div>
+          <button onClick={dismissReviewAlert} className="p-1 hover:bg-black/20 rounded-lg">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Área de Contenido con Scroll Móvil */}
       <main className="flex-1 overflow-y-auto px-4 py-4 pb-28 max-w-lg w-full mx-auto space-y-4">
         
@@ -165,6 +189,9 @@ export const AdminView: React.FC<AdminViewProps> = ({
 
             {/* Reporte Financiero Diario y Semanal */}
             <FinancialReportCard appointments={appointments} />
+
+            {/* Testimonios y Reseñas de Clientes Verificados */}
+            <AdminReviewsCard reviews={reviews} onDeleteReview={removeReview} />
 
             {/* Filtros Rápidos Estilo Pastilla */}
             <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs font-bold">
