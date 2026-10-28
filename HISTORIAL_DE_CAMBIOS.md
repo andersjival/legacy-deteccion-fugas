@@ -15,6 +15,19 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v1.1.0] - 2026-10-28 - Motor de Verificación Dinámica de Horarios y Bloques (Commit: `f3fbc97`)
+- **Motor de Agendamiento (`#agendar`):**
+  - Calendario mensual en vivo con indicador de disponibilidad por día.
+  - Cabecera informativa con horario de atención (inicio a fin) y contador de espacios disponibles en tiempo real.
+  - Tarjetas de turnos con rangos completos (`08:00 AM - 10:00 AM`, etc.) y etiquetas *"Disponible"* / *"Ocupado"* / *"Cupo diario completo"*.
+- **Panel de Administrador PWA:**
+  - Planificador "Mañana voy a trabajar" con bloqueo manual de horas específicas mediante un clic.
+  - Botón verde WhatsApp (`#25D366`) **"Confirmar Cita al Cliente por WhatsApp"** con rango de horario `*{rango_hora}*`.
+  - Botón de mantenimiento **"Limpiar Fotos y Datos Antiguos Ahora"**.
+- **Backend Edge & Cloudflare D1:**
+  - Esquema D1 actualizado con columnas `start_time` y `end_time` en `appointments` y `work_days`.
+  - Endpoint `/api/availability` con cálculo dinámico de rangos y conteo de cupos restantes.
+
 ### [v1.0.1] - 2026-10-28 - Botón de Confirmación Rápida por WhatsApp (Commit: `e275e8f`)
 - **Panel de Administrador:**
   - Botón destacado verde WhatsApp (`#25D366`) **"Confirmar Cita al Cliente"** en cada tarjeta de cita.
