@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, MessageSquare, MapPin, Calendar, Clock, Image as ImageIcon, CheckCircle, Clock3, CheckCheck, XCircle } from 'lucide-react';
+import { Phone, MessageSquare, MapPin, Calendar, Clock, Image as ImageIcon } from 'lucide-react';
 import { Appointment, AppointmentStatus } from '../../types/appointment';
 import { formatDateToSpanish, formatTime12h } from '../../utils/dateFormatter';
 
@@ -14,16 +14,27 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
   onUpdateStatus,
   onOpenLightbox
 }) => {
-  const cleanPhone = appointment.client_phone.replace(/\D/g, '');
-  const whatsappUrl = `https://wa.me/506${cleanPhone}?text=${encodeURIComponent(
-    `Hola ${appointment.client_name}, le contactamos de Legacy Detección de Fugas respecto a su cita del ${appointment.appointment_date} a las ${formatTime12h(appointment.appointment_time)}.`
-  )}`;
+  const rawDigits = appointment.client_phone.replace(/\D/g, '');
+  const phoneWithCountry = rawDigits.startsWith('506') ? rawDigits : `506${rawDigits}`;
 
   const statusConfig = {
     pending: { label: 'Pendiente', color: 'bg-amber-100 text-amber-800 border-amber-300' },
     confirmed: { label: 'Confirmada', color: 'bg-blue-100 text-blue-800 border-blue-300' },
     completed: { label: 'Completada', color: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
     cancelled: { label: 'Cancelada', color: 'bg-slate-100 text-slate-500 border-slate-300' }
+  };
+
+  const handleQuickConfirmWhatsApp = () => {
+    // 1. Actualizar estado a 'confirmed' en D1 y UI
+    onUpdateStatus(appointment.id, 'confirmed');
+
+    // 2. Formatear mensaje y abrir WhatsApp
+    const fecha = formatDateToSpanish(appointment.appointment_date);
+    const hora = formatTime12h(appointment.appointment_time);
+    const mensaje = `Hola *${appointment.client_name}*, le saludamos de *Legacy Detección de Fugas* 💧. Hemos revisado los detalles de su solicitud y le confirmamos su cita para el servicio de *${appointment.service_type}* el día *${fecha}* a las *${hora}*. Por favor envíenos la ubicación exacta por este medio para nuestro registro de ruta. ¡Muchas gracias!`;
+
+    const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -65,7 +76,7 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
         <p className="text-brand-slate italic leading-relaxed">"{appointment.problem_description}"</p>
       </div>
 
-      {/* Galería de Fotos (0 a 3 fotos) */}
+      {/* Galería de Fotos */}
       {appointment.photo_keys && appointment.photo_keys.length > 0 && (
         <div>
           <p className="text-[11px] font-bold text-brand-dark mb-2 flex items-center gap-1.5">
@@ -96,38 +107,27 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
         </p>
       )}
 
-      {/* Botones de Contacto y Cambio de Estado */}
-      <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100">
-        {/* Contacto Directo */}
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <a
-            href={`tel:${cleanPhone}`}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-brand-dark bg-slate-100 hover:bg-slate-200 transition-colors"
-          >
-            <Phone className="w-3.5 h-3.5 text-brand-blue" />
-            <span>Llamar</span>
-          </a>
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
-          >
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span>WhatsApp</span>
-          </a>
-        </div>
+      {/* Botón Destacado de Confirmación Rápida por WhatsApp */}
+      <button
+        type="button"
+        onClick={handleQuickConfirmWhatsApp}
+        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-extrabold text-white bg-[#25D366] hover:bg-[#20ba5a] shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all"
+      >
+        <MessageSquare className="w-4 h-4 fill-white text-[#25D366]" />
+        <span>Confirmar Cita al Cliente</span>
+      </button>
 
-        {/* Selector de Estado */}
+      {/* Botones Secundarios de Llamada y Otros Estados */}
+      <div className="pt-1 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100">
+        <a
+          href={`tel:${rawDigits}`}
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-brand-dark bg-slate-100 hover:bg-slate-200 transition-colors"
+        >
+          <Phone className="w-3.5 h-3.5 text-brand-blue" />
+          <span>Llamar al {appointment.client_phone}</span>
+        </a>
+
         <div className="flex items-center gap-1 w-full sm:w-auto justify-end">
-          <button
-            onClick={() => onUpdateStatus(appointment.id, 'confirmed')}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-              appointment.status === 'confirmed' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-blue-50'
-            }`}
-          >
-            Confirmar
-          </button>
           <button
             onClick={() => onUpdateStatus(appointment.id, 'completed')}
             title="Marca la cita como completada y purga fotos de R2"
