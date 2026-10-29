@@ -1,5 +1,5 @@
 // Service Worker para Legacy Detección de Fugas PWA
-const CACHE_NAME = 'legacy-pwa-v2';
+const CACHE_NAME = 'legacy-pwa-v2.46';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

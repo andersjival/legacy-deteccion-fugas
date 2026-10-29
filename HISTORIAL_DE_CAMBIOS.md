@@ -15,6 +15,11 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.47.0] - 2026-10-29 - Sincronización y Purga de Caché de la PWA (v2.46)
+- **Sincronización Total Web y PWA (`sw.js`):**
+  - Actualizado el identificador de caché a `legacy-pwa-v2.46`, forzando la purga inmediata de versiones anteriores en cualquier teléfono o computadora instalada.
+  - Blindada la estrategia `Network-First` y `no-cache` en cabeceras de Service Worker y manifiesto, garantizando que la PWA siempre se mantenga 100% idéntica y sincronizada en tiempo real con la versión web.
+
 ### [v2.46.0] - 2026-10-29 - Enfoque Persuasivo y Unificación de Solución & Beneficio en /PROYECTO
 - **Erradicación de Términos de Dolor y Personalismo Excesivo (`ProjectPresentationPage.tsx`):**
   - Eliminadas las etiquetas "El Dolor del Negocio Común" y "El Impacto para David Rojas".
