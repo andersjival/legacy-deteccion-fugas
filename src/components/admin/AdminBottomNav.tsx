@@ -1,7 +1,7 @@
 import React from 'react';
-import { Navigation, Calendar, Clock, Settings } from 'lucide-react';
+import { Navigation, Calendar, Clock, Settings, FileText } from 'lucide-react';
 
-export type AdminTab = 'route' | 'all' | 'schedule' | 'settings';
+export type AdminTab = 'route' | 'all' | 'quotes' | 'schedule' | 'settings';
 
 interface AdminBottomNavProps {
   activeTab: AdminTab;
@@ -30,6 +30,12 @@ export const AdminBottomNav: React.FC<AdminBottomNavProps> = ({
       icon: Calendar,
       badge: pendingCount > 0 ? pendingCount : null,
       badgeColor: 'bg-red-500 text-white'
+    },
+    {
+      id: 'quotes' as AdminTab,
+      label: 'Cotizador',
+      icon: FileText,
+      badge: null
     },
     {
       id: 'schedule' as AdminTab,

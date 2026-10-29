@@ -15,6 +15,21 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.18.0] - 2026-10-29 - Cotizador de Trabajos en Línea con Desglose, Logo Oficial, IVA y Exportación WhatsApp / PDF
+- **Cotizador de Trabajos Automático (`JobQuoteManager.tsx` / `types/quote.ts`):**
+  - Implementado sistema completo de cotizaciones automáticas en línea accesible desde el panel administrativo (`activeTab === 'quotes'`) y por ruta directa (`/cotizador`).
+  - **Identidad & Logo:** Incorporado logo oficial de *Royalty Destaqueo de Tuberías* (`logo-royalty-destaqueo.png`) con subida opcional de foto o logo del negocio y restablecimiento a 1 clic.
+  - **Datos Generales:** Consecutivo automático (`COT-2026-XXX`), fecha de emisión (predefinida a hoy y editable), cliente, lugar y teléfono.
+  - **Alcance Línea por Línea:** Descripción dinámica del trabajo con adición y eliminación de puntos/pasos técnicos.
+  - **Desglose Económico:** Mano de obra, estimado de materiales con campo de detalle, cálculo automático de subtotal, toggle de IVA (13% para Factura Electrónica) y Total General.
+  - **Condiciones y Checkpoints:** Tiempo estimado de entrega editable (mismo día, 1 día, 2 días, 1 semana, personalizado) y checkpoints de garantía (100% contra entrega y satisfacción, materiales certificados, garantía por escrito y sin costos ocultos).
+  - **Firma Oficial y Redes:** Bloque de firma de *David Rojas*, banner de contacto oficial (`royalty-contacto-banner.png`), enlaces a WhatsApp, Instagram, correo y sitio web.
+  - **Exportación & Compartir:** Envío formateado por WhatsApp en 1 clic, impresión profesional A4/Carta (`@media print` sin elementos de interfaz) y copiado rápido al portapapeles.
+  - **Persistencia Local:** Guardado automático en `localStorage` para proteger borradores activos.
+- **Navegación Móvil y Escritorio (`AdminView.tsx`, `AdminBottomNav.tsx`, `App.tsx`):**
+  - Integrada la pestaña "Cotizador" en la barra de navegación superior de PC y en la barra inferior móvil.
+  - Rutas directas añadidas: `/cotizador`, `/cotizar`, `/presupuesto`.
+
 ### [v2.17.0] - 2026-10-28 - Slider Interactivo de Testimonios y Corrección de Caracteres en D1
 - **Slider / Carrusel Interactivo de Testimonios (`TestimonialsSection.tsx`):**
   - Transformada la sección de testimonios en un carrusel dinámico y fluido con física de transición suave (`transition-transform duration-500 ease-out`).

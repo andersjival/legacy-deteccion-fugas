@@ -8,11 +8,12 @@ import { AdminSettingsTab } from './AdminSettingsTab';
 import { KPICards } from './KPICards';
 import { FinancialReportCard } from './FinancialReportCard';
 import { AdminReviewsCard } from './AdminReviewsCard';
+import { JobQuoteManager } from '../quotes/JobQuoteManager';
 import { AnimatedEagleLogo } from '../common/AnimatedEagleLogo';
 import { useAppointments } from '../../hooks/useAppointments';
 import { useReviews } from '../../hooks/useReviews';
 import { getTodayDateString, getTomorrowDateString } from '../../utils/dateFormatter';
-import { Bell, RefreshCw, X, Navigation, Star, Laptop, Smartphone, Calendar, Clock, Settings } from 'lucide-react';
+import { Bell, RefreshCw, X, Navigation, Star, Laptop, Smartphone, Calendar, Clock, Settings, FileText } from 'lucide-react';
 
 interface AdminViewProps {
   onClose: () => void;
@@ -107,6 +108,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
           {[
             { id: 'route' as AdminTab, label: 'Ruta de Hoy', icon: Navigation, count: todayAppointments.length },
             { id: 'all' as AdminTab, label: 'Todas las Citas', icon: Calendar, count: pendingAppointments.length },
+            { id: 'quotes' as AdminTab, label: 'Cotizador', icon: FileText, count: 0 },
             { id: 'schedule' as AdminTab, label: 'Horarios', icon: Clock, count: 0 },
             { id: 'settings' as AdminTab, label: 'Ajustes', icon: Settings, count: 0 }
           ].map((tab) => {
@@ -297,7 +299,14 @@ export const AdminView: React.FC<AdminViewProps> = ({
           </div>
         )}
 
-        {/* TAB 3: HORARIOS Y "MAÑANA VOY A TRABAJAR" */}
+        {/* TAB 3: COTIZADOR DE TRABAJOS EN LÍNEA */}
+        {activeTab === 'quotes' && (
+          <div className="w-full">
+            <JobQuoteManager />
+          </div>
+        )}
+
+        {/* TAB 4: HORARIOS Y "MAÑANA VOY A TRABAJAR" */}
         {activeTab === 'schedule' && (
           <div className="max-w-4xl mx-auto">
             <AvailabilityManager />

@@ -87,3 +87,28 @@
 .animate-eagle-border {
   animation: eagleBorderAura 4s ease-in-out infinite;
 }
+
+/* Reglas de Impresión y Exportación a PDF para Cotizaciones */
+@media print {
+  @page {
+    margin: 1cm;
+    size: letter portrait;
+  }
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-area {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
