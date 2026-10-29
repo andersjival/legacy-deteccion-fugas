@@ -733,7 +733,21 @@ class ApiService {
     }
   }
 
-  async updateQuoteStatus(id: string, status: 'por_enviar' | 'enviada'): Promise<boolean> {
+  async updateQuoteStatus(id: string, status: 'por_enviar' | 'enviada' | 'aceptada' | string): Promise<boolean> {
+    const local = this.getStored<any[]>('royalty_saved_quotes_history', []);
+    const updated = local.map((q: any) => {
+      if (q.id === id || q.quoteData?.id === id) {
+        return {
+          ...q,
+          status,
+          updated_at: new Date().toISOString(),
+          quoteData: q.quoteData ? { ...q.quoteData, status } : undefined
+        };
+      }
+      return q;
+    });
+    this.setStored('royalty_saved_quotes_history', updated);
+
     try {
       if (!this.useLocalFallback) {
         const res = await fetch(`/api/quotes/${id}/status`, {

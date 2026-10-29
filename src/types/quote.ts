@@ -36,7 +36,7 @@ export interface JobQuote {
   emailContact: string;
   websiteUrl: string;
   createdAt: string;
-  status?: 'por_enviar' | 'enviada';
+  status?: 'por_enviar' | 'enviada' | 'aceptada';
 }
 
 export interface SavedQuoteEntry {
@@ -47,7 +47,7 @@ export interface SavedQuoteEntry {
   clientName: string;
   workReference: string;
   quoteData: JobQuote;
-  status?: 'por_enviar' | 'enviada';
+  status?: 'por_enviar' | 'enviada' | 'aceptada';
   sentAt?: string | null;
   viewCount?: number;
   isDownloaded?: boolean;

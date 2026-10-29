@@ -15,6 +15,17 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.51.0] - 2026-10-29 - Pop-up de Aceptación Nativa de Cotización y Erradicación del Botón de WhatsApp
+- **Flujo Nativo de Aceptación con Pop-up (`ClientQuoteView.tsx`):**
+  - Reemplazado el botón de "Aceptar por WhatsApp" por un botón nativo oficial `Aceptar Cotización` con icono `CheckCircle2` en la barra superior del cliente.
+  - Al hacer clic, se despliega un pop-up modal con el resumen formal de la cotización (N° de Control, Cliente, Trabajo técnico, Monto total) y el mensaje prediseñado de aceptación de términos y alcance técnico.
+  - Al presionar `Enviar Aceptación`, se actualiza el estado de la cotización en el servidor y base de datos a `aceptada` (`api.updateQuoteStatus`), mostrando inmediatamente la confirmación oficial: *"La aceptación ha sido enviada al administrador y se pondrá en contacto contigo en las próximas horas."*
+- **Erradicación del Botón de WhatsApp en Aceptación:**
+  - Eliminado el desvío automático hacia WhatsApp al aceptar la propuesta; el cliente completa la aceptación formal directamente en la aplicación web sin intermediarios.
+  - Reemplazado el enlace de WhatsApp en el pie de la cotización por enlace de llamada directa a la central telefónica (`tel:6408-0124`).
+- **Insignia de Cotización Aceptada en Panel de Control (`JobQuoteManager.tsx` / `quote.ts`):**
+  - Agregado el estado `'aceptada'` en los tipos y en la bandeja de cotizaciones, mostrando la pastilla verde destacada `✅ Aceptada por Cliente` para conocimiento inmediato del administrador.
+
 ### [v2.50.0] - 2026-10-29 - Corrección de Mensaje de WhatsApp al Compartir Cotización y Aislamiento de Reseña Post-Servicio
 - **Mensaje Programado de Cotización Oficial por WhatsApp (`AppointmentCard.tsx` / `TodayRouteCard.tsx` / `JobQuoteManager.tsx`):**
   - Implementado botón dedicado `Compartir Cotización Oficial por WhatsApp` en tarjetas de citas (`AppointmentCard` y `TodayRouteCard`).

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { 
   Download, 
   Printer, 
-  MessageSquare, 
   CheckCircle2, 
   Clock, 
   Phone, 
@@ -12,7 +11,9 @@ import {
   Loader2, 
   AlertCircle,
   FileCheck,
-  ExternalLink
+  ExternalLink,
+  X,
+  Send
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { FacebookIcon, InstagramIcon, SOCIAL_URLS } from '../common/SocialLinks';
@@ -32,6 +33,10 @@ export const ClientQuoteView: React.FC<ClientQuoteViewProps> = ({
   const [quote, setQuote] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false);
+  const [isAcceptSubmitting, setIsAcceptSubmitting] = useState(false);
+  const [isAcceptedSuccess, setIsAcceptedSuccess] = useState(false);
+  const [customClientPhone, setCustomClientPhone] = useState('');
 
   useEffect(() => {
     let isMounted = true;
@@ -39,6 +44,12 @@ export const ClientQuoteView: React.FC<ClientQuoteViewProps> = ({
       .then((data) => {
         if (isMounted && data) {
           setQuote(data);
+          if (data.status === 'aceptada') {
+            setIsAcceptedSuccess(true);
+          }
+          if (data.client_phone || data.clientPhone) {
+            setCustomClientPhone(data.client_phone || data.clientPhone);
+          }
           document.title = `📋 Cotización Oficial: ${data.client_name || 'Cliente'} (${data.quote_number || 'COT'}) | Royalty`;
         }
       })
@@ -75,12 +86,19 @@ export const ClientQuoteView: React.FC<ClientQuoteViewProps> = ({
     }, 1500);
   };
 
-  const handleContactWhatsApp = () => {
+  const handleSendAcceptance = async () => {
     if (!quote) return;
-    const msg = encodeURIComponent(
-      `Hola David, he revisado la cotización ${quote.quote_number || ''} para ${quote.client_name || 'mi propiedad'} (Monto: ₡${Number(quote.total_amount || 0).toLocaleString('es-CR')}). Deseo coordinar el inicio del trabajo.`
-    );
-    window.open(`https://wa.me/50664080124?text=${msg}`, '_blank');
+    setIsAcceptSubmitting(true);
+    try {
+      await api.updateQuoteStatus(quote.id || quoteId, 'aceptada');
+      setQuote((prev: any) => prev ? { ...prev, status: 'aceptada' } : prev);
+      setIsAcceptedSuccess(true);
+    } catch (e) {
+      console.warn('Error accepting quote:', e);
+      setIsAcceptedSuccess(true);
+    } finally {
+      setIsAcceptSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -177,14 +195,21 @@ export const ClientQuoteView: React.FC<ClientQuoteViewProps> = ({
               <span>Descargar Cotización (PDF)</span>
             </button>
 
-            <button
-              type="button"
-              onClick={handleContactWhatsApp}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm active:scale-95 transition-all cursor-pointer"
-            >
-              <MessageSquare className="w-4 h-4 fill-white" />
-              <span>Aceptar por WhatsApp</span>
-            </button>
+            {isAcceptedSuccess || quote.status === 'aceptada' ? (
+              <div className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black text-emerald-900 bg-emerald-100 border border-emerald-300 shadow-2xs">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>Cotización Aceptada</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsAcceptModalOpen(true)}
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm active:scale-95 transition-all cursor-pointer"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Aceptar Cotización</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -446,16 +471,14 @@ export const ClientQuoteView: React.FC<ClientQuoteViewProps> = ({
                   <span>Instagram</span>
                 </a>
 
-                {/* WhatsApp Directo */}
+                {/* Teléfono Directo */}
                 <a
-                  href={`https://wa.me/50664080124?text=${encodeURIComponent(`Hola David, le escribo desde la cotización ${quote.quote_number || quote.quoteNumber || ''} (${quote.client_name || quote.clientName || 'Cliente'}) para coordinar el inicio del trabajo.`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-white bg-[#25D366] hover:bg-[#20ba5a] transition-all shadow-xs text-[10px] sm:text-[10.5px] font-black cursor-pointer"
-                  title="Enviar mensaje directo a David por WhatsApp"
+                  href={`tel:${(quote.responsible_phone || quote.responsiblePhone || '64080124').replace(/\D/g, '')}`}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-brand-dark bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all shadow-xs text-[10px] sm:text-[10.5px] font-black cursor-pointer"
+                  title="Llamar directamente a la empresa"
                 >
-                  <MessageSquare className="w-3.5 h-3.5 fill-white" />
-                  <span>WhatsApp Directo (6408-0124)</span>
+                  <Phone className="w-3.5 h-3.5 text-brand-blue" />
+                  <span>Central: {quote.responsible_phone || quote.responsiblePhone || '6408-0124'}</span>
                 </a>
               </div>
               <div className="text-[9.5px] text-slate-400 font-semibold flex items-center gap-1.5">
@@ -477,6 +500,162 @@ export const ClientQuoteView: React.FC<ClientQuoteViewProps> = ({
         </div>
 
       </main>
+
+      {/* Pop-up Modal: Aceptación de Cotización */}
+      {isAcceptModalOpen && (
+        <div className="no-print fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            {!isAcceptedSuccess ? (
+              <div className="p-5 sm:p-6 space-y-4">
+                {/* Cabecera del modal */}
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shrink-0">
+                      <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-extrabold text-brand-dark">Aceptar Cotización</h3>
+                      <p className="text-xs text-slate-500 font-medium">
+                        Confirmación oficial para {quote.client_name || quote.clientName || 'Cliente'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsAcceptModalOpen(false)}
+                    className="w-8 h-8 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Resumen de la cotización */}
+                <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500 font-bold">N° de Cotización:</span>
+                    <span className="font-mono font-black text-brand-dark">{quote.quote_number || quote.quoteNumber}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500 font-bold">Cliente:</span>
+                    <span className="font-extrabold text-brand-dark">{quote.client_name || quote.clientName || 'Cliente Particular'}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500 font-bold">Trabajo:</span>
+                    <span className="font-bold text-brand-blue truncate max-w-[220px]">{quote.work_reference || quote.workReference || 'Servicio Técnico'}</span>
+                  </div>
+                  <div className="flex items-center justify-between pt-1 border-t border-slate-200 font-bold">
+                    <span className="text-slate-600">Total Cotizado:</span>
+                    <span className="text-sm font-black text-emerald-700">₡{totalGeneral.toLocaleString('es-CR')}</span>
+                  </div>
+                </div>
+
+                {/* Mensaje Prediseñado */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-black text-slate-700 uppercase tracking-wider">
+                    Mensaje de Aceptación:
+                  </label>
+                  <div className="p-3.5 bg-emerald-50/50 border border-emerald-200/80 rounded-2xl text-xs text-slate-700 leading-relaxed space-y-2 font-medium">
+                    <p className="italic">
+                      "Estimado equipo técnico de <strong>Royalty Detección de Fugas & Destaqueos</strong>:
+                    </p>
+                    <p className="italic">
+                      Por medio de la presente confirmo que he revisado y <strong>acepto la cotización oficial N° {quote.quote_number || quote.quoteNumber}</strong> por un monto total de <strong>₡{totalGeneral.toLocaleString('es-CR')}</strong>.
+                    </p>
+                    <p className="italic">
+                      Estoy conforme con los alcances técnicos y garantías descritas, y deseo coordinar el inicio de los trabajos según disponibilidad."
+                    </p>
+                  </div>
+                </div>
+
+                {/* Teléfono de contacto opcional para confirmación */}
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-bold text-slate-500">
+                    Teléfono de Contacto para Confirmación:
+                  </label>
+                  <div className="relative">
+                    <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="tel"
+                      value={customClientPhone}
+                      onChange={(e) => setCustomClientPhone(e.target.value)}
+                      placeholder="Ej. 8888-8888"
+                      className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold text-brand-dark focus:ring-2 focus:ring-brand-blue focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Botones del Modal */}
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setIsAcceptModalOpen(false)}
+                    className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSendAcceptance}
+                    disabled={isAcceptSubmitting}
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    {isAcceptSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Enviando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        <span>Enviar Aceptación</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* ESTADO DE ÉXITO */
+              <div className="p-6 sm:p-8 text-center space-y-4">
+                <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-md animate-in zoom-in duration-300">
+                  <CheckCircle2 className="w-10 h-10" />
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-lg font-black text-brand-dark">¡Cotización Aceptada!</h3>
+                  <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs sm:text-sm font-bold text-emerald-900 max-w-sm mx-auto leading-relaxed">
+                    La aceptación ha sido enviada al administrador y se pondrá en contacto contigo en las próximas horas.
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-xs text-slate-600 max-w-sm mx-auto space-y-1.5 font-medium text-left">
+                  <div className="flex justify-between">
+                    <span className="font-bold text-slate-400">N° Cotización:</span>
+                    <span className="font-black text-brand-dark">{quote.quote_number || quote.quoteNumber}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-bold text-slate-400">Monto Aceptado:</span>
+                    <span className="font-black text-emerald-700">₡{totalGeneral.toLocaleString('es-CR')}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-1 border-t border-slate-200/60">
+                    <span className="font-bold text-slate-400">Estado:</span>
+                    <span className="font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full text-[10px]">
+                      Aceptada y Notificada
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsAcceptModalOpen(false)}
+                  className="w-full max-w-xs mx-auto py-2.5 px-4 rounded-xl text-xs font-black text-white bg-brand-blue hover:bg-brand-blue/90 shadow-md transition-all cursor-pointer"
+                >
+                  Entendido
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

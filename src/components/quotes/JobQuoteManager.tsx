@@ -1261,7 +1261,12 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
                             {item.quoteData?.quoteNumber || item.fileName}
                           </span>
                           {/* Badges de Estado Principal */}
-                          {isPending ? (
+                          {item.status === 'aceptada' ? (
+                            <span className="inline-flex items-center gap-1 text-[9.5px] font-black px-2 py-0.5 rounded-md bg-emerald-600 text-white shadow-2xs">
+                              <CheckCircle2 className="w-3 h-3 text-white" />
+                              <span>Aceptada por Cliente</span>
+                            </span>
+                          ) : isPending ? (
                             <span className="inline-flex items-center gap-1 text-[9.5px] font-black px-2 py-0.5 rounded-md bg-amber-500 text-white shadow-2xs">
                               <Clock className="w-3 h-3" />
                               <span>Por Enviar</span>
