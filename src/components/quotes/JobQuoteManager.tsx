@@ -57,6 +57,7 @@ export const JobQuoteManager: React.FC = () => {
   const [customFileName, setCustomFileName] = useState('');
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
   const [isSavingLater, setIsSavingLater] = useState(false);
+  const [isSavingAndSending, setIsSavingAndSending] = useState(false);
   const [savedLaterFeedback, setSavedLaterFeedback] = useState(false);
   const [editingQuoteId, setEditingQuoteId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -658,18 +659,32 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
     return msg;
   };
 
-  const handleShareWhatsApp = async () => {
-    await saveToCloud(undefined, 'enviada');
-    setSavedHistory((prev) => 
-      prev.map((item) => item.id === quote.id ? { ...item, status: 'enviada', sentAt: new Date().toISOString() } : item)
-    );
-    const text = encodeURIComponent(generateWhatsAppMessage());
-    const phone = quote.clientPhone ? quote.clientPhone.replace(/\D/g, '') : '';
-    const url = phone.length >= 8 
-      ? `https://wa.me/506${phone.slice(-8)}?text=${text}`
-      : `https://wa.me/?text=${text}`;
-    window.open(url, '_blank');
+  const handleSaveAndSend = async () => {
+    setIsSavingAndSending(true);
+    try {
+      await saveToCloud(undefined, 'enviada');
+      setSavedHistory((prev) => 
+        prev.map((item) => item.id === quote.id ? { ...item, status: 'enviada', sentAt: new Date().toISOString() } : item)
+      );
+      const text = encodeURIComponent(generateWhatsAppMessage());
+      const phone = quote.clientPhone ? quote.clientPhone.replace(/\D/g, '') : '';
+      const url = phone.length >= 8 
+        ? `https://wa.me/506${phone.slice(-8)}?text=${text}`
+        : `https://wa.me/?text=${text}`;
+      window.open(url, '_blank');
+
+      setSaveSuccessMessage(`✅ Cotización guardada y enviada a ${quote.clientName || 'Cliente'} por WhatsApp.`);
+      if (saveSuccessTimerRef.current) clearTimeout(saveSuccessTimerRef.current);
+      saveSuccessTimerRef.current = setTimeout(() => setSaveSuccessMessage(null), 8000);
+      await syncCloudQuotes();
+    } catch (err) {
+      console.warn('Error al guardar y enviar cotización:', err);
+    } finally {
+      setIsSavingAndSending(false);
+    }
   };
+
+  const handleShareWhatsApp = handleSaveAndSend;
 
   const handleCopyText = async () => {
     try {
@@ -971,20 +986,36 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
             </button>
           </div>
 
-          {/* BOTÓN MANDATORIO: Guardar Cotización para Enviar Después */}
+          {/* BOTÓN 1: Guardar y Enviar */}
+          <button
+            type="button"
+            onClick={handleSaveAndSend}
+            disabled={isSavingAndSending || isSyncing}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-all active:scale-95 cursor-pointer"
+            title="Guardar cotización en la nube y enviarla inmediatamente por WhatsApp"
+          >
+            {isSavingAndSending ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
+            <span>{isSavingAndSending ? 'Enviando...' : 'Guardar y enviar'}</span>
+          </button>
+
+          {/* BOTÓN 2: Solo Guardar */}
           <button
             type="button"
             onClick={() => handleSaveQuoteForLater(false)}
             disabled={isSavingLater || isSyncing}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 shadow-sm transition-all active:scale-95 cursor-pointer"
-            title="Guardar cotización en 'Cotizaciones por Enviar' para enviarla luego al cliente"
+            title="Guardar en 'Cotizaciones por Enviar' para enviarla luego al cliente"
           >
             {isSavingLater ? (
               <RefreshCw className="w-4 h-4 animate-spin" />
             ) : (
               <BookmarkPlus className="w-4 h-4" />
             )}
-            <span>{isSavingLater ? 'Guardando...' : 'Guardar Cotización'}</span>
+            <span>{isSavingLater ? 'Guardando...' : 'Solo guardar'}</span>
           </button>
 
           {/* BOTÓN: Cotizaciones por Enviar (con contador de pendientes) */}
@@ -1018,10 +1049,10 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
             title="Compartir link dinámico con el cliente y rastrear descarga en vivo"
           >
             <Share2 className="w-4 h-4 text-indigo-600" />
-            <span>Compartir Enlace</span>
+            <span className="hidden sm:inline">Compartir Enlace</span>
           </button>
 
-          {/* Botón: Descargar / Guardar con Nombre */}
+          {/* Botón: Descargar PDF */}
           <button
             type="button"
             onClick={handleOpenDownloadModal}
@@ -1029,23 +1060,14 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
             title="Poner nombre, guardar en el sistema y descargar"
           >
             <Download className="w-4 h-4" />
-            <span>Descargar PDF</span>
+            <span className="hidden sm:inline">Descargar PDF</span>
           </button>
 
-          <button
-            type="button"
-            onClick={handleShareWhatsApp}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-all active:scale-95 cursor-pointer"
-            title="Enviar cotización formateada por WhatsApp con enlace directo"
-          >
-            <MessageSquare className="w-4 h-4 fill-white" />
-            <span className="hidden sm:inline">WhatsApp</span>
-          </button>
-
+          {/* Botón: Imprimir */}
           <button
             type="button"
             onClick={() => handlePrintOrDownloadPDF()}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-brand-blue hover:bg-brand-blue/90 shadow-sm transition-all active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all active:scale-95 cursor-pointer"
             title="Imprimir solo la hoja de cotización oficial"
           >
             <Printer className="w-4 h-4" />
@@ -2155,7 +2177,7 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
             </div>
           </div>
 
-          {/* TARJETA DE ACCIÓN DIRECTA: GUARDAR EN COTIZACIONES POR ENVIAR */}
+          {/* TARJETA DE ACCIÓN DIRECTA: GUARDAR Y ENVIAR / SOLO GUARDAR */}
           <div className={`p-4 sm:p-5 rounded-3xl border-2 shadow-soft space-y-3 transition-all ${
             savedLaterFeedback 
               ? 'bg-emerald-50 border-emerald-400 ring-4 ring-emerald-200' 
@@ -2165,20 +2187,20 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
               <div className={`w-9 h-9 rounded-2xl flex items-center justify-center shadow-xs shrink-0 transition-colors ${
                 savedLaterFeedback ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white'
               }`}>
-                {savedLaterFeedback ? <CheckCircle2 className="w-5 h-5" /> : <BookmarkPlus className="w-5 h-5" />}
+                {savedLaterFeedback ? <CheckCircle2 className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
               </div>
               <div className="min-w-0 flex-1">
                 <h4 className={`text-xs font-black uppercase tracking-wider ${
                   savedLaterFeedback ? 'text-emerald-950' : 'text-amber-950'
                 }`}>
-                  {savedLaterFeedback ? '¡Cotización Guardada con Éxito!' : '¿Deseas enviar esta cotización más tarde?'}
+                  {savedLaterFeedback ? '¡Cotización Guardada con Éxito!' : 'Acciones de Cotización'}
                 </h4>
                 <p className={`text-[11px] font-medium ${
                   savedLaterFeedback ? 'text-emerald-800' : 'text-amber-800'
                 }`}>
                   {savedLaterFeedback 
                     ? `Guardada en "Cotizaciones por Enviar" (${quote.quoteNumber}) a las ${getNowLocalTime12h()}. La puedes revisar o enviar por WhatsApp arriba.`
-                    : <>Presiona el botón para guardarla en <strong>"Cotizaciones por Enviar"</strong>. Podrás revisarla, editarla o mandarla por WhatsApp en cualquier momento.</>
+                    : <>Elige si deseas <strong>Guardar y enviar</strong> de inmediato por WhatsApp o <strong>Solo guardar</strong> en cotizaciones pendientes para enviarla después.</>
                   }
                 </p>
               </div>
@@ -2202,33 +2224,58 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
               </div>
             )}
 
-            <button
-              type="button"
-              onClick={() => handleSaveQuoteForLater(true)}
-              disabled={isSavingLater || isSyncing}
-              className={`w-full py-3 px-4 rounded-2xl text-xs font-black shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                savedLaterFeedback
-                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white ring-2 ring-emerald-300'
-                  : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-[0.99] text-white'
-              }`}
-            >
-              {isSavingLater ? (
-                <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Guardando en Cotizaciones por Enviar...</span>
-                </>
-              ) : savedLaterFeedback ? (
-                <>
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>✅ ¡Guardada en Cotizaciones por Enviar!</span>
-                </>
-              ) : (
-                <>
-                  <BookmarkPlus className="w-4 h-4" />
-                  <span>Guardar en Cotizaciones por Enviar</span>
-                </>
-              )}
-            </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+              {/* BOTÓN 1: Guardar y Enviar */}
+              <button
+                type="button"
+                onClick={handleSaveAndSend}
+                disabled={isSavingAndSending || isSyncing}
+                className="w-full py-3 px-4 rounded-2xl text-xs font-black shadow-sm flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white transition-all cursor-pointer"
+                title="Guardar cotización en la nube y enviarla inmediatamente por WhatsApp"
+              >
+                {isSavingAndSending ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Enviando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    <span>Guardar y enviar</span>
+                  </>
+                )}
+              </button>
+
+              {/* BOTÓN 2: Solo Guardar */}
+              <button
+                type="button"
+                onClick={() => handleSaveQuoteForLater(true)}
+                disabled={isSavingLater || isSyncing}
+                className={`w-full py-3 px-4 rounded-2xl text-xs font-black shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  savedLaterFeedback
+                    ? 'bg-amber-600 hover:bg-amber-700 text-white ring-2 ring-amber-300'
+                    : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-[0.99] text-white'
+                }`}
+                title="Guardar en 'Cotizaciones por Enviar' para enviarla luego al cliente"
+              >
+                {isSavingLater ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Guardando...</span>
+                  </>
+                ) : savedLaterFeedback ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>✅ ¡Guardada!</span>
+                  </>
+                ) : (
+                  <>
+                    <BookmarkPlus className="w-4 h-4" />
+                    <span>Solo guardar</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
         </div>

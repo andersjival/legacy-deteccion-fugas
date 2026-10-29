@@ -15,6 +15,16 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.53.0] - 2026-10-29 - Doble Acción en Cotizador: "Guardar y enviar" y "Solo guardar"
+- **Acciones Duales de Cotización en Barra Superior e Inferior (`JobQuoteManager.tsx`):**
+  - Implementados los dos botones directos en la interfaz de creación y edición de cotizaciones:
+    1. **"Guardar y enviar"**: Guarda la cotización de forma persistente en Cloudflare D1 y almacenamiento local con estado `enviada`, genera el enlace dinámico y abre automáticamente WhatsApp con el texto oficial, desglose técnico y enlace `/cotizacion/:id`.
+    2. **"Solo guardar"**: Guarda la cotización en Cloudflare D1 con estado `por_enviar` para almacenarla en la bandeja de pendientes sin disparar WhatsApp, permitiendo su revisión o envío posterior.
+  - Disponibles y visibles de forma simétrica tanto en la barra de herramientas superior como en la tarjeta de acciones al final del formulario editor para máxima comodidad en PC y móvil.
+- **Feedback Visual y Contador de Pendientes:**
+  - Añadida retroalimentación visual con estado de carga (`Enviando...` / `Guardando...`) y confirmación con hora exacta del usuario (`✅ ¡Guardada!`), sincronizado con el contador en tiempo real de cotizaciones pendientes por enviar.
+
+
 ### [v2.52.0] - 2026-10-29 - Sincronización Universal en Tiempo Real de Cotizaciones (PC & Móvil)
 - **Erradicación del Desfase de Cotizaciones por Enviar (`JobQuoteManager.tsx` / `api.ts`):**
   - Identificada y eliminada la causa raíz del desfase: la retención de cotizaciones fantasmas `localOnly` en `localStorage` de la computadora que no existían en D1 y la falta de sincronización bidireccional inmediata.
