@@ -19,7 +19,7 @@ import { api } from './services/api';
 
 export function App() {
   const [currentPath, setCurrentPath] = useState(() => {
-    const path = window.location.pathname.replace(/\/+$/, '');
+    const path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
     return path || '/';
   });
 
@@ -31,7 +31,7 @@ export function App() {
   // Escuchar cambios de historial (botón atrás/adelante del navegador)
   useEffect(() => {
     const handlePopState = () => {
-      const path = window.location.pathname.replace(/\/+$/, '');
+      const path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
       setCurrentPath(path || '/');
     };
     window.addEventListener('popstate', handlePopState);
@@ -125,7 +125,7 @@ export function App() {
       api.trackTrafficEvent(source, 'agenda_click', path);
     }
     window.history.pushState({}, '', path);
-    setCurrentPath(path.replace(/\/+$/, '') || '/');
+    setCurrentPath(path.replace(/\/+$/, '').toLowerCase() || '/');
     window.scrollTo(0, 0);
   };
 
@@ -134,13 +134,14 @@ export function App() {
     navigateTo('/agenda');
   };
 
-  const isAgendaRoute = currentPath === '/agenda' || currentPath === '/agendar';
-  const isAdminRoute = currentPath === '/detec/panel' || currentPath === '/detec' || currentPath === '/panel' || currentPath === '/admin';
-  const isReviewRoute = currentPath === '/calificar' || currentPath === '/review' || currentPath === '/valorar';
-  const isQuoteRoute = currentPath === '/cotizador' || currentPath === '/cotizar' || currentPath === '/presupuesto';
-  const isClientQuoteRoute = currentPath.startsWith('/cotizacion');
-  const isProjectRoute = currentPath === '/proyecto' || currentPath === '/sistema' || currentPath === '/propuesta';
-  const isTestimonialsRoute = currentPath === '/testimonios';
+  const normalizedPath = currentPath.toLowerCase();
+  const isAgendaRoute = normalizedPath === '/agenda' || normalizedPath === '/agendar';
+  const isAdminRoute = normalizedPath === '/detec/panel' || normalizedPath === '/detec' || normalizedPath === '/panel' || normalizedPath === '/admin';
+  const isReviewRoute = normalizedPath === '/calificar' || normalizedPath === '/review' || normalizedPath === '/valorar';
+  const isQuoteRoute = normalizedPath === '/cotizador' || normalizedPath === '/cotizar' || normalizedPath === '/presupuesto';
+  const isClientQuoteRoute = normalizedPath.startsWith('/cotizacion');
+  const isProjectRoute = normalizedPath === '/proyecto' || normalizedPath === '/sistema' || normalizedPath === '/propuesta';
+  const isTestimonialsRoute = normalizedPath === '/testimonios';
 
   const clientQuoteId = (() => {
     if (!isClientQuoteRoute) return '';

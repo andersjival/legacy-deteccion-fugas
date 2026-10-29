@@ -15,6 +15,11 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.44.0] - 2026-10-29 - Enrutamiento Insensible a Mayúsculas y Carga Universal de /PROYECTO
+- **Normalización de Rutas a Minúsculas (`App.tsx`):**
+  - Implementada normalización automática con `.toLowerCase()` tanto en la inicialización de `currentPath` como en los eventos de navegación (`handlePopState`, `navigateTo` y `normalizedPath`).
+  - Habilitado el acceso inmediato y sin errores a rutas escritas en mayúsculas (`/PROYECTO`, `/AGENDA`, `/CITAS`, `/COTIZADOR`, `/TESTIMONIOS`) sin caer al inicio por discrepancia tipográfica.
+
 ### [v2.43.0] - 2026-10-29 - Corrección de Posición de Barra de Desplazamiento y Navegación Suave sin Saltos en Citas
 - **Barra de Desplazamiento al Borde Extremo Derecho (`AdminView.tsx`):**
   - Desacoplado el desbordamiento vertical (`overflow-y-auto`) del contenedor centrado con ancho restringido (`max-w-lg md:max-w-6xl xl:max-w-7xl`).
