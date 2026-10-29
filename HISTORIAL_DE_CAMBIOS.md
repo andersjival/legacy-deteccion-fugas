@@ -15,6 +15,12 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.32.0] - 2026-10-29 - Desplazamiento Automático Superior al Confirmar Cita (Sin Scroll Manual)
+- **Auto-Scroll Inmediato hacia la Confirmación Superior (`BookingWizard.tsx` / `StepConfirmation.tsx`):**
+  - Implementado desplazamiento automático instantáneo y suave (`window.scrollTo({ top: 0, behavior: 'smooth' })`) en `handleSubmit` al confirmarse la cita.
+  - Añadido `useEffect` de auto-posicionamiento en el montaje de `StepConfirmation`: el usuario en teléfonos móviles o PC es dirigido directamente arriba donde se muestra el distintivo *"CITA REGISTRADA CON ÉXITO"* y *"¡Gracias, [Nombre]!"*.
+  - Erradicada la necesidad de que el cliente deba hacer scroll hacia arriba con el dedo o mouse para ver el comprobante y el botón de WhatsApp.
+
 ### [v2.31.0] - 2026-10-29 - Persistencia Absoluta de Pestañas y Ventanas al Refrescar (Horarios, Cotizador, Tráfico, Citas)
 - **Persistencia de Pestañas en el Panel Administrativo (`AdminView.tsx`):**
   - Implementada sincronización bidireccional entre el estado `activeTab`, `localStorage` (`royalty_admin_active_tab`) y parámetros de consulta en URL (`?tab=schedule`, `?tab=quotes`, `?tab=traffic`, `?tab=all`, `?tab=route`, `?tab=settings`).

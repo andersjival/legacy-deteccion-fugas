@@ -69,6 +69,14 @@ export const BookingWizard: React.FC<BookingWizardProps> = ({
       });
       setConfirmedAppointment(newApp);
       setStep(4);
+      // Dirigir automáticamente la pantalla arriba del todo sin que el usuario tenga que hacer scroll
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (wizardTopRef.current) {
+          wizardTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 50);
     } catch (err) {
       alert('Error al agendar la cita. Por favor intente nuevamente.');
       console.warn(err);

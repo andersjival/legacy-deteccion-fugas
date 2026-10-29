@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { CheckCircle2, MessageSquare, Calendar, MapPin, Clock, RotateCcw } from 'lucide-react';
 import { Appointment } from '../../../types/appointment';
 import { formatDateToSpanish, formatTime12h } from '../../../utils/dateFormatter';
@@ -12,6 +12,15 @@ export const StepConfirmation: React.FC<StepConfirmationProps> = ({
   appointment,
   onReset
 }) => {
+  // Al confirmarse la cita, asegurar que la pantalla se desplace automáticamente arriba del todo
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const timer = setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   const timeRange = `${formatTime12h(appointment.start_time)} - ${formatTime12h(appointment.end_time)}`;
 
   const whatsappMessage = encodeURIComponent(
