@@ -86,7 +86,12 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     <meta name="description" content="${ogDescription}" />
   `;
 
-  // Replace title and inject Open Graph meta tags into head
+  // Clean any previous default og/twitter/description tags from template
+  html = html.replace(/<meta property="og:[^>]*>/gi, '');
+  html = html.replace(/<meta name="twitter:[^>]*>/gi, '');
+  html = html.replace(/<meta name="description"[^>]*>/gi, '');
+
+  // Replace title and inject specific Open Graph meta tags into head
   html = html.replace(/<title>.*?<\/title>/i, `<title>${ogTitle}</title>`);
   html = html.replace('</head>', `${metaTags}\n</head>`);
 
