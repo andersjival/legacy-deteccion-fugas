@@ -15,6 +15,21 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.33.0] - 2026-10-29 - Precios Visibles en los 3 Servicios con Edición Dinámica en Tiempo Real por el Administrador
+- **Visualización de Precios a la Par en los 3 Servicios (`ServicesSection.tsx`):**
+  - Añadido el precio comercial a la par en cada una de las 3 tarjetas de servicio principales:
+    - *Detección Especializada de Fugas:* `₡45,000`
+    - *Rastreo y Diagnóstico de Tuberías:* `₡35,000`
+    - *Limpieza Técnica de Tuberías:* `₡25,000`
+  - Se muestra con etiqueta visual doble: píldora verde esmeralda superior junto a la insignia (`Alta Precisión | ₡45,000`) y bloque de tarifa base a la par del título del servicio.
+  - Sincronización en tiempo real mediante `api.getServices()` y evento reactivo `royalty_services_updated`.
+- **Edición Rápida de Precios por el Administrador (`ServicesCatalogManager.tsx`):**
+  - Incorporado botón *"Cambiar Precio"* y editor numérico directo en cada servicio dentro del panel administrativo (`/detec/panel?tab=settings`).
+  - Al cambiar y guardar el precio, el sistema actualiza la base de datos Cloudflare D1 y el almacenamiento local de forma inmediata con confirmación visual (*"¡Precio Guardado!"*).
+- **Extensión de API y Base de Datos D1 (`[[route]].ts` / `api.ts` / `appointment.ts`):**
+  - Añadido soporte para columna `price` en la tabla `services` y nuevo endpoint `PATCH /api/services/:id`.
+  - Reflejado el precio también en el selector del formulario de reserva (`StepClientDetails.tsx`).
+
 ### [v2.32.0] - 2026-10-29 - Desplazamiento Automático Superior al Confirmar Cita (Sin Scroll Manual)
 - **Auto-Scroll Inmediato hacia la Confirmación Superior (`BookingWizard.tsx` / `StepConfirmation.tsx`):**
   - Implementado desplazamiento automático instantáneo y suave (`window.scrollTo({ top: 0, behavior: 'smooth' })`) en `handleSubmit` al confirmarse la cita.

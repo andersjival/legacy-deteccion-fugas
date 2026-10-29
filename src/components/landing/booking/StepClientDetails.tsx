@@ -250,7 +250,7 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
           >
             {services.map((s) => (
               <option key={s.id} value={s.title}>
-                {s.title} {s.badge ? `(${s.badge})` : ''}
+                {s.title} {s.price ? `— ₡${Number(s.price).toLocaleString('es-CR')}` : ''} {s.badge ? `(${s.badge})` : ''}
               </option>
             ))}
             {formData.service_type && !services.some((s) => s.title === formData.service_type) && (

@@ -453,16 +453,27 @@ app.patch('/appointments/:id', async (c) => {
 // 6.2 Catálogo Dinámico de Servicios
 app.get('/services', async (c) => {
   const defaults = [
-    { id: 'srv_1', title: 'Detección Especializada de Fugas', badge: 'Alta Precisión', description: 'Localización acústica y térmica de fugas ocultas' },
-    { id: 'srv_2', title: 'Rastreo y Diagnóstico de Tuberías', badge: 'Sin Romper', description: 'Mapeo electromagnético y gas trazador' },
-    { id: 'srv_3', title: 'Limpieza Técnica de Tuberías', badge: 'Desincrustación', description: 'Eliminación profunda de sarro y sedimentos' }
+    { id: 'srv_1', title: 'Detección Especializada de Fugas', badge: 'Alta Precisión', description: 'Localización acústica y térmica de fugas ocultas', price: 45000 },
+    { id: 'srv_2', title: 'Rastreo y Diagnóstico de Tuberías', badge: 'Sin Romper', description: 'Mapeo electromagnético y gas trazador', price: 35000 },
+    { id: 'srv_3', title: 'Limpieza Técnica de Tuberías', badge: 'Desincrustación', description: 'Eliminación profunda de sarro y sedimentos', price: 25000 }
   ];
 
   if (c.env.DB) {
     try {
+      try {
+        await c.env.DB.prepare('ALTER TABLE services ADD COLUMN price REAL').run();
+      } catch {}
+
       const { results } = await c.env.DB.prepare('SELECT * FROM services ORDER BY created_at ASC').all();
       if (results && results.length > 0) {
-        return c.json(results);
+        const withPrices = results.map((r: any) => {
+          if (r.price === null || r.price === undefined || r.price === '') {
+            const def = defaults.find(d => d.id === r.id || d.title.toLowerCase() === (r.title || '').toLowerCase());
+            return { ...r, price: def ? def.price : 35000 };
+          }
+          return { ...r, price: Number(r.price) || 0 };
+        });
+        return c.json(withPrices);
       }
     } catch (e) {
       console.warn('D1 get services error:', e);
@@ -473,29 +484,81 @@ app.get('/services', async (c) => {
 });
 
 app.post('/services', async (c) => {
-  const body = await c.req.json();
+  const body = await c.req.json().catch(() => ({}));
   const id = 'srv_' + crypto.randomUUID().substring(0, 8);
   const title = (body.title || '').trim();
   const badge = (body.badge || '').trim() || 'Servicio Extra';
   const description = (body.description || '').trim();
+  const price = Number(body.price) || 35000;
 
   if (!title) {
     return c.json({ error: 'El título del servicio es requerido' }, 400);
   }
 
-  const newService = { id, title, badge, description, created_at: new Date().toISOString() };
+  const newService = { id, title, badge, description, price, created_at: new Date().toISOString() };
 
   if (c.env.DB) {
     try {
+      try {
+        await c.env.DB.prepare('ALTER TABLE services ADD COLUMN price REAL').run();
+      } catch {}
+
       await c.env.DB.prepare(
-        'INSERT INTO services (id, title, badge, description) VALUES (?, ?, ?, ?)'
-      ).bind(id, title, badge, description).run();
+        'INSERT INTO services (id, title, badge, description, price) VALUES (?, ?, ?, ?, ?)'
+      ).bind(id, title, badge, description, price).run();
     } catch (e) {
       console.warn('D1 insert service error:', e);
     }
   }
 
   return c.json(newService, 201);
+});
+
+app.patch('/services/:id', async (c) => {
+  const id = c.req.param('id');
+  const body = await c.req.json().catch(() => ({}));
+
+  if (c.env.DB) {
+    try {
+      try {
+        await c.env.DB.prepare('ALTER TABLE services ADD COLUMN price REAL').run();
+      } catch {}
+
+      const fields: string[] = [];
+      const values: any[] = [];
+
+      if (body.title !== undefined) {
+        fields.push('title = ?');
+        values.push(body.title.trim());
+      }
+      if (body.badge !== undefined) {
+        fields.push('badge = ?');
+        values.push(body.badge.trim());
+      }
+      if (body.description !== undefined) {
+        fields.push('description = ?');
+        values.push(body.description.trim());
+      }
+      if (body.price !== undefined) {
+        fields.push('price = ?');
+        values.push(Number(body.price) || 0);
+      }
+
+      if (fields.length > 0) {
+        values.push(id);
+        await c.env.DB.prepare(`UPDATE services SET ${fields.join(', ')} WHERE id = ?`).bind(...values).run();
+      }
+
+      const updated = await c.env.DB.prepare('SELECT * FROM services WHERE id = ?').bind(id).first();
+      if (updated) {
+        return c.json(updated);
+      }
+    } catch (e) {
+      console.warn('D1 update service error:', e);
+    }
+  }
+
+  return c.json({ id, ...body });
 });
 
 app.delete('/services/:id', async (c) => {

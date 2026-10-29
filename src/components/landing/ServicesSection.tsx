@@ -1,40 +1,111 @@
-import React from 'react';
-import { Search, Radar, Droplets, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Radar, Droplets, ArrowRight, CheckCircle2, ShieldCheck, Tag } from 'lucide-react';
+import { api } from '../../services/api';
+import { ServiceItem } from '../../types/appointment';
 
 interface ServicesSectionProps {
   onSelectService: (serviceName: string) => void;
 }
 
+interface DisplayService {
+  id: string;
+  title: string;
+  badge: string;
+  icon: any;
+  color: string;
+  price: number;
+  description: string;
+  features: string[];
+}
+
 export const ServicesSection: React.FC<ServicesSectionProps> = ({ onSelectService }) => {
-  const services = [
+  const baseServices: DisplayService[] = [
     {
-      id: 'deteccion',
+      id: 'srv_1',
       title: 'Detección Especializada de Fugas',
       badge: 'Alta Precisión',
       icon: Search,
       color: 'from-blue-600 to-sky-500',
+      price: 45000,
       description: 'Localización exacta de filtraciones invisibles en losas, paredes y jardines mediante geófonos electrónicos, gas trazador y termografía infrarroja.',
       features: ['Geófono electroacústico', 'Cámara térmica FLIR', 'Gas trazador no tóxico']
     },
     {
-      id: 'rastreo',
+      id: 'srv_2',
       title: 'Rastreo y Diagnóstico de Tuberías',
       badge: 'Sin Romper',
       icon: Radar,
       color: 'from-brand-dark to-brand-blue',
+      price: 35000,
       description: 'Mapeo técnico de redes hidrosanitarias ocultas, identificación de obstrucciones y evaluación estructural sin destrucción innecesaria.',
       features: ['Mapeo de trayectoria 3D', 'Sonda electromagnética', 'Detección de taponamientos']
     },
     {
-      id: 'limpieza',
+      id: 'srv_3',
       title: 'Limpieza Técnica de Tuberías',
       badge: '24/7 Emergencia',
       icon: Droplets,
       color: 'from-amber-600 to-orange-500',
+      price: 25000,
       description: 'Desinfección, desincrustación y mantenimiento preventivo/correctivo de tuberías de agua potable y desagües para restaurar el flujo y presión óptimos.',
       features: ['Eliminación de sarro profundo', 'Recuperación de presión', 'Desinfección antibacterial']
     }
   ];
+
+  const [services, setServices] = useState<DisplayService[]>(baseServices);
+
+  // Cargar catálogo actualizado desde la base de datos o almacenamiento local
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const catalog = await api.getServices();
+        if (Array.isArray(catalog) && catalog.length > 0) {
+          setServices((prev) =>
+            prev.map((base) => {
+              const remote = catalog.find(
+                (c) => c.id === base.id || c.title.toLowerCase().trim() === base.title.toLowerCase().trim()
+              );
+              if (remote) {
+                return {
+                  ...base,
+                  title: remote.title || base.title,
+                  badge: remote.badge || base.badge,
+                  price: remote.price !== undefined ? Number(remote.price) : base.price,
+                  description: remote.description || base.description
+                };
+              }
+              return base;
+            })
+          );
+        }
+      } catch (e) {
+        console.warn('Error loading dynamic service prices:', e);
+      }
+    };
+
+    fetchServices();
+
+    // Escuchar actualizaciones en tiempo real cuando el administrador edite precios
+    const handleUpdate = (e: any) => {
+      if (e.detail) {
+        const catalog: ServiceItem[] = e.detail;
+        setServices((prev) =>
+          prev.map((base) => {
+            const remote = catalog.find(
+              (c) => c.id === base.id || c.title.toLowerCase().trim() === base.title.toLowerCase().trim()
+            );
+            if (remote && remote.price !== undefined) {
+              return { ...base, price: Number(remote.price) };
+            }
+            return base;
+          })
+        );
+      }
+    };
+
+    window.addEventListener('royalty_services_updated', handleUpdate);
+    return () => window.removeEventListener('royalty_services_updated', handleUpdate);
+  }, []);
 
   return (
     <section id="servicios" className="py-20 bg-white">
@@ -53,7 +124,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ onSelectServic
           </p>
         </div>
 
-        {/* Grilla de 3 Tarjetas Flotantes */}
+        {/* Grilla de 3 Tarjetas Flotantes con Precios a la Par */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {services.map((srv) => {
             const Icon = srv.icon;
@@ -63,20 +134,37 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ onSelectServic
                 className="group relative bg-white rounded-3xl p-8 border border-slate-100 shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
               >
                 <div>
-                  {/* Top: Icono y Badge */}
-                  <div className="flex items-center justify-between mb-6">
+                  {/* Top: Icono, Badge y Precio a la Par */}
+                  <div className="flex items-center justify-between mb-5">
                     <div className={`w-14 h-14 rounded-2xl bg-gradient-to-tr ${srv.color} flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform`}>
                       <Icon className="w-7 h-7" />
                     </div>
-                    <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-brand-ice text-brand-blue border border-brand-iceBorder">
-                      {srv.badge}
-                    </span>
+                    <div className="flex flex-col items-end gap-1.5">
+                      <span className="px-3 py-0.5 rounded-full text-xs font-extrabold bg-brand-ice text-brand-blue border border-brand-iceBorder">
+                        {srv.badge}
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black bg-emerald-50 text-emerald-800 border border-emerald-300 shadow-2xs">
+                        <Tag className="w-3 h-3 text-emerald-600" />
+                        <span>₡{Number(srv.price || 45000).toLocaleString('es-CR')}</span>
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Título y Descripción */}
-                  <h3 className="text-xl font-extrabold text-brand-dark mb-3 group-hover:text-brand-blue transition-colors">
-                    {srv.title}
-                  </h3>
+                  {/* Título con Precio Destacado a la Par */}
+                  <div className="flex items-start justify-between gap-3 mb-3 pb-2 border-b border-slate-100">
+                    <h3 className="text-lg font-extrabold text-brand-dark group-hover:text-brand-blue transition-colors flex-1 leading-snug">
+                      {srv.title}
+                    </h3>
+                    <div className="text-right shrink-0">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
+                        Tarifa Base
+                      </span>
+                      <span className="text-base font-black text-emerald-700">
+                        ₡{Number(srv.price || 45000).toLocaleString('es-CR')}
+                      </span>
+                    </div>
+                  </div>
+
                   <p className="text-sm text-brand-slate leading-relaxed mb-6">
                     {srv.description}
                   </p>
@@ -99,7 +187,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ onSelectServic
                     e.preventDefault();
                     onSelectService(srv.title);
                   }}
-                  className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold text-brand-blue bg-brand-ice hover:bg-brand-blue hover:text-white border border-brand-iceBorder transition-all cursor-pointer"
+                  className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold text-brand-blue bg-brand-ice hover:bg-brand-blue hover:text-white border border-brand-iceBorder transition-all cursor-pointer shadow-xs"
                 >
                   <span>Reservar Este Servicio</span>
                   <ArrowRight className="w-4 h-4" />

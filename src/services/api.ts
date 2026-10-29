@@ -451,12 +451,13 @@ class ApiService {
     return this.getStored<ServiceItem[]>(STORAGE_KEYS.SERVICES, DEFAULT_SERVICES);
   }
 
-  async createService(item: { title: string; badge?: string; description?: string }): Promise<ServiceItem> {
+  async createService(item: { title: string; badge?: string; description?: string; price?: number }): Promise<ServiceItem> {
     const fallbackService: ServiceItem = {
       id: 'srv_' + Date.now().toString(36),
       title: item.title,
       badge: item.badge || 'Servicio Extra',
-      description: item.description || ''
+      description: item.description || '',
+      price: item.price || 35000
     };
 
     try {
@@ -481,6 +482,38 @@ class ApiService {
     const updated = [...current, fallbackService];
     this.setStored(STORAGE_KEYS.SERVICES, updated);
     return fallbackService;
+  }
+
+  async updateServiceItem(id: string, updates: { title?: string; badge?: string; description?: string; price?: number }): Promise<ServiceItem | null> {
+    try {
+      if (!this.useLocalFallback) {
+        const res = await fetch(`/api/services/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updates)
+        });
+        if (res.ok) {
+          const updated = await res.json();
+          const current = await this.getServices();
+          const list = current.map(s => s.id === id ? { ...s, ...updated } : s);
+          this.setStored(STORAGE_KEYS.SERVICES, list);
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('royalty_services_updated', { detail: list }));
+          }
+          return updated;
+        }
+      }
+    } catch {
+      this.useLocalFallback = true;
+    }
+
+    const current = this.getStored<ServiceItem[]>(STORAGE_KEYS.SERVICES, DEFAULT_SERVICES);
+    const updated = current.map(s => s.id === id ? { ...s, ...updates } : s);
+    this.setStored(STORAGE_KEYS.SERVICES, updated);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('royalty_services_updated', { detail: updated }));
+    }
+    return updated.find(s => s.id === id) || null;
   }
 
   async deleteService(id: string): Promise<boolean> {

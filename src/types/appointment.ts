@@ -5,12 +5,13 @@ export interface ServiceItem {
   title: string;
   badge?: string;
   description?: string;
+  price?: number;
 }
 
 export const DEFAULT_SERVICES: ServiceItem[] = [
-  { id: 'srv_1', title: 'Detección Especializada de Fugas', badge: 'Alta Precisión', description: 'Localización acústica y térmica de fugas ocultas' },
-  { id: 'srv_2', title: 'Rastreo y Diagnóstico de Tuberías', badge: 'Sin Romper', description: 'Mapeo electromagnético y gas trazador' },
-  { id: 'srv_3', title: 'Limpieza Técnica de Tuberías', badge: 'Desincrustación', description: 'Eliminación profunda de sarro y sedimentos' }
+  { id: 'srv_1', title: 'Detección Especializada de Fugas', badge: 'Alta Precisión', description: 'Localización acústica y térmica de fugas ocultas', price: 45000 },
+  { id: 'srv_2', title: 'Rastreo y Diagnóstico de Tuberías', badge: 'Sin Romper', description: 'Mapeo electromagnético y gas trazador', price: 35000 },
+  { id: 'srv_3', title: 'Limpieza Técnica de Tuberías', badge: 'Desincrustación', description: 'Eliminación profunda de sarro y sedimentos', price: 25000 }
 ];
 
 export type AppointmentStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
