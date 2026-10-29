@@ -15,6 +15,17 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.37.0] - 2026-10-29 - Selector de Horarios (Hoy, Mañana, Pasado mañana, Esta semana) con Bloques Verde (Disponible) y Azul (Ocupado) y Reserva Telefónica Inmediata
+- **Selector de Rango de Fechas en Citas (`AdminView.tsx` / `dateFormatter.ts`):**
+  - Implementados los botones interactivos de selección rápida: *"Hoy"*, *"Mañana"*, *"Pasado mañana"*, *"Esta semana"* y *"Todas"*.
+  - En *"Esta semana"*, se despliega una barra con los 7 días consecutivos para consultar cualquier fecha a un clic.
+- **Cuadrícula Visual de Horarios con Código de Color Verde y Azul:**
+  - **Verde (`DISPONIBLE`):** Muestra todos los bloques de horario libres del día con botón *"Reservar Horario"*.
+  - **Azul (`OCUPADA`):** Muestra los horarios con cita agendada, nombre del cliente, tipo de servicio y botón *"Ver Cita"*.
+- **Reserva Telefónica Inmediata y Bloqueo en Tiempo Real:**
+  - Al recibir una llamada de un cliente, el técnico visualiza los horarios en verde y pulsa *"Reservar Horario"* abriendo el modal express.
+  - Al ingresar el cliente y confirmar, la cita se registra con estado confirmada, el bloque pasa automáticamente a **Azul** y queda bloqueado en la web para que ningún otro usuario pueda tomarlo.
+
 ### [v2.36.0] - 2026-10-29 - Espera Estricta de 10 Segundos antes del Auto-Scroll en Guardar Cotización
 - **Calibración de Temporizador de Auto-Scroll a 10 Segundos (`JobQuoteManager.tsx`):**
   - Ajustado el tiempo de espera del cuadro inferior a 10 segundos completos (`10000ms`) antes de que el sistema suba automáticamente a la lista superior.

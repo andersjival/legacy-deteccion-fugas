@@ -13,8 +13,17 @@ import { TrafficAnalytics } from './TrafficAnalytics';
 import { AnimatedEagleLogo } from '../common/AnimatedEagleLogo';
 import { useAppointments } from '../../hooks/useAppointments';
 import { useReviews } from '../../hooks/useReviews';
-import { getTodayDateString, getTomorrowDateString, formatTime12h } from '../../utils/dateFormatter';
-import { Bell, RefreshCw, X, Navigation, Star, Laptop, Smartphone, Calendar, Clock, Settings, FileText, BarChart3, Eye } from 'lucide-react';
+import { api } from '../../services/api';
+import { TimeSlot, AvailabilityResponse } from '../../types/appointment';
+import { 
+  getTodayDateString, 
+  getTomorrowDateString, 
+  getDayAfterTomorrowDateString,
+  getNextDays,
+  formatDateToSpanish, 
+  formatTime12h 
+} from '../../utils/dateFormatter';
+import { Bell, RefreshCw, X, Navigation, Star, Laptop, Smartphone, Calendar, Clock, Settings, FileText, BarChart3, Eye, Plus, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface AdminViewProps {
   onClose: () => void;
@@ -59,6 +68,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
     newAppointmentAlert,
     dismissAlert,
     refresh,
+    createAppointment,
     updateStatus,
     updateService,
     updatePayment
@@ -128,6 +138,52 @@ export const AdminView: React.FC<AdminViewProps> = ({
 
   const todayStr = getTodayDateString();
   const tomorrowStr = getTomorrowDateString();
+  const dayAfterStr = getDayAfterTomorrowDateString();
+  const weekDays = getNextDays(7);
+
+  // Filtro de fecha para la pestaña de Citas: Hoy, Mañana, Pasado mañana, Esta semana, Todas
+  const [scheduleDateFilter, setScheduleDateFilter] = useState<'today' | 'tomorrow' | 'day_after' | 'week' | 'all'>('today');
+  const [selectedWeekDate, setSelectedWeekDate] = useState<string>(todayStr);
+
+  const targetDateForSlots = (() => {
+    if (scheduleDateFilter === 'today') return todayStr;
+    if (scheduleDateFilter === 'tomorrow') return tomorrowStr;
+    if (scheduleDateFilter === 'day_after') return dayAfterStr;
+    if (scheduleDateFilter === 'week') return selectedWeekDate || todayStr;
+    return todayStr;
+  })();
+
+  // Disponibilidad de horarios en vivo para la fecha activa en Citas
+  const [availabilityData, setAvailabilityData] = useState<AvailabilityResponse | null>(null);
+  const [loadingAvailability, setLoadingAvailability] = useState(false);
+  const [bookingSlotModal, setBookingSlotModal] = useState<{ date: string; slot: TimeSlot } | null>(null);
+  const [adminBookingForm, setAdminBookingForm] = useState({
+    clientName: '',
+    clientPhone: '',
+    serviceType: 'Detección Especializada de Fugas',
+    location: '',
+    notes: ''
+  });
+  const [isSubmittingAdminBooking, setIsSubmittingAdminBooking] = useState(false);
+  const [adminBookingSuccess, setAdminBookingSuccess] = useState<string | null>(null);
+
+  const loadScheduleAvailability = async (date: string) => {
+    setLoadingAvailability(true);
+    try {
+      const res = await api.getAvailability(date);
+      setAvailabilityData(res);
+    } catch (e) {
+      console.warn('Error loading schedule availability:', e);
+    } finally {
+      setLoadingAvailability(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (activeTab === 'all' && scheduleDateFilter !== 'all') {
+      loadScheduleAvailability(targetDateForSlots);
+    }
+  }, [activeTab, scheduleDateFilter, targetDateForSlots, appointments]);
 
   // Función para llevar directamente a la cita especificada
   const handleViewAppointment = (app: any) => {
@@ -174,9 +230,15 @@ export const AdminView: React.FC<AdminViewProps> = ({
   const pendingAppointments = appointments.filter((a) => a.status === 'pending');
 
   const filteredAppointments = appointments.filter((a) => {
+    // 1. Filtrar por rango o fecha seleccionada
+    if (scheduleDateFilter === 'today' && a.appointment_date !== todayStr) return false;
+    if (scheduleDateFilter === 'tomorrow' && a.appointment_date !== tomorrowStr) return false;
+    if (scheduleDateFilter === 'day_after' && a.appointment_date !== dayAfterStr) return false;
+    if (scheduleDateFilter === 'week' && a.appointment_date !== targetDateForSlots) return false;
+
+    // 2. Sub-filtro de estado (Todas, Pendientes, Confirmadas)
     if (filterStatus === 'pending') return a.status === 'pending';
     if (filterStatus === 'confirmed') return a.status === 'confirmed';
-    if (filterStatus === 'tomorrow') return a.appointment_date === tomorrowStr;
     return true;
   });
 
@@ -399,27 +461,246 @@ export const AdminView: React.FC<AdminViewProps> = ({
               <FinancialReportCard appointments={appointments} />
             </div>
 
-            {/* Filtros Rápidos Estilo Pastilla */}
-            <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs font-bold">
-              {[
-                { id: 'all', label: `Todas (${appointments.length})` },
-                { id: 'pending', label: `Pendientes (${pendingAppointments.length})` },
-                { id: 'confirmed', label: 'Confirmadas' },
-                { id: 'tomorrow', label: 'Mañana' }
-              ].map((f) => (
-                <button
-                  key={f.id}
-                  type="button"
-                  onClick={() => setFilterStatus(f.id as any)}
-                  className={`px-3 py-1.5 rounded-xl flex-shrink-0 transition-all ${
-                    filterStatus === f.id
-                      ? 'bg-brand-blue text-white shadow-sm'
-                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                  }`}
-                >
-                  {f.label}
-                </button>
-              ))}
+            {/* 3. SELECTOR MANDATORIO DE FECHA: HOY, MAÑANA, PASADO MAÑANA, ESTA SEMANA, TODAS */}
+            <div className="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/90 shadow-sm space-y-3">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-brand-blue/10 text-brand-blue flex items-center justify-center shrink-0">
+                    <Calendar className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-black text-brand-dark uppercase tracking-wider">
+                      Horarios & Disponibilidad de Citas
+                    </h3>
+                    <p className="text-[11px] text-slate-500 font-medium">
+                      Verde = Horario disponible para agendar • Azul = Horario ya ocupado
+                    </p>
+                  </div>
+                </div>
+
+                {scheduleDateFilter !== 'all' && (
+                  <span className="text-xs font-black px-3 py-1 rounded-xl bg-slate-100 text-slate-700 capitalize border border-slate-200">
+                    📅 {formatDateToSpanish(targetDateForSlots)}
+                  </span>
+                )}
+              </div>
+
+              {/* Botones de Selección: Hoy, Mañana, Pasado mañana, Esta semana, Todas */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none flex-wrap">
+                {[
+                  { id: 'today', label: 'Hoy' },
+                  { id: 'tomorrow', label: 'Mañana' },
+                  { id: 'day_after', label: 'Pasado mañana' },
+                  { id: 'week', label: 'Esta semana' },
+                  { id: 'all', label: `Todas (${appointments.length})` }
+                ].map((tab) => {
+                  const isSelected = scheduleDateFilter === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setScheduleDateFilter(tab.id as any)}
+                      className={`px-4 py-2 rounded-2xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+                        isSelected
+                          ? 'bg-brand-blue text-white shadow-md shadow-brand-blue/20 scale-[1.02]'
+                          : 'bg-slate-100 hover:bg-slate-200/80 text-slate-700 border border-slate-200/60'
+                      }`}
+                    >
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Selector de Días de la Semana cuando se elige 'Esta semana' */}
+              {scheduleDateFilter === 'week' && (
+                <div className="flex gap-2 overflow-x-auto pb-1 pt-1 scrollbar-none border-t border-slate-100">
+                  {weekDays.map((d) => {
+                    const isSelectedDay = selectedWeekDate === d.date;
+                    return (
+                      <button
+                        key={d.date}
+                        type="button"
+                        onClick={() => setSelectedWeekDate(d.date)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer flex flex-col items-center ${
+                          isSelectedDay
+                            ? 'bg-brand-dark text-white shadow-xs'
+                            : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200'
+                        }`}
+                      >
+                        <span className="text-[10px] font-black uppercase">{d.dayName} {d.dayNumber}</span>
+                        <span className="text-[9px] text-slate-400 font-semibold">{d.isToday ? 'HOY' : ''}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* 4. CUADRÍCULA DE HORARIOS: VERDE = DISPONIBLE / AZUL = OCUPADA */}
+            {scheduleDateFilter !== 'all' && (
+              <div className="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/90 shadow-sm space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-brand-blue" />
+                    <h4 className="text-xs font-black text-brand-dark uppercase tracking-wider">
+                      Horarios Disponibles vs Ocupados ({formatDateToSpanish(targetDateForSlots)})
+                    </h4>
+                  </div>
+                  
+                  {availabilityData && (
+                    <div className="flex items-center gap-2 text-xs font-bold">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>{availabilityData.slots.filter(s => s.available).length} Disponibles</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300">
+                        <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+                        <span>{availabilityData.slots.filter(s => !s.available).length} Ocupadas</span>
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {adminBookingSuccess && (
+                  <div className="bg-emerald-600 text-white p-3 rounded-2xl text-xs font-black shadow-sm flex items-center justify-between gap-2 animate-in fade-in">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      <span>{adminBookingSuccess}</span>
+                    </div>
+                    <button type="button" onClick={() => setAdminBookingSuccess(null)} className="p-1 hover:bg-white/20 rounded-lg cursor-pointer">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+
+                {loadingAvailability ? (
+                  <div className="text-center py-8 text-xs font-bold text-brand-blue">
+                    Consultando horarios del día...
+                  </div>
+                ) : availabilityData && availabilityData.slots.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    {availabilityData.slots.map((slot) => {
+                      const isAvailable = slot.available;
+                      const bookedApp = appointments.find(
+                        (a) => a.appointment_date === targetDateForSlots && a.start_time === slot.start_time && a.status !== 'cancelled'
+                      );
+
+                      if (isAvailable) {
+                        return (
+                          <div
+                            key={slot.start_time}
+                            onClick={() => {
+                              setBookingSlotModal({ date: targetDateForSlots, slot });
+                            }}
+                            className="p-3.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100/90 border-2 border-emerald-400 text-emerald-950 ring-2 ring-emerald-200/50 shadow-xs transition-all cursor-pointer flex flex-col justify-between gap-2 group"
+                            title="Haz clic para agendar o bloquear este horario para un cliente"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-black tracking-wide flex items-center gap-1 shadow-2xs">
+                                <CheckCircle2 className="w-3 h-3" />
+                                <span>DISPONIBLE</span>
+                              </span>
+                              <span className="text-[10px] font-bold text-emerald-700">Libre</span>
+                            </div>
+
+                            <div className="my-1">
+                              <span className="text-sm font-black text-emerald-950 block">
+                                {slot.label}
+                              </span>
+                              <span className="text-[10px] font-medium text-emerald-800">
+                                Campo libre para agendar
+                              </span>
+                            </div>
+
+                            <button
+                              type="button"
+                              className="w-full py-1.5 px-2 rounded-xl bg-emerald-600 group-hover:bg-emerald-700 text-white text-[11px] font-black shadow-2xs flex items-center justify-center gap-1 transition-all cursor-pointer"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              <span>Reservar Horario</span>
+                            </button>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div
+                          key={slot.start_time}
+                          className="p-3.5 rounded-2xl bg-blue-50 border-2 border-blue-400 text-blue-950 ring-2 ring-blue-200/50 shadow-xs flex flex-col justify-between gap-2"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="px-2.5 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-black tracking-wide flex items-center gap-1 shadow-2xs">
+                              <span>🔒 OCUPADA</span>
+                            </span>
+                            <span className="text-[10px] font-bold text-blue-700">Bloqueado</span>
+                          </div>
+
+                          <div className="my-1">
+                            <span className="text-sm font-black text-blue-950 block">
+                              {slot.label}
+                            </span>
+                            <p className="text-[11px] font-bold text-blue-900 truncate mt-0.5">
+                              {bookedApp ? `👤 ${bookedApp.client_name}` : 'Cita Agendada'}
+                            </p>
+                            {bookedApp?.service_type && (
+                              <p className="text-[10px] text-blue-700 truncate font-medium">
+                                {bookedApp.service_type}
+                              </p>
+                            )}
+                          </div>
+
+                          {bookedApp ? (
+                            <button
+                              type="button"
+                              onClick={() => handleViewAppointment(bookedApp)}
+                              className="w-full py-1.5 px-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black shadow-2xs flex items-center justify-center gap-1 transition-all cursor-pointer"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              <span>Ver Cita</span>
+                            </button>
+                          ) : (
+                            <span className="text-[10px] text-slate-500 font-bold text-center py-1">
+                              Horario Ocupado
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs">
+                    No hay horarios configurados o el día está marcado como no laboral. Puedes activarlo en la pestaña Horarios.
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Sub-Filtros de Citas Registradas */}
+            <div className="flex items-center justify-between gap-2 pt-1 flex-wrap">
+              <span className="text-xs font-black text-brand-dark uppercase tracking-wider">
+                Citas Registradas ({filteredAppointments.length}):
+              </span>
+              <div className="flex gap-1.5 overflow-x-auto scrollbar-none text-xs font-bold">
+                {[
+                  { id: 'all', label: `Todas (${filteredAppointments.length})` },
+                  { id: 'pending', label: 'Pendientes' },
+                  { id: 'confirmed', label: 'Confirmadas' }
+                ].map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setFilterStatus(f.id as any)}
+                    className={`px-3 py-1 rounded-xl flex-shrink-0 transition-all cursor-pointer ${
+                      filterStatus === f.id
+                        ? 'bg-brand-blue text-white shadow-sm'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {loading ? (
@@ -518,6 +799,151 @@ export const AdminView: React.FC<AdminViewProps> = ({
         todayCount={todayAppointments.length}
         pendingCount={pendingAppointments.length}
       />
+
+      {/* MODAL PARA AGENDAR Y BLOQUEAR HORARIOS AL INSTANTE POR LLAMADA TELEFÓNICA */}
+      {bookingSlotModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                  <Calendar className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider">
+                    Agendar y Bloquear Horario
+                  </h3>
+                  <p className="text-xs text-slate-500 font-bold capitalize">
+                    {formatDateToSpanish(bookingSlotModal.date)} • {bookingSlotModal.slot.label}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setBookingSlotModal(null)}
+                className="p-1 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (!adminBookingForm.clientName.trim()) {
+                  alert('Por favor ingrese el nombre del cliente');
+                  return;
+                }
+                setIsSubmittingAdminBooking(true);
+                try {
+                  await createAppointment({
+                    client_name: adminBookingForm.clientName.trim(),
+                    client_phone: adminBookingForm.clientPhone.trim() || '6408-0124',
+                    client_address: adminBookingForm.location.trim() || 'Por definir con cliente',
+                    service_type: adminBookingForm.serviceType as any,
+                    problem_description: adminBookingForm.notes.trim() || 'Agendado por llamada telefónica de cliente',
+                    appointment_date: bookingSlotModal.date,
+                    start_time: bookingSlotModal.slot.start_time,
+                    end_time: bookingSlotModal.slot.end_time
+                  });
+
+                  setAdminBookingSuccess(`✅ Horario reservado para ${adminBookingForm.clientName}. Quedó bloqueado en la web.`);
+                  setTimeout(() => setAdminBookingSuccess(null), 8000);
+                  setBookingSlotModal(null);
+                  setAdminBookingForm({
+                    clientName: '',
+                    clientPhone: '',
+                    serviceType: 'Detección Especializada de Fugas',
+                    location: '',
+                    notes: ''
+                  });
+                  await loadScheduleAvailability(bookingSlotModal.date);
+                } catch (err) {
+                  alert('Error al reservar la cita. Intente de nuevo.');
+                } finally {
+                  setIsSubmittingAdminBooking(false);
+                }
+              }}
+              className="space-y-3 text-xs"
+            >
+              <div>
+                <label className="block font-black text-slate-700 mb-1">Nombre del Cliente *</label>
+                <input
+                  type="text"
+                  required
+                  value={adminBookingForm.clientName}
+                  onChange={(e) => setAdminBookingForm({ ...adminBookingForm, clientName: e.target.value })}
+                  placeholder="ej. Carlos Mora (o Cliente Telefónico)"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-bold focus:outline-none focus:ring-2 focus:ring-brand-blue/30"
+                />
+              </div>
+
+              <div>
+                <label className="block font-black text-slate-700 mb-1">Teléfono del Cliente</label>
+                <input
+                  type="tel"
+                  value={adminBookingForm.clientPhone}
+                  onChange={(e) => setAdminBookingForm({ ...adminBookingForm, clientPhone: e.target.value })}
+                  placeholder="ej. 8888-8888"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-bold focus:outline-none focus:ring-2 focus:ring-brand-blue/30"
+                />
+              </div>
+
+              <div>
+                <label className="block font-black text-slate-700 mb-1">Servicio Solicitado</label>
+                <select
+                  value={adminBookingForm.serviceType}
+                  onChange={(e) => setAdminBookingForm({ ...adminBookingForm, serviceType: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-bold focus:outline-none focus:ring-2 focus:ring-brand-blue/30"
+                >
+                  <option value="Detección Especializada de Fugas">Detección Especializada de Fugas (₡45,000)</option>
+                  <option value="Rastreo y Diagnóstico de Tuberías">Rastreo y Diagnóstico de Tuberías (₡35,000)</option>
+                  <option value="Limpieza Técnica de Tuberías">Limpieza Técnica de Tuberías (₡25,000)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-black text-slate-700 mb-1">Ubicación / Cantón (Opcional)</label>
+                <input
+                  type="text"
+                  value={adminBookingForm.location}
+                  onChange={(e) => setAdminBookingForm({ ...adminBookingForm, location: e.target.value })}
+                  placeholder="ej. San José, Escazú"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-bold focus:outline-none focus:ring-2 focus:ring-brand-blue/30"
+                />
+              </div>
+
+              <div>
+                <label className="block font-black text-slate-700 mb-1">Notas / Referencia (Opcional)</label>
+                <input
+                  type="text"
+                  value={adminBookingForm.notes}
+                  onChange={(e) => setAdminBookingForm({ ...adminBookingForm, notes: e.target.value })}
+                  placeholder="ej. Llamó por fuga urgente en cocina"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-bold focus:outline-none focus:ring-2 focus:ring-brand-blue/30"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setBookingSlotModal(null)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingAdminBooking}
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-sm transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmittingAdminBooking ? 'Guardando...' : '💾 Guardar y Bloquear Cita'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Visor de Fotos Lightbox */}
       {lightboxState && (

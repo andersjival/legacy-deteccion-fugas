@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Appointment, AppointmentStatus } from '../types/appointment';
+import { Appointment, AppointmentStatus, CreateAppointmentDto } from '../types/appointment';
 import { api } from '../services/api';
 import { playNotificationChime } from '../utils/soundAlert';
 
@@ -99,6 +99,14 @@ export function useAppointments(isPollingActive = true) {
     }
   };
 
+  const createAppointment = async (dto: CreateAppointmentDto) => {
+    const created = await api.createAppointment(dto);
+    if (created) {
+      setAppointments((prev) => [created, ...prev.filter((a) => a.id !== created.id)]);
+    }
+    return created;
+  };
+
   const dismissAlert = () => setNewAppointmentAlert(null);
 
   return {
@@ -108,6 +116,7 @@ export function useAppointments(isPollingActive = true) {
     newAppointmentAlert,
     dismissAlert,
     refresh: () => fetchAppointments(false),
+    createAppointment,
     updateStatus,
     updateService,
     updatePayment

@@ -15,6 +15,15 @@ export function getTomorrowDateString(): string {
   return `${year}-${month}-${day}`;
 }
 
+export function getDayAfterTomorrowDateString(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 2);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export function getNextDays(daysCount = 14): { date: string; label: string; dayName: string; dayNumber: string; isToday: boolean }[] {
   const days = [];
   const todayStr = getTodayDateString();
