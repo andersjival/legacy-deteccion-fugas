@@ -56,27 +56,29 @@ export const KPICards: React.FC<KPICardsProps> = ({ appointments }) => {
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
       {kpis.map((kpi, idx) => {
         const Icon = kpi.icon;
         return (
           <div
             key={idx}
-            className="bg-white p-3 rounded-2xl border border-slate-200/80 shadow-soft flex flex-col justify-between"
+            className="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200/80 shadow-soft flex flex-col justify-between hover:border-slate-300 transition-colors"
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider truncate">
+            <div className="flex items-center justify-between gap-1 mb-1.5">
+              <span className="text-[10px] sm:text-xs font-black text-slate-500 uppercase tracking-wider">
                 {kpi.title}
               </span>
-              <div className={`w-6 h-6 rounded-lg ${kpi.color} flex items-center justify-center shadow-xs shrink-0`}>
-                <Icon className="w-3.5 h-3.5" />
+              <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg ${kpi.color} flex items-center justify-center shadow-xs shrink-0`}>
+                <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
             <div>
-              <h3 className="text-xl sm:text-2xl font-black text-brand-dark leading-none my-0.5">
+              <h3 className="text-xl sm:text-3xl font-black text-brand-dark leading-none my-0.5 sm:my-1">
                 {kpi.count}
               </h3>
-              <p className="text-[9px] font-semibold text-slate-400 truncate">{kpi.detail}</p>
+              <p className="text-[10px] sm:text-xs font-semibold text-slate-400">
+                {kpi.detail}
+              </p>
             </div>
           </div>
         );

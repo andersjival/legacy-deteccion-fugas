@@ -15,6 +15,16 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.16.0] - 2026-10-28 - Optimización de Espacios y Erradicación de Vacíos en Métricas y Finanzas
+- **Reorganización del Panel de Control (`AdminView.tsx`):**
+  - Desacopladas las tarjetas de métricas (`KPICards`) de la rejilla compartida, ubicándolas en su propia fila panorámica superior.
+  - Eliminado el estiramiento vertical forzado (*flex stretch*) entre componentes de alturas dispares.
+  - Reestructurado el bloque inferior en 2 columnas (`FinancialReportCard` y `AdminReviewsCard`) con alineación `items-start`, erradicando el espacio en blanco vacío al pie de la recaudación.
+- **Optimización de Tarjetas de Métricas (`KPICards.tsx`):**
+  - Eliminado el truncado de texto ("Esta Semana" ahora se muestra completo sin puntos suspensivos).
+  - Altura compacta natural (~85px) sin separación exagerada (*void gap*) entre el título y el contador.
+  - Espaciado responsivo optimizado (`gap-2.5 sm:gap-4`, `p-3 sm:p-4`) y tipografía escalada (`text-3xl`).
+
 ### [v2.15.0] - 2026-10-28 - Integración de Redes Sociales Oficiales (Facebook, Instagram y WhatsApp)
 - **Componente Centralizado de Redes Sociales (`SocialLinks.tsx`):**
   - Creado componente reutilizable con SVGs vectoriales nativos para Facebook (`#1877F2`), Instagram (gradiente magenta-naranja característico) y WhatsApp (`#25D366`).

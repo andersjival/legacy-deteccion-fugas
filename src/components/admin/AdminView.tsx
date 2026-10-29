@@ -239,12 +239,14 @@ export const AdminView: React.FC<AdminViewProps> = ({
           </div>
         )}
 
-        {/* TAB 2: TODAS LAS CITAS CON FILTROS RÁPIDOS Y MÉTRICAS (1 Col en Celular / 3 Cols en PC) */}
+        {/* TAB 2: TODAS LAS CITAS CON FILTROS RÁPIDOS Y MÉTRICAS */}
         {activeTab === 'all' && (
           <div className="space-y-4">
-            {/* Control de Citas: Hoy, Semana y Mes, Cierre Financiero y Reseñas */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <KPICards appointments={appointments} />
+            {/* 1. Métricas Principales de Citas (Fila completa, altura compacta, sin truncado ni espacio muerto) */}
+            <KPICards appointments={appointments} />
+
+            {/* 2. Cierre Financiero y Reseñas de Clientes (2 Columnas en PC, 1 en Celular, con items-start para evitar estiramiento vertical) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
               <FinancialReportCard appointments={appointments} />
               <AdminReviewsCard reviews={reviews} onDeleteReview={removeReview} />
             </div>
