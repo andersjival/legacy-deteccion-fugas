@@ -80,13 +80,16 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
           <span className="w-7 h-7 rounded-full bg-brand-dark text-white flex items-center justify-center text-xs font-black shrink-0">
             #{index + 1}
           </span>
-          <div className="flex items-center gap-1.5 text-xs font-black text-brand-dark bg-brand-ice px-2.5 py-1 rounded-xl border border-brand-iceBorder shrink-0">
-            <Clock className="w-3.5 h-3.5 text-brand-orange" />
-            <span>{rangoHora}</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-50 px-2.5 py-1 rounded-xl border border-slate-200 capitalize">
-            <Calendar className="w-3.5 h-3.5 text-brand-blue" />
-            <span>{formatDateToSpanish(appointment.appointment_date)}</span>
+          <div className="flex items-center gap-2 text-xs font-black text-brand-dark bg-brand-ice px-3 py-1.5 rounded-xl border border-brand-iceBorder flex-wrap shadow-2xs">
+            <div className="flex items-center gap-1.5 text-brand-orange">
+              <Clock className="w-3.5 h-3.5 shrink-0" />
+              <span className="text-brand-dark font-extrabold">{rangoHora}</span>
+            </div>
+            <span className="text-slate-300 font-bold">•</span>
+            <div className="flex items-center gap-1.5 text-brand-blue capitalize font-bold">
+              <Calendar className="w-3.5 h-3.5 shrink-0" />
+              <span className="text-slate-800">{formatDateToSpanish(appointment.appointment_date)}</span>
+            </div>
           </div>
         </div>
 

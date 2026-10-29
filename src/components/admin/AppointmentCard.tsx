@@ -134,11 +134,15 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black bg-blue-50 text-blue-900 border border-blue-200 shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0" />
-            <span>🔒 HORARIO OCUPADO:</span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-blue-100 text-blue-900 border border-blue-300 shadow-2xs">
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-600 shrink-0 animate-pulse" />
+            <span>🔒 CITA OCUPADA</span>
+            <span className="text-blue-300 font-bold">•</span>
+            <Calendar className="w-3.5 h-3.5 text-blue-700 shrink-0" />
             <span className="capitalize">{formatDateToSpanish(appointment.appointment_date)}</span>
-            <span className="text-blue-700 font-bold">({rango_hora})</span>
+            <span className="text-blue-300 font-bold">•</span>
+            <Clock className="w-3.5 h-3.5 text-brand-orange shrink-0" />
+            <span className="text-blue-950 font-black">{rango_hora}</span>
           </span>
           <span className={`px-2.5 py-1 rounded-lg text-xs font-extrabold border ${statusConfig[appointment.status].color}`}>
             {statusConfig[appointment.status].label}

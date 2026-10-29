@@ -15,6 +15,13 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.42.0] - 2026-10-29 - Integración Unificada de Día y Fecha en la Pastilla de Horario de Ruta y Máxima Claridad en Citas Ocupadas
+- **Unificación de Día, Fecha y Horario en Rutas de Hoy (`TodayRouteCard.tsx`):**
+  - Integrado de forma unificada en la pastilla principal del horario: `[10:00 AM - 12:00 PM • Jueves, 29 de octubre]` con iconos de reloj y calendario en un solo bloque destacado.
+- **Identificación Inconfundible de Citas Ocupadas en Todas las Citas (`AppointmentCard.tsx` / `AdminView.tsx`):**
+  - En cada tarjeta de cita se resalta el bloque azul con animación de pulso: `🔒 CITA OCUPADA • [Día de la semana, Fecha] • [Rango de Horas]`.
+  - En la vista de cuadrícula y selector de fechas, todos los bloques ocupados indican claramente `🔒 OCUPADA` junto al día de la semana y la fecha para facilitar la orientación y ubicación inmediata del usuario.
+
 ### [v2.41.0] - 2026-10-29 - Eliminación de Etiqueta Vista PC y Ajuste de Ancho para Visibilidad Total del Menú Superior
 - **Eliminación de Etiqueta Innecesaria (`AdminView.tsx`):**
   - Retirada la pastilla *"Vista PC / Escritorio"* al lado del título, liberando más de 140px de espacio horizontal en el encabezado.
