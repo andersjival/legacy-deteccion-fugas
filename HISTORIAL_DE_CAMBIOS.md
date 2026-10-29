@@ -15,6 +15,13 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.41.0] - 2026-10-29 - Eliminación de Etiqueta Vista PC y Ajuste de Ancho para Visibilidad Total del Menú Superior
+- **Eliminación de Etiqueta Innecesaria (`AdminView.tsx`):**
+  - Retirada la pastilla *"Vista PC / Escritorio"* al lado del título, liberando más de 140px de espacio horizontal en el encabezado.
+- **Optimización de Dimensiones del Menú de Navegación (`AdminView.tsx`):**
+  - Calibrado el espaciado y padding del encabezado (`px-3 sm:px-4 md:px-5` y `h-14`) y de las pestañas centrales (`px-2.5 lg:px-3 py-1.5` con texto `text-[11px] lg:text-xs`).
+  - Garantizada la visibilidad permanente y sin cortes de los botones laterales *"Reseñas"* y *"Cerrar"* en cualquier resolución y factor de escala.
+
 ### [v2.40.0] - 2026-10-29 - Eliminación de Término D1, Día y Fecha en Rutas de Hoy y Visualización de Citas Ocupadas en Todas las Citas
 - **Eliminación Total de la Palabra D1 en Interfaces de Usuario (`AdminView.tsx` / `TrafficAnalytics.tsx` / `ProjectPresentationPage.tsx`):**
   - Removida la palabra "D1" de todas las etiquetas visibles para el usuario:

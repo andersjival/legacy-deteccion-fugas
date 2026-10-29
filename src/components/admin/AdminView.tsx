@@ -23,7 +23,7 @@ import {
   formatDateToSpanish, 
   formatTime12h 
 } from '../../utils/dateFormatter';
-import { Bell, RefreshCw, X, Navigation, Star, Laptop, Smartphone, Calendar, Clock, Settings, FileText, BarChart3, Eye, Plus, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Bell, RefreshCw, X, Navigation, Star, Calendar, Clock, Settings, FileText, BarChart3, Eye, Plus, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface AdminViewProps {
   onClose: () => void;
@@ -124,17 +124,6 @@ export const AdminView: React.FC<AdminViewProps> = ({
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'confirmed' | 'tomorrow'>('all');
   const [lightboxState, setLightboxState] = useState<{ photos: string[]; index: number } | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
-
-  const [isDesktop, setIsDesktop] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return window.innerWidth >= 768;
-  });
-
-  React.useEffect(() => {
-    const handleResize = () => setIsDesktop(window.innerWidth >= 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const todayStr = getTodayDateString();
   const tomorrowStr = getTomorrowDateString();
@@ -245,20 +234,14 @@ export const AdminView: React.FC<AdminViewProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-[#F1F5F9] flex flex-col overflow-hidden text-brand-dark font-sans select-none">
       
-      {/* Header Adaptativo: Móvil y Computadora (Altura fija h-16 y geometría estricta sin saltos) */}
-      <header className="bg-brand-dark text-white px-4 md:px-8 h-16 min-h-[64px] flex items-center justify-between shrink-0 shadow-md border-b border-slate-800">
+      {/* Header Adaptativo: Móvil y Computadora (Ajustado compacto para que quepa 100% en pantalla sin cortes) */}
+      <header className="bg-brand-dark text-white px-3 sm:px-4 md:px-5 h-14 min-h-[56px] flex items-center justify-between shrink-0 shadow-md border-b border-slate-800 w-full">
         
-        {/* Izquierda: Logo, Título y Modo de Dispositivo Detectado */}
-        <div className="flex items-center gap-3 shrink-0">
-          <AnimatedEagleLogo className="w-9 h-9 rounded-xl shadow-sm shrink-0" />
+        {/* Izquierda: Logo y Título Oficial */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          <AnimatedEagleLogo className="w-8 h-8 rounded-xl shadow-sm shrink-0" />
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-sm md:text-base font-black tracking-tight leading-none">Royality Panel</h1>
-              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
-                {isDesktop ? <Laptop className="w-3 h-3 text-brand-blue shrink-0" /> : <Smartphone className="w-3 h-3 text-brand-orange shrink-0" />}
-                <span>{isDesktop ? 'Vista PC / Escritorio' : 'Vista Móvil'}</span>
-              </span>
-            </div>
+            <h1 className="text-sm md:text-base font-black tracking-tight leading-none">Royality Panel</h1>
             <div className="flex items-center gap-1.5 mt-1">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
               <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">En Vivo</span>
@@ -266,8 +249,8 @@ export const AdminView: React.FC<AdminViewProps> = ({
           </div>
         </div>
 
-        {/* Centro (Desktop): Barra de Pestañas Superior para Computadora */}
-        <nav className="hidden md:flex items-center gap-1 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shadow-inner shrink-0">
+        {/* Centro (Desktop): Barra de Pestañas Superior Compacta */}
+        <nav className="hidden md:flex items-center gap-1 bg-slate-900/90 p-1 rounded-2xl border border-slate-800 shadow-inner shrink-0">
           {[
             { id: 'route' as AdminTab, label: 'Ruta de Hoy', icon: Navigation, count: todayAppointments.length },
             { id: 'all' as AdminTab, label: 'Todas las Citas', icon: Calendar, count: pendingAppointments.length },
@@ -283,16 +266,16 @@ export const AdminView: React.FC<AdminViewProps> = ({
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-colors duration-150 shrink-0 cursor-pointer ${
+                className={`relative flex items-center gap-1.5 px-2.5 lg:px-3 py-1.5 rounded-xl text-[11px] lg:text-xs font-black transition-colors duration-150 shrink-0 cursor-pointer ${
                   isActive
                     ? 'bg-brand-blue text-white shadow-md'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
                 }`}
               >
-                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
                 <span>{tab.label}</span>
                 {tab.count > 0 && (
-                  <span className={`px-1.5 py-0.2 min-w-[18px] text-[10px] font-black rounded-full flex items-center justify-center shrink-0 ${
+                  <span className={`px-1.5 py-0.2 min-w-[17px] text-[9px] font-black rounded-full flex items-center justify-center shrink-0 ${
                     tab.id === 'route' ? 'bg-brand-orange text-white' : 'bg-red-500 text-white'
                   }`}>
                     {tab.count}
@@ -303,7 +286,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
           })}
         </nav>
 
-        {/* Derecha: Botón Testimonios y Reseñas en pequeño (sustituye a Refrescar) y Cerrar */}
+        {/* Derecha: Botón Reseñas y Cerrar (Ajustados para visibilidad completa garantizada) */}
         <div className="flex items-center gap-1.5 shrink-0">
           <button
             type="button"
@@ -316,7 +299,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
             }`}
           >
             <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400 shrink-0" />
-            <span className="hidden sm:inline text-xs">Reseñas</span>
+            <span className="text-xs">Reseñas</span>
             {reviews.length > 0 && (
               <span className={`px-1.5 py-0.2 text-[10px] font-black rounded-full shrink-0 ${
                 activeTab === 'reviews' ? 'bg-white text-amber-900' : 'bg-amber-500 text-white'
@@ -329,10 +312,10 @@ export const AdminView: React.FC<AdminViewProps> = ({
             type="button"
             onClick={onClose}
             title="Salir"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-red-900/60 transition-colors duration-150 shrink-0 cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-red-900/60 transition-colors duration-150 shrink-0 cursor-pointer"
           >
             <X className="w-4 h-4 shrink-0" />
-            <span className="hidden sm:inline text-xs font-bold">Cerrar</span>
+            <span className="text-xs font-bold">Cerrar</span>
           </button>
         </div>
       </header>
