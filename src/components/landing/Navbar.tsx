@@ -6,9 +6,10 @@ import { SocialLinks } from '../common/SocialLinks';
 interface NavbarProps {
   onOpenAdmin: () => void;
   onNavigateAgenda: () => void;
+  onNavigateTestimonials?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda, onNavigateTestimonials }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -44,7 +45,18 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda })
             >
               Agendar
             </a>
-            <a href="#testimonios" className="hover:text-brand-blue transition-colors">Testimonios</a>
+            <a
+              href="/testimonios"
+              onClick={(e) => {
+                if (onNavigateTestimonials) {
+                  e.preventDefault();
+                  onNavigateTestimonials();
+                }
+              }}
+              className="hover:text-brand-blue transition-colors cursor-pointer"
+            >
+              Testimonios
+            </a>
           </nav>
 
           {/* Acciones Derecha */}
@@ -138,9 +150,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda })
             Agendar Cita
           </a>
           <a
-            href="#testimonios"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-lg text-base font-semibold text-brand-slate hover:bg-brand-ice"
+            href="/testimonios"
+            onClick={(e) => {
+              setMobileMenuOpen(false);
+              if (onNavigateTestimonials) {
+                e.preventDefault();
+                onNavigateTestimonials();
+              }
+            }}
+            className="block px-3 py-2 rounded-lg text-base font-semibold text-brand-slate hover:bg-brand-ice cursor-pointer"
           >
             Testimonios
           </a>

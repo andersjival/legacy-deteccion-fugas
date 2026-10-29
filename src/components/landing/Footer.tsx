@@ -6,13 +6,15 @@ import { SocialLinks } from '../common/SocialLinks';
 interface FooterProps {
   onOpenAdmin: () => void;
   onNavigateAgenda: () => void;
+  onNavigateTestimonials?: () => void;
   onInstallPWA?: () => void;
   isInstallable?: boolean;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   onOpenAdmin,
-  onNavigateAgenda
+  onNavigateAgenda,
+  onNavigateTestimonials
 }) => {
   return (
     <footer className="bg-brand-dark text-white pt-16 pb-12 border-t border-slate-800">
@@ -76,7 +78,20 @@ export const Footer: React.FC<FooterProps> = ({
                   Agendar Inspección
                 </a>
               </li>
-              <li><a href="#testimonios" className="hover:text-white transition-colors">Testimonios Verificados</a></li>
+              <li>
+                <a
+                  href="/testimonios"
+                  onClick={(e) => {
+                    if (onNavigateTestimonials) {
+                      e.preventDefault();
+                      onNavigateTestimonials();
+                    }
+                  }}
+                  className="hover:text-white transition-colors cursor-pointer"
+                >
+                  Testimonios Verificados
+                </a>
+              </li>
               <li><a href="/proyecto" className="text-amber-400 hover:text-amber-300 font-bold transition-colors">⚡ Arquitectura del Sistema (/proyecto)</a></li>
             </ul>
           </div>

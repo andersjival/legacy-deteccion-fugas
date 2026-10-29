@@ -15,6 +15,18 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.35.0] - 2026-10-29 - Testimonios y Reseñas en Página Independiente, Botón Compacto y Erradicación de Parpadeo y Salto en Métricas
+- **Testimonios y Reseñas en Página Propia (`AdminView.tsx` / `App.tsx` / `Navbar.tsx` / `Footer.tsx`):**
+  - Retirada la tarjeta de testimonios del tab de Citas en el panel administrativo y creada la pestaña dedicada `reviews` (`/detec/panel?tab=reviews` o `/resenas`).
+  - Creada la página pública independiente `/testimonios` con acceso directo desde el menú de navegación y pie de página, liberando la página de inicio principal.
+- **Sustitución del Botón "Refrescar" por Botón Pequeño de Reseñas (`AdminView.tsx`):**
+  - Eliminado el botón innecesario *"Refrescar"* de la barra superior administrativa.
+  - Incorporado en su lugar el botón compacto *"Reseñas"* con icono de estrella y contador numérico en pastilla que dirige de forma instantánea a la página de testimonios.
+- **Erradicación del Parpadeo (1 → 0 → 1) y Salto en Tráfico y Métricas (`TrafficAnalytics.tsx` / `AdminView.tsx`):**
+  - Implementada inicialización síncrona inmediata desde caché local (`royalty_traffic_stats_cache` y `royalty_local_traffic_events`): el número de visitas (ej. Instagram = 1) se renderiza desde el primer milisegundo sin parpadear en 0 al refrescar.
+  - Eliminadas transiciones desestabilizadoras (`transition-all duration-500`) en la barra del embudo y fijada altura mínima estable en la lista de eventos para erradicar cualquier salto vertical de la pantalla.
+  - Removido `animate-bounce` en las alertas del encabezado para mantener la interfaz completamente estable.
+
 ### [v2.34.0] - 2026-10-29 - Mensaje Verde de Guardado Durante 10 Segundos y Auto-Scroll Superior Automático
 - **Permanencia de 10 Segundos para Mensajes de Éxito en Verde (`JobQuoteManager.tsx`):**
   - Configurado temporizador estricto de 10 segundos (`10000ms`) tanto para el mensaje superior de guardado (`saveSuccessMessage`) como para el estado visual verde de la tarjeta inferior (`savedLaterFeedback`).

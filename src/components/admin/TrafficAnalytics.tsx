@@ -48,11 +48,73 @@ interface TrafficStats {
   }>;
 }
 
+const TRAFFIC_STATS_CACHE_KEY = 'royalty_traffic_stats_cache';
+
+const getInitialTrafficStats = (period: PeriodType): TrafficStats => {
+  if (typeof window !== 'undefined') {
+    try {
+      const raw = localStorage.getItem(`${TRAFFIC_STATS_CACHE_KEY}_${period}`) || localStorage.getItem(TRAFFIC_STATS_CACHE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+
+    // Sincronización inmediata desde eventos locales para evitar parpadeo o renderizado temporal en cero
+    try {
+      const localEventsRaw = localStorage.getItem('royalty_local_traffic_events');
+      const localEvents = localEventsRaw ? JSON.parse(localEventsRaw) : [];
+      if (Array.isArray(localEvents) && localEvents.length > 0) {
+        const sources = ['fb', 'ig', 'wa', 'direct'];
+        const bySource: Record<string, any> = {};
+        let totalVisits = 0;
+        let totalClicks = 0;
+        let totalBookings = 0;
+
+        sources.forEach((s) => {
+          const srcEvents = localEvents.filter((e) => e.source === s);
+          const visits = srcEvents.filter((e) => e.event_type === 'visit').length;
+          const clicks = srcEvents.filter((e) => e.event_type === 'agenda_click').length;
+          const bookings = srcEvents.filter((e) => e.event_type === 'booking').length;
+          const clickRate = visits > 0 ? Number(((clicks / visits) * 100).toFixed(1)) : 0;
+          const conversionRate = visits > 0 ? Number(((bookings / visits) * 100).toFixed(1)) : 0;
+          bySource[s] = { visits, clicks, bookings, clickRate, conversionRate };
+          totalVisits += visits;
+          totalClicks += clicks;
+          totalBookings += bookings;
+        });
+
+        return {
+          period,
+          bySource,
+          totals: {
+            visits: totalVisits,
+            clicks: totalClicks,
+            bookings: totalBookings,
+            clickRate: totalVisits > 0 ? Number(((totalClicks / totalVisits) * 100).toFixed(1)) : 0,
+            conversionRate: totalVisits > 0 ? Number(((totalBookings / totalVisits) * 100).toFixed(1)) : 0
+          },
+          recentEvents: localEvents.slice(-20).reverse()
+        };
+      }
+    } catch {}
+  }
+
+  return {
+    period,
+    bySource: {
+      fb: { visits: 0, clicks: 0, bookings: 0, clickRate: 0, conversionRate: 0 },
+      ig: { visits: 0, clicks: 0, bookings: 0, clickRate: 0, conversionRate: 0 },
+      wa: { visits: 0, clicks: 0, bookings: 0, clickRate: 0, conversionRate: 0 },
+      direct: { visits: 0, clicks: 0, bookings: 0, clickRate: 0, conversionRate: 0 }
+    },
+    totals: { visits: 0, clicks: 0, bookings: 0, clickRate: 0, conversionRate: 0 },
+    recentEvents: []
+  };
+};
+
 export const TrafficAnalytics: React.FC = () => {
   const [period, setPeriod] = useState<PeriodType>('month');
   const [selectedSource, setSelectedSource] = useState<SourceFilter>('all');
-  const [stats, setStats] = useState<TrafficStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<TrafficStats>(() => getInitialTrafficStats('month'));
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
 
@@ -101,7 +163,13 @@ export const TrafficAnalytics: React.FC = () => {
     if (isManual) setRefreshing(true);
     try {
       const data = await api.getTrafficStats(period);
-      if (data) setStats(data);
+      if (data) {
+        setStats(data);
+        try {
+          localStorage.setItem(`${TRAFFIC_STATS_CACHE_KEY}_${period}`, JSON.stringify(data));
+          localStorage.setItem(TRAFFIC_STATS_CACHE_KEY, JSON.stringify(data));
+        } catch {}
+      }
     } catch (e) {
       console.warn('Error fetching traffic stats:', e);
     } finally {
@@ -111,6 +179,10 @@ export const TrafficAnalytics: React.FC = () => {
   };
 
   useEffect(() => {
+    // Si cambia el período, cargar inmediatamente el caché correspondiente sin parpadeo
+    const cached = getInitialTrafficStats(period);
+    if (cached) setStats(cached);
+
     fetchStats();
     const interval = setInterval(() => {
       if (!document.hidden) {
@@ -654,39 +726,41 @@ export const TrafficAnalytics: React.FC = () => {
           <span className="text-[10px] text-slate-400">Actualización en tiempo real</span>
         </div>
 
-        {stats?.recentEvents && stats.recentEvents.length > 0 ? (
-          <div className="space-y-1.5 max-h-56 overflow-y-auto">
-            {stats.recentEvents.map((ev) => {
-              const srcLabel = ev.source === 'fb' ? 'Facebook' : ev.source === 'ig' ? 'Instagram' : ev.source === 'wa' ? 'WhatsApp' : 'Directo';
-              const srcBadgeColor = ev.source === 'fb' ? 'bg-blue-100 text-blue-800' : ev.source === 'ig' ? 'bg-pink-100 text-pink-800' : ev.source === 'wa' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600';
-              
-              const typeLabel = ev.event_type === 'visit' ? 'Entró a la plataforma' : ev.event_type === 'agenda_click' ? 'Hizo clic en agendar' : '¡Cita confirmada!';
-              const typeIcon = ev.event_type === 'visit' ? Users : ev.event_type === 'agenda_click' ? MousePointerClick : CalendarCheck;
-              const TypeIconComponent = typeIcon;
+        <div className="min-h-[60px]">
+          {stats?.recentEvents && stats.recentEvents.length > 0 ? (
+            <div className="space-y-1.5 max-h-56 overflow-y-auto">
+              {stats.recentEvents.map((ev) => {
+                const srcLabel = ev.source === 'fb' ? 'Facebook' : ev.source === 'ig' ? 'Instagram' : ev.source === 'wa' ? 'WhatsApp' : 'Directo';
+                const srcBadgeColor = ev.source === 'fb' ? 'bg-blue-100 text-blue-800' : ev.source === 'ig' ? 'bg-pink-100 text-pink-800' : ev.source === 'wa' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600';
+                
+                const typeLabel = ev.event_type === 'visit' ? 'Entró a la plataforma' : ev.event_type === 'agenda_click' ? 'Hizo clic en agendar' : '¡Cita confirmada!';
+                const typeIcon = ev.event_type === 'visit' ? Users : ev.event_type === 'agenda_click' ? MousePointerClick : CalendarCheck;
+                const TypeIconComponent = typeIcon;
 
-              return (
-                <div key={ev.id} className="flex items-center justify-between p-2 rounded-xl bg-slate-50 text-xs border border-slate-100">
-                  <div className="flex items-center gap-2.5">
-                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${srcBadgeColor}`}>
-                      {srcLabel}
-                    </span>
-                    <span className="flex items-center gap-1 font-bold text-slate-700">
-                      <TypeIconComponent className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{typeLabel}</span>
+                return (
+                  <div key={ev.id} className="flex items-center justify-between p-2 rounded-xl bg-slate-50 text-xs border border-slate-100">
+                    <div className="flex items-center gap-2.5">
+                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${srcBadgeColor}`}>
+                        {srcLabel}
+                      </span>
+                      <span className="flex items-center gap-1 font-bold text-slate-700">
+                        <TypeIconComponent className="w-3.5 h-3.5 text-slate-400" />
+                        <span>{typeLabel}</span>
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono text-slate-400">
+                      {ev.created_at ? new Date(ev.created_at).toLocaleTimeString('es-CR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'Reciente'}
                     </span>
                   </div>
-                  <span className="text-[10px] font-mono text-slate-400">
-                    {ev.created_at ? new Date(ev.created_at).toLocaleTimeString('es-CR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'Reciente'}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <p className="text-xs text-slate-400 text-center py-4">
-            Aún no hay eventos registrados en este período. Comienza compartiendo los links cortos en tus redes sociales.
-          </p>
-        )}
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-xs text-slate-400 text-center py-4">
+              Aún no hay eventos registrados en este período. Comienza compartiendo los links cortos en tus redes sociales.
+            </p>
+          )}
+        </div>
       </div>
 
     </div>

@@ -25,7 +25,7 @@ interface AdminViewProps {
   notificationsGranted?: boolean;
 }
 
-const VALID_ADMIN_TABS: AdminTab[] = ['route', 'all', 'quotes', 'traffic', 'schedule', 'settings'];
+const VALID_ADMIN_TABS: AdminTab[] = ['route', 'all', 'quotes', 'traffic', 'schedule', 'settings', 'reviews'];
 
 const getInitialAdminTab = (): AdminTab => {
   if (typeof window !== 'undefined') {
@@ -241,16 +241,27 @@ export const AdminView: React.FC<AdminViewProps> = ({
           })}
         </nav>
 
-        {/* Derecha: Botones de Acción (Refrescar, Salir) */}
+        {/* Derecha: Botón Testimonios y Reseñas en pequeño (sustituye a Refrescar) y Cerrar */}
         <div className="flex items-center gap-1.5">
           <button
             type="button"
-            onClick={refresh}
-            title="Refrescar"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 active:scale-95 transition-all cursor-pointer"
+            onClick={() => setActiveTab('reviews')}
+            title="Ver Testimonios y Reseñas de Clientes"
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'reviews'
+                ? 'bg-amber-500 text-white shadow-sm ring-2 ring-amber-300/50'
+                : 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 active:scale-95'
+            }`}
           >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline text-xs font-bold">Refrescar</span>
+            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+            <span className="hidden sm:inline text-xs">Reseñas</span>
+            {reviews.length > 0 && (
+              <span className={`px-1.5 py-0.2 text-[10px] font-black rounded-full ${
+                activeTab === 'reviews' ? 'bg-white text-amber-900' : 'bg-amber-500 text-white'
+              }`}>
+                {reviews.length}
+              </span>
+            )}
           </button>
           <button
             type="button"
@@ -312,14 +323,14 @@ export const AdminView: React.FC<AdminViewProps> = ({
 
       {/* Alerta flotante en tiempo real si un cliente publica una calificación / reseña */}
       {newReviewAlert && (
-        <div className="bg-amber-500 text-white px-4 py-3 shadow-lg flex items-center justify-between animate-bounce shrink-0">
+        <div className="bg-amber-500 text-white px-4 py-3 shadow-lg flex items-center justify-between shrink-0 animate-in fade-in">
           <div className="flex items-center gap-2 text-xs font-black">
             <Star className="w-4 h-4 shrink-0 fill-white" />
             <span>
               ¡NUEVO TESTIMONIO! {newReviewAlert.client_name} ({newReviewAlert.rating}★): "{newReviewAlert.comment.substring(0, 35)}..."
             </span>
           </div>
-          <button onClick={dismissReviewAlert} className="p-1 hover:bg-black/20 rounded-lg">
+          <button onClick={dismissReviewAlert} className="p-1 hover:bg-black/20 rounded-lg cursor-pointer" title="Cerrar">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -383,10 +394,9 @@ export const AdminView: React.FC<AdminViewProps> = ({
             {/* 1. Métricas Principales de Citas (Fila completa, altura compacta, sin truncado ni espacio muerto) */}
             <KPICards appointments={appointments} />
 
-            {/* 2. Cierre Financiero y Reseñas de Clientes (2 Columnas en PC, 1 en Celular, con items-start para evitar estiramiento vertical) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+            {/* 2. Cierre Financiero de Citas */}
+            <div className="w-full">
               <FinancialReportCard appointments={appointments} />
-              <AdminReviewsCard reviews={reviews} onDeleteReview={removeReview} />
             </div>
 
             {/* Filtros Rápidos Estilo Pastilla */}
@@ -468,6 +478,34 @@ export const AdminView: React.FC<AdminViewProps> = ({
               notificationsGranted={notificationsGranted}
               appointments={appointments}
             />
+          </div>
+        )}
+
+        {/* TAB 7: TESTIMONIOS Y RESEÑAS EN PÁGINA INDEPENDIENTE */}
+        {activeTab === 'reviews' && (
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-1">
+              <div>
+                <h2 className="text-base sm:text-lg font-black text-brand-dark">Testimonios y Reseñas de Clientes</h2>
+                <p className="text-xs text-slate-500 font-medium">
+                  Muro oficial de opiniones verificadas y calificaciones recibidas en el sistema
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const reviewUrl = `${window.location.origin}/calificar`;
+                  navigator.clipboard.writeText(reviewUrl);
+                  alert('¡Enlace para pedir calificación a clientes copiado al portapapeles!');
+                }}
+                className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                title="Copiar enlace para enviar por WhatsApp al cliente"
+              >
+                <Star className="w-4 h-4 fill-white" />
+                <span>Copiar Enlace de Calificación</span>
+              </button>
+            </div>
+            <AdminReviewsCard reviews={reviews} onDeleteReview={removeReview} />
           </div>
         )}
 

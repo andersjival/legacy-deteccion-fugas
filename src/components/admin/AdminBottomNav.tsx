@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigation, Calendar, Clock, Settings, FileText, BarChart3 } from 'lucide-react';
 
-export type AdminTab = 'route' | 'all' | 'quotes' | 'traffic' | 'schedule' | 'settings';
+export type AdminTab = 'route' | 'all' | 'quotes' | 'traffic' | 'schedule' | 'settings' | 'reviews';
 
 interface AdminBottomNavProps {
   activeTab: AdminTab;

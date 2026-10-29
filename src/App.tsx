@@ -81,6 +81,10 @@ export function App() {
       params.set('tab', 'settings');
       setCurrentPath('/detec/panel');
       changed = true;
+    } else if (raw === '/resenas' || raw === '/reviews') {
+      params.set('tab', 'reviews');
+      setCurrentPath('/detec/panel');
+      changed = true;
     }
 
     if (changed) {
@@ -132,10 +136,11 @@ export function App() {
 
   const isAgendaRoute = currentPath === '/agenda' || currentPath === '/agendar';
   const isAdminRoute = currentPath === '/detec/panel' || currentPath === '/detec' || currentPath === '/panel' || currentPath === '/admin';
-  const isReviewRoute = currentPath === '/calificar' || currentPath === '/review' || currentPath === '/resena' || currentPath === '/valorar';
+  const isReviewRoute = currentPath === '/calificar' || currentPath === '/review' || currentPath === '/valorar';
   const isQuoteRoute = currentPath === '/cotizador' || currentPath === '/cotizar' || currentPath === '/presupuesto';
   const isClientQuoteRoute = currentPath.startsWith('/cotizacion');
   const isProjectRoute = currentPath === '/proyecto' || currentPath === '/sistema' || currentPath === '/propuesta';
+  const isTestimonialsRoute = currentPath === '/testimonios';
 
   const clientQuoteId = (() => {
     if (!isClientQuoteRoute) return '';
@@ -178,6 +183,39 @@ export function App() {
           initialService={selectedService}
           onOpenAdmin={() => navigateTo('/detec/panel')}
         />
+      ) : isTestimonialsRoute ? (
+        /* Vista Exclusiva de Testimonios y Reseñas de Clientes: /testimonios */
+        <div className="min-h-screen flex flex-col bg-slate-50">
+          <Navbar
+            onOpenAdmin={() => navigateTo('/detec/panel')}
+            onNavigateAgenda={() => navigateTo('/agenda')}
+            onNavigateTestimonials={() => navigateTo('/testimonios')}
+          />
+          <main className="flex-grow py-8 px-4 sm:px-6 max-w-7xl mx-auto w-full space-y-6">
+            <div className="flex items-center justify-between pb-2">
+              <button
+                type="button"
+                onClick={() => navigateTo('/')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 transition-all shadow-xs cursor-pointer"
+              >
+                <span>← Volver al Inicio</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => navigateTo('/calificar')}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 transition-all shadow-xs cursor-pointer"
+              >
+                <span>★ Dejar mi Reseña</span>
+              </button>
+            </div>
+            <TestimonialsSection />
+          </main>
+          <Footer
+            onOpenAdmin={() => navigateTo('/detec/panel')}
+            onNavigateAgenda={() => navigateTo('/agenda')}
+            onNavigateTestimonials={() => navigateTo('/testimonios')}
+          />
+        </div>
       ) : isReviewRoute ? (
         /* Vista Exclusiva para Calificación de Clientes: /calificar */
         <ClientReviewPage onBackToHome={() => navigateTo('/')} />
@@ -223,18 +261,19 @@ export function App() {
           <Navbar
             onOpenAdmin={() => navigateTo('/detec/panel')}
             onNavigateAgenda={() => navigateTo('/agenda')}
+            onNavigateTestimonials={() => navigateTo('/testimonios')}
           />
 
           <main className="flex-grow">
             <HeroSection onNavigateAgenda={() => navigateTo('/agenda')} />
             <ServicesSection onSelectService={handleSelectService} />
             <TechShowcase onNavigateAgenda={() => navigateTo('/agenda')} />
-            <TestimonialsSection />
           </main>
 
           <Footer
             onOpenAdmin={() => navigateTo('/detec/panel')}
             onNavigateAgenda={() => navigateTo('/agenda')}
+            onNavigateTestimonials={() => navigateTo('/testimonios')}
           />
         </>
       )}
