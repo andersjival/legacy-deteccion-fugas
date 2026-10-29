@@ -194,7 +194,7 @@ export const JobQuoteManager: React.FC = () => {
   const syncCloudQuotes = async () => {
     try {
       const remoteQuotes = await api.getQuotes();
-      if (Array.isArray(remoteQuotes) && remoteQuotes.length > 0) {
+      if (Array.isArray(remoteQuotes)) {
         const mapped: SavedQuoteEntry[] = remoteQuotes.map((q: any) => ({
           id: q.id,
           fileName: q.file_name || `Cotizacion-${q.quote_number}`,
@@ -202,7 +202,7 @@ export const JobQuoteManager: React.FC = () => {
           totalAmount: Number(q.total_amount) || 0,
           clientName: q.client_name || 'Cliente Particular',
           workReference: q.work_reference || 'Trabajo Técnico',
-          status: (q.status as 'por_enviar' | 'enviada') || 'por_enviar',
+          status: (q.status as 'por_enviar' | 'enviada' | 'aceptada') || 'por_enviar',
           sentAt: q.status === 'enviada' ? (q.updated_at || null) : null,
           viewCount: Number(q.view_count) || 0,
           isDownloaded: Boolean(q.is_downloaded),
@@ -212,7 +212,7 @@ export const JobQuoteManager: React.FC = () => {
             id: q.id,
             quoteNumber: q.quote_number,
             date: q.date,
-            status: (q.status as 'por_enviar' | 'enviada') || 'por_enviar',
+            status: (q.status as 'por_enviar' | 'enviada' | 'aceptada') || 'por_enviar',
             companyName: q.company_name || 'Royalty Destaqueo de Tuberías',
             companyLogoUrl: DEFAULT_LOGO,
             customLogoUrl: null,
@@ -245,15 +245,11 @@ export const JobQuoteManager: React.FC = () => {
           }
         }));
 
-        setSavedHistory((prev) => {
-          const remoteIds = new Set(mapped.map((m) => m.id));
-          const localOnly = prev.filter((p) => !remoteIds.has(p.id));
-          const merged = [...mapped, ...localOnly];
-          try {
-            localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(merged));
-          } catch (e) {}
-          return merged;
-        });
+        // D1 es la única fuente de verdad universal: sincronizar estado y localStorage exactamente
+        setSavedHistory(mapped);
+        try {
+          localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(mapped));
+        } catch (e) {}
       }
     } catch (e) {
       console.warn('Error sincronizando cotizaciones:', e);
@@ -262,12 +258,27 @@ export const JobQuoteManager: React.FC = () => {
 
   useEffect(() => {
     syncCloudQuotes();
+
+    const handleVisibilityOrFocus = () => {
+      if (!document.hidden) {
+        syncCloudQuotes();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    window.addEventListener('focus', handleVisibilityOrFocus);
+
     const interval = setInterval(() => {
       if (!document.hidden) {
         syncCloudQuotes();
       }
-    }, 20000);
-    return () => clearInterval(interval);
+    }, 8000);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+    };
   }, []);
 
   // Auto-guardado de borrador activo en localStorage
@@ -512,9 +523,6 @@ export const JobQuoteManager: React.FC = () => {
   const handleToggleQuoteStatus = async (id: string, currentStatus?: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     const newStatus: 'por_enviar' | 'enviada' = currentStatus === 'enviada' ? 'por_enviar' : 'enviada';
-    try {
-      await api.updateQuoteStatus(id, newStatus);
-    } catch {}
     const updated = savedHistory.map((item) => 
       item.id === id ? { ...item, status: newStatus, sentAt: newStatus === 'enviada' ? new Date().toISOString() : null } : item
     );
@@ -522,6 +530,13 @@ export const JobQuoteManager: React.FC = () => {
     try {
       localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(updated));
     } catch {}
+
+    try {
+      await api.updateQuoteStatus(id, newStatus);
+      await syncCloudQuotes();
+    } catch (err) {
+      console.warn('Error toggling quote status on cloud:', err);
+    }
   };
 
   // Enviar cualquier cotización guardada directamente por WhatsApp y marcarla como enviada
@@ -773,14 +788,18 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
   const handleDeleteFromHistory = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm('¿Eliminar esta cotización del historial guardado?')) {
-      try {
-        await api.deleteQuote(id);
-      } catch (err) {}
       const updated = savedHistory.filter((item) => item.id !== id);
       setSavedHistory(updated);
       try {
         localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(updated));
       } catch (err) {}
+
+      try {
+        await api.deleteQuote(id);
+        await syncCloudQuotes();
+      } catch (err) {
+        console.warn('Error deleting quote on cloud:', err);
+      }
     }
   };
 
@@ -1183,8 +1202,8 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
               </div>
             </div>
 
-            {/* Pestañas de Filtro y Botón Cerrar */}
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+            {/* Pestañas de Filtro, Sincronización y Botón Cerrar */}
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
               <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-black">
                 <button
                   type="button"
@@ -1211,6 +1230,21 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
                   <span>Todas ({savedHistory.length})</span>
                 </button>
               </div>
+
+              {/* Botón Sincronizar en Vivo */}
+              <button
+                type="button"
+                onClick={async () => {
+                  setIsSyncing(true);
+                  await syncCloudQuotes();
+                  setTimeout(() => setIsSyncing(false), 500);
+                }}
+                className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-brand-blue text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                title="Sincronizar en vivo con la base de datos D1"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 text-brand-blue ${isSyncing ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">{isSyncing ? 'Sincronizando...' : 'Sincronizar'}</span>
+              </button>
 
               <button
                 type="button"

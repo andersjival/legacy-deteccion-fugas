@@ -775,6 +775,8 @@ app.delete('/reviews/:id', async (c) => {
 // RUTAS DE COTIZACIONES DINÁMICAS (QUOTES)
 // ----------------------------------------------------
 app.get('/quotes', async (c) => {
+  c.header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  c.header('Pragma', 'no-cache');
   if (c.env.DB) {
     try {
       const { results } = await c.env.DB.prepare(
@@ -789,6 +791,8 @@ app.get('/quotes', async (c) => {
 });
 
 app.get('/quotes/:id', async (c) => {
+  c.header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  c.header('Pragma', 'no-cache');
   const id = c.req.param('id');
   if (c.env.DB) {
     try {

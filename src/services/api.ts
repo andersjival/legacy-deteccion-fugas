@@ -670,28 +670,40 @@ class ApiService {
   // ----------------------------------------------------
   async getQuotes(): Promise<any[]> {
     try {
-      if (!this.useLocalFallback) {
-        const res = await fetch('/api/quotes');
-        if (res.ok) {
-          return await res.json();
+      const res = await fetch('/api/quotes', { 
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          this.setStored('royalty_saved_quotes_history', data);
+          return data;
         }
       }
-    } catch {
-      this.useLocalFallback = true;
+    } catch (e) {
+      console.warn('Error fetching quotes from server:', e);
     }
     return this.getStored<any[]>('royalty_saved_quotes_history', []);
   }
 
   async getQuoteById(id: string): Promise<any | null> {
     try {
-      if (!this.useLocalFallback) {
-        const res = await fetch(`/api/quotes/${id}`);
-        if (res.ok) {
-          return await res.json();
+      const res = await fetch(`/api/quotes/${id}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
         }
+      });
+      if (res.ok) {
+        return await res.json();
       }
-    } catch {
-      this.useLocalFallback = true;
+    } catch (e) {
+      console.warn('Error fetching quote by id:', e);
     }
     const local = this.getStored<any[]>('royalty_saved_quotes_history', []);
     const found = local.find((q: any) => q.id === id || q.quoteData?.id === id);
@@ -705,18 +717,16 @@ class ApiService {
     this.setStored('royalty_saved_quotes_history', filtered);
 
     try {
-      if (!this.useLocalFallback) {
-        const res = await fetch('/api/quotes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(quote)
-        });
-        if (res.ok) {
-          return await res.json();
-        }
+      const res = await fetch('/api/quotes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(quote)
+      });
+      if (res.ok) {
+        return await res.json();
       }
-    } catch {
-      this.useLocalFallback = true;
+    } catch (e) {
+      console.warn('Error saving quote to server:', e);
     }
     return { id: quote.id, share_url: `/cotizacion/${quote.id}` };
   }
@@ -749,30 +759,30 @@ class ApiService {
     this.setStored('royalty_saved_quotes_history', updated);
 
     try {
-      if (!this.useLocalFallback) {
-        const res = await fetch(`/api/quotes/${id}/status`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status })
-        });
-        if (res.ok) return true;
-      }
-    } catch {
-      this.useLocalFallback = true;
+      const res = await fetch(`/api/quotes/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      if (res.ok) return true;
+    } catch (e) {
+      console.warn('Error updating quote status on server:', e);
     }
-    return true;
+    return false;
   }
 
   async deleteQuote(id: string): Promise<boolean> {
+    const local = this.getStored<any[]>('royalty_saved_quotes_history', []);
+    const filtered = local.filter((q: any) => q.id !== id && q.quoteData?.id !== id);
+    this.setStored('royalty_saved_quotes_history', filtered);
+
     try {
-      if (!this.useLocalFallback) {
-        const res = await fetch(`/api/quotes/${id}`, { method: 'DELETE' });
-        if (res.ok) return true;
-      }
-    } catch {
-      this.useLocalFallback = true;
+      const res = await fetch(`/api/quotes/${id}`, { method: 'DELETE' });
+      if (res.ok) return true;
+    } catch (e) {
+      console.warn('Error deleting quote on server:', e);
     }
-    return true;
+    return false;
   }
 
   // ----------------------------------------------------

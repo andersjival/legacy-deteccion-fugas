@@ -15,6 +15,17 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.52.0] - 2026-10-29 - Sincronización Universal en Tiempo Real de Cotizaciones (PC & Móvil)
+- **Erradicación del Desfase de Cotizaciones por Enviar (`JobQuoteManager.tsx` / `api.ts`):**
+  - Identificada y eliminada la causa raíz del desfase: la retención de cotizaciones fantasmas `localOnly` en `localStorage` de la computadora que no existían en D1 y la falta de sincronización bidireccional inmediata.
+  - Establecida Cloudflare D1 como única fuente de verdad universal para todas las instancias (móviles y web), sincronizando el estado exacto sin resucitar registros eliminados.
+- **Sincronización Reactiva al Cambiar de Pestaña o Desbloquear Móvil (`JobQuoteManager.tsx`):**
+  - Implementados oyentes de eventos `visibilitychange` y `window.focus`, junto con reducción del intervalo de polling a 8 segundos. Cuando el usuario abre o regresa a la aplicación en su celular o PC, la lista de cotizaciones se refresca al instante.
+  - Añadido botón manual `Sincronizar` con animación giratoria en el panel de cotizaciones para actualización forzada en un toque.
+- **Cabeceras Anti-Caché Estrictas (`[[route]].ts` / `api.ts`):**
+  - Añadida cabecera `Cache-Control: no-store, no-cache, must-revalidate, max-age=0` y `Pragma: no-cache` tanto en las Functions de Cloudflare Pages (`/api/quotes`) como en las peticiones cliente (`fetch`), impidiendo que navegadores móviles cacheen listados obsoletos.
+  - Eliminado el bloqueo permanente de fallback local en `api.ts`, asegurando que todas las peticiones se comuniquen directamente con la base de datos central en la nube.
+
 ### [v2.51.0] - 2026-10-29 - Pop-up de Aceptación Nativa de Cotización y Erradicación del Botón de WhatsApp
 - **Flujo Nativo de Aceptación con Pop-up (`ClientQuoteView.tsx`):**
   - Reemplazado el botón de "Aceptar por WhatsApp" por un botón nativo oficial `Aceptar Cotización` con icono `CheckCircle2` en la barra superior del cliente.
