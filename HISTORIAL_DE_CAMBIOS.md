@@ -15,6 +15,17 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.49.0] - 2026-10-29 - Transformación de /PROYECTO en Landing Page de Venta de Alta Conversión e Inventario Llave en Mano
+- **Landing Page de Venta Persuasiva B2B (`ProjectPresentationPage.tsx`):**
+  - Transformada la vista `/PROYECTO` en una propuesta comercial y página de venta de alta persuasión dirigida a David Rojas para asegurar la adquisición formal de la plataforma.
+  - Incorporada barra de navegación rápida en el encabezado (`10 Innovaciones`, `Qué Recibes`, `Comparativa`, `Cotizador`) y diseño premium luxury con gradientes y tarjetas de impacto.
+- **Inventario Ejecutivo Llave en Mano Punto por Punto (`ProjectPresentationPage.tsx`):**
+  - Creada sección dedicada `#resumen-entregables` con 12 módulos desglosados en 4 pilares estratégicos (Ventas & Cierre, Operación & Control, Captación & Reputación, Tecnología & Propiedad), cada uno con checklist de 3 puntos, insignias de valor y enlaces interactivos a demos en vivo.
+  - Añadido bloque de acta de entrega integral con checklist ejecutivo de 12 puntos de software, infraestructura y derechos de propiedad.
+- **Tabla Comparativa y Cierre Comercial con WhatsApp (`ProjectPresentationPage.tsx`):**
+  - Diseñada tabla comparativa `#tabla-comparativa` (*Web Común de $100 vs Plataforma Royalty*).
+  - Integrado botón de acción directo de WhatsApp preconfigurado para formalizar y poner en marcha la entrega.
+
 ### [v2.48.0] - 2026-10-29 - Validación Estricta Anti-Fraude de Teléfono en Testimonios
 - **Verificación Obligatoria de Cita Previa (`[[route]].ts` / `api.ts` / `ClientReviewPage.tsx`):**
   - Implementada comprobación estricta en base de datos D1 y almacenamiento local de las citas agendadas: cualquier reseña enviada con un número de teléfono que no pertenezca a un cliente con citas registradas en Royalty es rechazada con código `403 Acceso Denegado`.

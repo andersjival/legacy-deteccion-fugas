@@ -25,17 +25,271 @@ import {
   Cpu, 
   Smartphone, 
   Check, 
-  X,
-  ChevronRight,
-  TrendingUp,
-  Award,
-  DollarSign
+  X, 
+  ChevronRight, 
+  TrendingUp, 
+  Award, 
+  DollarSign,
+  Layers,
+  ShieldCheck,
+  CheckSquare,
+  BadgeCheck,
+  Server,
+  Boxes
 } from 'lucide-react';
 import { ProjectFeature, ProjectMetric, ProjectPresentationData } from '../../types/project';
 
-const STORAGE_KEY = 'royalty_project_presentation_data_v3';
+const STORAGE_KEY = 'royalty_project_presentation_data_v4';
 const SHIELD_LOGO = '/images/logo-royalty-shield.png';
 const LOGO_DESTAQUEO = '/images/logo-royalty-destaqueo.png';
+
+export interface DeliverableSummaryItem {
+  id: string;
+  pillar: string;
+  title: string;
+  tag: string;
+  tagColor: string;
+  summary: string;
+  bullets: string[];
+  actionPath?: string;
+  actionText?: string;
+}
+
+export const DELIVERABLES_SUMMARY: DeliverableSummaryItem[] = [
+  {
+    id: 'del_1',
+    pillar: '1. MOTOR COMERCIAL & CIERRE',
+    title: 'Cotizador Formal Dinámico con Membrete y Firma Oficial',
+    tag: 'Facturación Inmediata',
+    tagColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+    summary: 'Generador de propuestas digitales en PDF con membrete corporativo, cálculo automático de materiales, mano de obra, IVA opcional y garantía por escrito.',
+    bullets: [
+      'Emisión formal de cotización en menos de 30 segundos',
+      'Descarga directa en formato PDF listo para imprimir o enviar',
+      'Erradica el regateo de precios proyectando máxima seriedad'
+    ],
+    actionPath: '/cotizador',
+    actionText: 'Probar Cotizador'
+  },
+  {
+    id: 'del_2',
+    pillar: '1. MOTOR COMERCIAL & CIERRE',
+    title: 'Previsualización Enriquecida Automática en WhatsApp (Open Graph)',
+    tag: 'Apertura >95%',
+    tagColor: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
+    summary: 'Inyección dinámica de tarjeta visual oficial con el logotipo de Royalty y el monto cotizado al compartir el enlace en WhatsApp.',
+    bullets: [
+      'El cliente ve el monto oficial y tu logo antes de abrir el enlace',
+      'Elimina enlaces sospechosos o textos genéricos que parecen spam',
+      'Distinción visual inmediata sobre cualquier competidor tradicional'
+    ],
+    actionPath: '/cotizador',
+    actionText: 'Ver Ejemplo'
+  },
+  {
+    id: 'del_3',
+    pillar: '1. MOTOR COMERCIAL & CIERRE',
+    title: 'Radar Silencioso de Lectura y Descarga de Cotizaciones',
+    tag: 'Ventaja Táctica',
+    tagColor: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+    summary: 'Registro en tiempo real que te avisa cuándo el cliente abre la cotización y la fecha/hora exacta en que descargó el documento oficial.',
+    bullets: [
+      'Alerta inmediata en tu panel cuando el cliente revisa los precios',
+      'Permite llamar para cerrar en el momento psicológico exacto',
+      'Cero llamadas a ciegas o dudas sobre el interés del cliente'
+    ],
+    actionPath: '/cotizador',
+    actionText: 'Ver Radar'
+  },
+  {
+    id: 'del_4',
+    pillar: '2. OPERACIÓN DIARIA & CONTROL',
+    title: 'Bandeja Inteligente de "Cotizaciones por Enviar"',
+    tag: 'Cero Pérdida de Dinero',
+    tagColor: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
+    summary: 'Buzón con contador visual para guardar cotizaciones borrador mientras estás en la calle y despacharlas por WhatsApp con un toque.',
+    bullets: [
+      'Cero dinero perdido por olvidos administrativos o notas en papel',
+      'Cotiza en el vehículo o taller y envía a clientes en segundos',
+      'Control total de propuestas pendientes para no descuidar ninguna'
+    ],
+    actionPath: '/cotizador',
+    actionText: 'Ver Bandeja'
+  },
+  {
+    id: 'del_5',
+    pillar: '2. OPERACIÓN DIARIA & CONTROL',
+    title: 'Hoja de Rutas del Día con Conexión a Waze y Maps en 1 Toque',
+    tag: 'Eficiencia en Calle',
+    tagColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
+    summary: 'Agenda organizada por turnos con botón de Waze directo, mapa interactivo GPS y registro de fotos de inspección técnica.',
+    bullets: [
+      'Navegación al domicilio del cliente con un solo clic en pantalla',
+      'Reporte financiero diario y semanal de cobros realizados',
+      'Historial completo de clientes, direcciones y fotografías técnicas'
+    ],
+    actionPath: '/detec/panel',
+    actionText: 'Ver Rutas'
+  },
+  {
+    id: 'del_6',
+    pillar: '2. OPERACIÓN DIARIA & CONTROL',
+    title: 'Registro Contable de Cobros (Sinpe Móvil, Efectivo, Tarjeta)',
+    tag: 'Finanzas Claras',
+    tagColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+    summary: 'Módulo contable integrado en cada cita para asentar el cobro exacto realizado, método de pago y estado de liquidación.',
+    bullets: [
+      'Control de ingresos diarios sin necesidad de cuadernos manuales',
+      'Historial auditable de cobros por cada servicio realizado',
+      'Desglose financiero transparente accesible desde el teléfono'
+    ],
+    actionPath: '/detec/panel',
+    actionText: 'Ver Cobros'
+  },
+  {
+    id: 'del_7',
+    pillar: '3. CAPTACIÓN & REPUTACIÓN',
+    title: 'Rastreador de Tráfico y Atribución Exacta (FB, IG, WA)',
+    tag: 'Marketing de Alta Precisión',
+    tagColor: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
+    summary: 'Enlaces inteligentes (/fb, /ig, /wa) que rastrean el embudo: visitas, cotizaciones generadas y citas concretadas por cada canal.',
+    bullets: [
+      'Sabes con certeza matemática qué red social genera más dinero',
+      'Filtros analíticos en vivo: semanales, quincenales y mensuales',
+      'Cero inversión perdida en anuncios que no traen contratos reales'
+    ],
+    actionPath: '/detec/panel',
+    actionText: 'Ver Analítica'
+  },
+  {
+    id: 'del_8',
+    pillar: '3. CAPTACIÓN & REPUTACIÓN',
+    title: 'Agenda Interactiva Online 24/7 con Detección Visual',
+    tag: 'Cero Fricción',
+    tagColor: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+    summary: 'Formulario con guía visual inteligente y mapa GPS que guía al cliente paso a paso y despacha la cita técnica al WhatsApp de David.',
+    bullets: [
+      'Tus clientes nunca se pierden: validación visual clara de campos',
+      'Aumento del 40% en reservas concretadas directamente en la web',
+      'Recepción inmediata de los datos en WhatsApp listos para confirmar'
+    ],
+    actionPath: '/agenda',
+    actionText: 'Abrir Agenda'
+  },
+  {
+    id: 'del_9',
+    pillar: '3. CAPTACIÓN & REPUTACIÓN',
+    title: 'Muro de Reseñas Verificadas con Candado Anti-Fraude Telefónico',
+    tag: 'Reputación Blindada',
+    tagColor: 'bg-rose-500/10 text-rose-400 border-rose-500/30',
+    summary: 'Portal de testimonios con validación cruzada: solo los números de teléfono con citas reales en Royalty pueden publicar opiniones.',
+    bullets: [
+      'Protección total contra comentarios falsos de competidores',
+      'Prueba social auténtica con estrellas, fecha y tipo de trabajo',
+      'Destruye las dudas del cliente antes de la primera llamada'
+    ],
+    actionPath: '/calificar',
+    actionText: 'Ver Reseñas'
+  },
+  {
+    id: 'del_10',
+    pillar: '4. TECNOLOGÍA & PROPIEDAD',
+    title: 'Nube Serverless Edge Distribuida (300+ Centros de Datos)',
+    tag: 'Infraestructura Silicon Valley',
+    tagColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30',
+    summary: 'Despliegue distribuido en Cloudflare Pages con base de datos SQL D1 de alta disponibilidad, carga en <0.5s y cifrado bancario HTTPS.',
+    bullets: [
+      'Cero costos mensuales fijos de hosting (ahorro de $20 a $50 al mes)',
+      'Máxima velocidad de carga que posiciona a Royalty de primero en Google',
+      'Inmune a caídas de servidores convencionales o ataques web'
+    ],
+    actionPath: '/',
+    actionText: 'Ver Web'
+  },
+  {
+    id: 'del_11',
+    pillar: '4. TECNOLOGÍA & PROPIEDAD',
+    title: 'Aplicación Web Progresiva (PWA Móvil Primero)',
+    tag: 'Instalación en 1-Clic',
+    tagColor: 'bg-teal-500/10 text-teal-400 border-teal-500/30',
+    summary: 'Tecnología PWA instalable con icono directo en la pantalla del celular sin pagar licencias de App Store ni Play Store.',
+    bullets: [
+      'Acceso instantáneo desde el bolsillo para el técnico y clientes VIP',
+      'Estrategia Network-First que siempre muestra datos frescos',
+      'Presencia permanente en la pantalla de inicio del teléfono'
+    ],
+    actionPath: '/',
+    actionText: 'Probar App'
+  },
+  {
+    id: 'del_12',
+    pillar: '4. TECNOLOGÍA & PROPIEDAD',
+    title: '100% Propiedad del Código Fuente y Llave en Mano',
+    tag: 'Activo Propio de Royalty',
+    tagColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+    summary: 'Código propio en React, TypeScript y Tailwind CSS sin mensualidades de WordPress ni plugins de terceros que se desactualicen.',
+    bullets: [
+      'El software pertenece 100% a Royalty como activo de la empresa',
+      'Sin costos recurrentes ni suscripciones de mantenimiento forzoso',
+      'Entrega llave en mano verificada en producción lista para facturar'
+    ],
+    actionPath: '/proyecto',
+    actionText: 'Propuesta'
+  }
+];
+
+export const EXECUTIVE_CHECKLIST = [
+  'Generador de Cotizaciones PDF Formales con membrete corporativo, cálculo automático de insumos, desglose de IVA y cláusulas de garantía.',
+  'Tarjetas Open Graph Dinámicas para que cada cotización compartida en WhatsApp muestre el logotipo oficial y monto cotizado antes de abrirse.',
+  'Radar de Visitas y Descargas que te notifica en vivo cuándo el cliente está leyendo la propuesta para llamarlo en el momento ideal.',
+  'Bandeja de Cotizaciones Pendientes para guardar borradores en la calle y despacharlos en segundos sin perder clientes.',
+  'Atribución de Redes Sociales con enlaces cortos (/fb, /ig, /wa) que miden visitas, cotizaciones y citas reales de cada canal publicitario.',
+  'Agenda de Reservas 24/7 interactiva con validación visual intuitiva que despacha citas confirmadas directo a tu WhatsApp.',
+  'Sistema de Testimonios Verificados con blindaje estricto que solo permite calificar a números registrados con citas previas.',
+  'Panel Administrativo Todo-en-Uno (Modo Claro y Pro) con vista de rutas, cobros, base de datos y control de disponibilidad.',
+  'Infraestructura Global en Cloudflare Pages con Base de Datos SQL D1 distribuida, carga en <0.5s y cero costos mensuales de hosting.',
+  'Aplicación Web PWA instalable en 1 clic en la pantalla de inicio del celular, con funcionamiento rápido y soporte offline.',
+  'Propiedad Total del Código Fuente en React, TypeScript y Tailwind CSS, sin suscripciones a WordPress ni plugins de terceros.',
+  'Despliegue Llave en Mano verificado en producción, listo para facturar y con soporte técnico de calibración continua.'
+];
+
+export const COMPARISON_ROWS = [
+  {
+    feature: 'Velocidad de Carga en Celular',
+    traditional: 'Lenta (4 a 7 segundos en WordPress o servidores compartidos)',
+    royalty: 'Ultra rápida (<0.5 segundos en Nube Serverless Distribuida)',
+  },
+  {
+    feature: 'Presentación de Cotizaciones',
+    traditional: 'Audios informales o textos sueltos en WhatsApp que invitan al regateo',
+    royalty: 'PDF formal con membrete corporativo, firma oficial y garantía en 30s',
+  },
+  {
+    feature: 'Seguimiento del Cliente',
+    traditional: 'A ciegas: sin saber si el cliente abrió la cotización o la ignoró',
+    royalty: 'Radar en vivo: notificación exacta cuando lee y descarga el documento',
+  },
+  {
+    feature: 'Captación en Redes Sociales',
+    traditional: 'Gastos a ciegas sin saber si Facebook, Instagram o WhatsApp traen clientes',
+    royalty: 'Rastreo exacto del embudo (/fb, /ig, /wa) con citas reales por red social',
+  },
+  {
+    feature: 'Gestión Operativa de Calle',
+    traditional: 'Cuadernos viejos, notas en el teléfono y citas traspapeladas',
+    royalty: 'Panel centralizado con rutas del día, cobros Sinpe y Waze en 1 toque',
+  },
+  {
+    feature: 'Costos Fijos Mensuales',
+    traditional: '$25 a $50 mensuales obligatorios en hosting, plugins y licencias',
+    royalty: '$0 mensuales en hosting serverless global de alta disponibilidad',
+  },
+  {
+    feature: 'Propiedad del Sistema',
+    traditional: 'Dependiente de terceros y plantillas que caducan o se rompen',
+    royalty: 'Activo 100% propio de Royalty con código moderno sin mensualidades',
+  }
+];
 
 const DEFAULT_METRICS: ProjectMetric[] = [
   { value: '30 seg', label: 'Emisión de Cotización', sublabel: 'PDF membretado formal' },
@@ -344,6 +598,32 @@ export const ProjectPresentationPage: React.FC<ProjectPresentationPageProps> = (
             </div>
           </div>
 
+          {/* Navegación Rápida de la Landing Page de Ventas */}
+          <nav className="hidden lg:flex items-center gap-1.5 text-xs font-bold text-slate-300">
+            <button
+              type="button"
+              onClick={() => document.getElementById('lista-funcionalidades')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-2.5 py-1 rounded-lg hover:text-white hover:bg-slate-800/80 transition-colors cursor-pointer"
+            >
+              10 Innovaciones
+            </button>
+            <button
+              type="button"
+              onClick={() => document.getElementById('resumen-entregables')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-2.5 py-1 rounded-lg text-amber-400 hover:text-amber-300 hover:bg-amber-400/10 transition-colors cursor-pointer flex items-center gap-1"
+            >
+              <Boxes className="w-3.5 h-3.5" />
+              <span>Qué Recibes</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => document.getElementById('tabla-comparativa')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-2.5 py-1 rounded-lg hover:text-white hover:bg-slate-800/80 transition-colors cursor-pointer"
+            >
+              Comparativa
+            </button>
+          </nav>
+
           {/* Acciones de la barra superior */}
           <div className="flex items-center gap-2">
             <button
@@ -628,17 +908,172 @@ export const ProjectPresentationPage: React.FC<ProjectPresentationPageProps> = (
         </section>
 
         {/* ========================================================
-            CIERRE PERSUASIVO FINAL PARA EL DUEÑO DEL NEGOCIO
+            SECCIÓN DE VENTA: INVENTARIO EJECUTIVO LLAVE EN MANO
+            Todo Lo Que Recibe Tu Negocio (Punto por Punto)
            ======================================================== */}
-        <section className="bg-gradient-to-br from-[#67141d]/30 via-slate-900 to-[#0A192F] border-2 border-[#67141d]/60 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-6 relative overflow-hidden">
+        <section id="resumen-entregables" className="space-y-8 scroll-mt-20">
           
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-3 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 text-amber-400 border border-amber-400/30 text-[10.5px] font-black uppercase tracking-wider">
-                <TrendingUp className="w-3.5 h-3.5" />
-                <span>Retorno Real Sobre la Inversión</span>
+          <div className="text-center space-y-3 max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-400/10 text-amber-400 border border-amber-400/30 text-xs font-black uppercase tracking-wider">
+              <Boxes className="w-4 h-4 text-amber-400" />
+              <span>Inventario Ejecutivo Llave en Mano</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight">
+              Todo Lo Que Estás Recibiendo: Punto por Punto
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
+              No estás adquiriendo un simple folleto web. Recibes un ecosistema digital de alta rentabilidad compuesto por 12 herramientas comerciales, operativas y tecnológicas diseñadas exclusivamente a la medida de Royalty.
+            </p>
+          </div>
+
+          {/* Cuadrícula de 12 Entregables Ejecutivos */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {DELIVERABLES_SUMMARY.map((item, idx) => (
+              <div
+                key={item.id}
+                className="bg-slate-900/70 border border-slate-800 rounded-3xl p-5 sm:p-6 backdrop-blur-xs flex flex-col justify-between gap-4 hover:border-amber-400/40 hover:bg-slate-900/90 transition-all shadow-card group"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <span className="text-[10px] font-mono font-extrabold text-slate-400 tracking-wider uppercase">
+                      #{idx + 1} • {item.pillar}
+                    </span>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black border ${item.tagColor}`}>
+                      {item.tag}
+                    </span>
+                  </div>
+
+                  <h3 className="text-sm sm:text-base font-black text-white group-hover:text-amber-300 transition-colors leading-snug">
+                    {item.title}
+                  </h3>
+
+                  <p className="text-xs text-slate-300 font-medium leading-relaxed">
+                    {item.summary}
+                  </p>
+
+                  <ul className="space-y-2 pt-2 border-t border-slate-800/80 text-xs text-slate-200">
+                    {item.bullets.map((b, bIdx) => (
+                      <li key={bIdx} className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                        <span className="font-medium text-slate-300 leading-snug">{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {item.actionPath && (
+                  <div className="pt-2">
+                    <a
+                      href={item.actionPath}
+                      className="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-amber-400 text-slate-200 hover:text-amber-950 text-xs font-black transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
+                    >
+                      <span>{item.actionText || 'Ver en Vivo'}</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                )}
               </div>
-              <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight">
+            ))}
+          </div>
+
+          {/* CHECKLIST EJECUTIVO RESUMIDO EN 1 SOLO BLOQUE DESTACADO */}
+          <div className="bg-gradient-to-br from-slate-900 via-slate-900/95 to-[#0A192F] border-2 border-amber-400/40 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+              <div>
+                <span className="text-xs font-black uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
+                  <BadgeCheck className="w-4 h-4 text-amber-400" />
+                  <span>Acta de Entrega Integral</span>
+                </span>
+                <h3 className="text-lg sm:text-xl font-black text-white mt-1">
+                  Resumen de Funcionalidades que Recibe Royalty (Checklist de Entrega)
+                </h3>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-black self-start sm:self-auto">
+                ✓ 100% Desarrollado y Operativo
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+              {EXECUTIVE_CHECKLIST.map((text, idx) => (
+                <div key={idx} className="flex items-start gap-2.5 p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80">
+                  <div className="w-5 h-5 rounded-full bg-amber-400/10 text-amber-400 flex items-center justify-center shrink-0 mt-0.5 font-mono font-bold text-[10px]">
+                    {idx + 1}
+                  </div>
+                  <p className="text-slate-200 font-medium leading-relaxed">
+                    {text}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </section>
+
+        {/* ========================================================
+            TABLA COMPARATIVA: SITIO WEB TRADICIONAL VS ROYALTY
+           ======================================================== */}
+        <section id="tabla-comparativa" className="space-y-6 scroll-mt-20">
+          
+          <div className="text-center space-y-2 max-w-2xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/30 text-xs font-black uppercase tracking-wider">
+              <TrendingUp className="w-3.5 h-3.5" />
+              <span>Decisión Inteligente de Inversión</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              ¿Por Qué Esta Plataforma y No una Web Tradicional?
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300">
+              Comparativa transparente entre lo que ofrece un diseñador común vs lo que hace crecer tu negocio.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto rounded-3xl border border-slate-800 bg-slate-900/60 shadow-xl">
+            <table className="w-full text-left text-xs text-slate-200">
+              <thead className="bg-slate-950/80 text-[11px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                <tr>
+                  <th className="py-4 px-4 sm:px-6">Capacidad del Negocio</th>
+                  <th className="py-4 px-4 sm:px-6 text-red-400 bg-red-950/10">Folleto Web Común ($100)</th>
+                  <th className="py-4 px-4 sm:px-6 text-amber-300 bg-amber-950/20">Tu Plataforma Llave en Mano Royalty</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/80 font-medium">
+                {COMPARISON_ROWS.map((row, idx) => (
+                  <tr key={idx} className="hover:bg-slate-800/30 transition-colors">
+                    <td className="py-3.5 px-4 sm:px-6 font-bold text-white whitespace-nowrap sm:whitespace-normal">
+                      {row.feature}
+                    </td>
+                    <td className="py-3.5 px-4 sm:px-6 text-slate-400 bg-red-950/5">
+                      <span className="flex items-center gap-1.5 text-red-300">
+                        <X className="w-4 h-4 text-red-400 shrink-0" />
+                        <span>{row.traditional}</span>
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4 sm:px-6 text-slate-100 bg-amber-950/10 font-semibold">
+                      <span className="flex items-center gap-1.5 text-amber-200">
+                        <Check className="w-4 h-4 text-emerald-400 shrink-0 stroke-[3]" />
+                        <span>{row.royalty}</span>
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+        </section>
+
+        {/* ========================================================
+            CIERRE PERSUASIVO FINAL Y LLAMADO A LA ACCIÓN COMERCIAL
+           ======================================================== */}
+        <section className="bg-gradient-to-br from-[#67141d]/40 via-slate-900 to-[#0A192F] border-2 border-amber-400/50 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8 relative overflow-hidden">
+          
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+            <div className="space-y-4 max-w-2xl text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 text-amber-400 border border-amber-400/30 text-[10.5px] font-black uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Propuesta Lista para Puesta en Marcha</span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-white leading-tight">
                 {data.closingTitle}
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
@@ -650,15 +1085,27 @@ export const ProjectPresentationPage: React.FC<ProjectPresentationPageProps> = (
               </blockquote>
             </div>
 
-            <div className="shrink-0 flex flex-col items-center sm:items-end gap-3 w-full sm:w-auto">
+            <div className="shrink-0 flex flex-col items-center gap-3 w-full sm:w-auto">
               <img src={LOGO_DESTAQUEO} alt="Royalty" className="w-36 sm:w-44 object-contain drop-shadow-md" />
-              <button
-                type="button"
-                onClick={onNavigateAgenda}
-                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-amber-950 font-black text-xs sm:text-sm shadow-xl transition-all active:scale-95 cursor-pointer text-center"
+              
+              {/* Botón Principal de WhatsApp para Formalizar */}
+              <a
+                href="https://wa.me/50664080124?text=Hola%20David%2C%20estoy%20revisando%20la%20plataforma%20completa%20de%20Royalty%20Destaqueo%20y%20Legacy%20Fugas.%20Me%20parece%20excelente%2C%20coordinemos%20para%20formalizar%20la%20entrega%20llave%20en%20mano."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:opacity-95 text-amber-950 font-black text-sm shadow-xl shadow-amber-500/20 transition-all active:scale-95 cursor-pointer text-center flex items-center justify-center gap-2"
               >
-                Experimentar el Flujo de Reserva
-              </button>
+                <span>Aprobar Plataforma y Poner en Marcha</span>
+                <ChevronRight className="w-4 h-4 stroke-[3]" />
+              </a>
+
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
+                <a href="/cotizador" className="hover:text-amber-400 transition-colors underline">Probar Cotizador</a>
+                <span>•</span>
+                <a href="/agenda" className="hover:text-amber-400 transition-colors underline">Ver Agenda 24/7</a>
+                <span>•</span>
+                <a href="/detec/panel" className="hover:text-amber-400 transition-colors underline">Panel Admin</a>
+              </div>
             </div>
           </div>
 
