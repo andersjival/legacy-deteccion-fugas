@@ -4,8 +4,19 @@ import { api } from '../services/api';
 import { playNotificationChime } from '../utils/soundAlert';
 
 export function useReviews(isPollingActive = false) {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState<Review[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('royalty_reviews');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {}
+    }
+    return [];
+  });
+  const [loading, setLoading] = useState(false);
   const [newReviewAlert, setNewReviewAlert] = useState<Review | null>(null);
   const previousIdsRef = useRef<Set<string>>(new Set());
   const isFirstLoadRef = useRef(true);

@@ -15,6 +15,17 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.39.0] - 2026-10-29 - Erradicación Total del Movimiento y Salto en el Menú Superior al Actualizar
+- **Fijación de Geometría Estricta del Menú Superior (`AdminView.tsx`):**
+  - Fijada la altura estricta del encabezado superior a `h-16 min-h-[64px]` con `shrink-0` en todos sus contenedores principales (logo, barra de navegación central y botones de acción derecha).
+  - Sustituido `transition-all` por `transition-colors duration-150` en cada botón de pestaña del menú superior, impidiendo que el motor CSS anime el ancho, márgenes o posiciones durante el renderizado o refresco.
+- **Sincronización Inmediata sin Parpadeo en Citas y Reseñas (`useAppointments.ts` / `useReviews.ts` / `api.ts`):**
+  - Los hooks de citas y reseñas ahora inicializan su estado directamente desde el almacenamiento local sincronizado (`localStorage`).
+  - Las pastillas numéricas de badges ("Ruta de Hoy", "Todas las Citas", "Reseñas") se renderizan desde el milisegundo cero sin aparecer tardíamente ni desplazar horizontalmente los botones adyacentes.
+  - El servicio `api.getAppointments()` sincroniza automáticamente la caché local tras cada consulta exitosa a la red.
+- **Estabilidad en Barra de Navegación Pública (`Navbar.tsx` / `TrafficAnalytics.tsx`):**
+  - Reemplazado `transition-all` por `transition-colors` en el encabezado sticky público y sus botones de llamada a la acción, erradicando saltos al cargar o restaurar scroll.
+
 ### [v2.38.0] - 2026-10-29 - Enlace de Testimonio Vinculado al Celular y Detección de Enlaces Compartidos en Panel
 - **Vinculación Obligatoria del Celular en Enlaces de Calificación (`AppointmentCard.tsx` / `TodayRouteCard.tsx`):**
   - Los botones de envío por WhatsApp generan el enlace oficial con el número de teléfono del cliente verificado como parámetro (`&tel=...`).

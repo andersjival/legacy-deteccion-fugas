@@ -245,29 +245,29 @@ export const AdminView: React.FC<AdminViewProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-[#F1F5F9] flex flex-col overflow-hidden text-brand-dark font-sans select-none">
       
-      {/* Header Adaptativo: Móvil y Computadora */}
-      <header className="bg-brand-dark text-white px-4 md:px-8 py-3 flex items-center justify-between shrink-0 shadow-md border-b border-slate-800">
+      {/* Header Adaptativo: Móvil y Computadora (Altura fija h-16 y geometría estricta sin saltos) */}
+      <header className="bg-brand-dark text-white px-4 md:px-8 h-16 min-h-[64px] flex items-center justify-between shrink-0 shadow-md border-b border-slate-800">
         
         {/* Izquierda: Logo, Título y Modo de Dispositivo Detectado */}
-        <div className="flex items-center gap-3">
-          <AnimatedEagleLogo className="w-9 h-9 rounded-xl shadow-sm" />
+        <div className="flex items-center gap-3 shrink-0">
+          <AnimatedEagleLogo className="w-9 h-9 rounded-xl shadow-sm shrink-0" />
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-sm md:text-base font-black tracking-tight leading-none">Royality Panel</h1>
-              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-slate-800 text-slate-300 border border-slate-700">
-                {isDesktop ? <Laptop className="w-3 h-3 text-brand-blue" /> : <Smartphone className="w-3 h-3 text-brand-orange" />}
+              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
+                {isDesktop ? <Laptop className="w-3 h-3 text-brand-blue shrink-0" /> : <Smartphone className="w-3 h-3 text-brand-orange shrink-0" />}
                 <span>{isDesktop ? 'Vista PC / Escritorio' : 'Vista Móvil'}</span>
               </span>
             </div>
             <div className="flex items-center gap-1.5 mt-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
               <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">En Vivo D1</span>
             </div>
           </div>
         </div>
 
         {/* Centro (Desktop): Barra de Pestañas Superior para Computadora */}
-        <nav className="hidden md:flex items-center gap-1 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shadow-inner">
+        <nav className="hidden md:flex items-center gap-1 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shadow-inner shrink-0">
           {[
             { id: 'route' as AdminTab, label: 'Ruta de Hoy', icon: Navigation, count: todayAppointments.length },
             { id: 'all' as AdminTab, label: 'Todas las Citas', icon: Calendar, count: pendingAppointments.length },
@@ -283,16 +283,16 @@ export const AdminView: React.FC<AdminViewProps> = ({
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-colors duration-150 shrink-0 cursor-pointer ${
                   isActive
                     ? 'bg-brand-blue text-white shadow-md'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
                 <span>{tab.label}</span>
                 {tab.count > 0 && (
-                  <span className={`px-1.5 py-0.2 min-w-[18px] text-[10px] font-black rounded-full flex items-center justify-center ${
+                  <span className={`px-1.5 py-0.2 min-w-[18px] text-[10px] font-black rounded-full flex items-center justify-center shrink-0 ${
                     tab.id === 'route' ? 'bg-brand-orange text-white' : 'bg-red-500 text-white'
                   }`}>
                     {tab.count}
@@ -304,21 +304,21 @@ export const AdminView: React.FC<AdminViewProps> = ({
         </nav>
 
         {/* Derecha: Botón Testimonios y Reseñas en pequeño (sustituye a Refrescar) y Cerrar */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab('reviews')}
             title="Ver Testimonios y Reseñas de Clientes"
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-colors duration-150 shrink-0 cursor-pointer ${
               activeTab === 'reviews'
                 ? 'bg-amber-500 text-white shadow-sm ring-2 ring-amber-300/50'
-                : 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 active:scale-95'
+                : 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700'
             }`}
           >
-            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400 shrink-0" />
             <span className="hidden sm:inline text-xs">Reseñas</span>
             {reviews.length > 0 && (
-              <span className={`px-1.5 py-0.2 text-[10px] font-black rounded-full ${
+              <span className={`px-1.5 py-0.2 text-[10px] font-black rounded-full shrink-0 ${
                 activeTab === 'reviews' ? 'bg-white text-amber-900' : 'bg-amber-500 text-white'
               }`}>
                 {reviews.length}
@@ -329,9 +329,9 @@ export const AdminView: React.FC<AdminViewProps> = ({
             type="button"
             onClick={onClose}
             title="Salir"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-red-900/60 active:scale-95 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-red-900/60 transition-colors duration-150 shrink-0 cursor-pointer"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4 shrink-0" />
             <span className="hidden sm:inline text-xs font-bold">Cerrar</span>
           </button>
         </div>

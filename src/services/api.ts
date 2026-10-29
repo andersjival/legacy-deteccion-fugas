@@ -295,7 +295,11 @@ class ApiService {
     try {
       if (!this.useLocalFallback) {
         const res = await fetch('/api/appointments');
-        if (res.ok) return await res.json();
+        if (res.ok) {
+          const data = await res.json();
+          this.setStored(STORAGE_KEYS.APPOINTMENTS, data);
+          return data;
+        }
       }
     } catch {
       this.useLocalFallback = true;

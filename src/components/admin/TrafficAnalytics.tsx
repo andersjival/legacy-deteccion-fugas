@@ -252,7 +252,7 @@ export const TrafficAnalytics: React.FC = () => {
             <button
               type="button"
               onClick={() => setPeriod('week')}
-              className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl transition-colors duration-150 cursor-pointer ${
                 period === 'week' ? 'bg-white text-brand-dark shadow-xs' : 'text-slate-500 hover:text-brand-dark'
               }`}
             >
@@ -261,7 +261,7 @@ export const TrafficAnalytics: React.FC = () => {
             <button
               type="button"
               onClick={() => setPeriod('biweek')}
-              className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl transition-colors duration-150 cursor-pointer ${
                 period === 'biweek' ? 'bg-white text-brand-dark shadow-xs' : 'text-slate-500 hover:text-brand-dark'
               }`}
             >
@@ -270,7 +270,7 @@ export const TrafficAnalytics: React.FC = () => {
             <button
               type="button"
               onClick={() => setPeriod('month')}
-              className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl transition-colors duration-150 cursor-pointer ${
                 period === 'month' ? 'bg-white text-brand-dark shadow-xs' : 'text-slate-500 hover:text-brand-dark'
               }`}
             >
@@ -279,7 +279,7 @@ export const TrafficAnalytics: React.FC = () => {
             <button
               type="button"
               onClick={() => setPeriod('all')}
-              className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl transition-colors duration-150 cursor-pointer ${
                 period === 'all' ? 'bg-white text-brand-dark shadow-xs' : 'text-slate-500 hover:text-brand-dark'
               }`}
             >

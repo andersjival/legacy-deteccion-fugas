@@ -4,8 +4,19 @@ import { api } from '../services/api';
 import { playNotificationChime } from '../utils/soundAlert';
 
 export function useAppointments(isPollingActive = true) {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [appointments, setAppointments] = useState<Appointment[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('royalty_appointments');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {}
+    }
+    return [];
+  });
+  const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [newAppointmentAlert, setNewAppointmentAlert] = useState<Appointment | null>(null);
   const previousIdsRef = useRef<Set<string>>(new Set());
