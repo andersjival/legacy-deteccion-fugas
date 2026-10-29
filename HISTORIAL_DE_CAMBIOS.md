@@ -15,6 +15,15 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.43.0] - 2026-10-29 - Corrección de Posición de Barra de Desplazamiento y Navegación Suave sin Saltos en Citas
+- **Barra de Desplazamiento al Borde Extremo Derecho (`AdminView.tsx`):**
+  - Desacoplado el desbordamiento vertical (`overflow-y-auto`) del contenedor centrado con ancho restringido (`max-w-lg md:max-w-6xl xl:max-w-7xl`).
+  - Creado contenedor envolvente de pantalla completa `#admin-main-scroller` (`w-full flex-1 overflow-y-auto scroll-smooth`), posicionando la barra de scroll exactamente en el borde derecho natural de la pantalla.
+- **Erradicación del Salto Brusco al Seleccionar Filtros de Fecha (`AdminView.tsx`):**
+  - Eliminado el desmontaje y colapso de altura (`loadingAvailability`) en la cuadrícula de horarios mediante un contenedor persistente con `min-h-[220px]`.
+  - Añadido scroll suave programático (`scrollIntoView({ behavior: 'smooth', block: 'start' })`) hacia `#horarios-disponibilidad-section` al pulsar "Hoy", "Mañana", "Pasado mañana", "Esta semana" o días individuales.
+  - Implementada transición suave (`animate-in fade-in duration-300`) tanto en la cuadrícula de horarios como en el listado de citas filtradas.
+
 ### [v2.42.0] - 2026-10-29 - Integración Unificada de Día y Fecha en la Pastilla de Horario de Ruta y Máxima Claridad en Citas Ocupadas
 - **Unificación de Día, Fecha y Horario en Rutas de Hoy (`TodayRouteCard.tsx`):**
   - Integrado de forma unificada en la pastilla principal del horario: `[10:00 AM - 12:00 PM • Jueves, 29 de octubre]` con iconos de reloj y calendario en un solo bloque destacado.
