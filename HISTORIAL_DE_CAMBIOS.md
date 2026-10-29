@@ -15,6 +15,11 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.45.0] - 2026-10-29 - Rediseño Compacto y Elegante de la Pastilla de Cita Ocupada
+- **Pastilla Compacta de Cita Ocupada (`AppointmentCard.tsx`):**
+  - Sustituido el bloque sobrecargado con fecha y horas repetidas por una pastilla compacta, fina y discreta `[🔒 Ocupada]` (`text-[11px]`, `px-2.5 py-0.5 rounded-full`) con `whitespace-nowrap`.
+  - Eliminados los saltos de línea y deformaciones visuales en tarjetas de citas, manteniendo la fecha y rango de horas organizados en su propia cuadrícula inferior limpia.
+
 ### [v2.44.0] - 2026-10-29 - Enrutamiento Insensible a Mayúsculas y Carga Universal de /PROYECTO
 - **Normalización de Rutas a Minúsculas (`App.tsx`):**
   - Implementada normalización automática con `.toLowerCase()` tanto en la inicialización de `currentPath` como en los eventos de navegación (`handlePopState`, `navigateTo` y `normalizedPath`).

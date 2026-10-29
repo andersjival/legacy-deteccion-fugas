@@ -133,18 +133,12 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-blue-100 text-blue-900 border border-blue-300 shadow-2xs">
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-600 shrink-0 animate-pulse" />
-            <span>🔒 CITA OCUPADA</span>
-            <span className="text-blue-300 font-bold">•</span>
-            <Calendar className="w-3.5 h-3.5 text-blue-700 shrink-0" />
-            <span className="capitalize">{formatDateToSpanish(appointment.appointment_date)}</span>
-            <span className="text-blue-300 font-bold">•</span>
-            <Clock className="w-3.5 h-3.5 text-brand-orange shrink-0" />
-            <span className="text-blue-950 font-black">{rango_hora}</span>
+        <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-blue-50 text-blue-700 border border-blue-200 whitespace-nowrap shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
+            <span>🔒 Ocupada</span>
           </span>
-          <span className={`px-2.5 py-1 rounded-lg text-xs font-extrabold border ${statusConfig[appointment.status].color}`}>
+          <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-black border whitespace-nowrap shadow-2xs ${statusConfig[appointment.status].color}`}>
             {statusConfig[appointment.status].label}
           </span>
         </div>
