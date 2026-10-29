@@ -15,6 +15,16 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.50.0] - 2026-10-29 - Corrección de Mensaje de WhatsApp al Compartir Cotización y Aislamiento de Reseña Post-Servicio
+- **Mensaje Programado de Cotización Oficial por WhatsApp (`AppointmentCard.tsx` / `TodayRouteCard.tsx` / `JobQuoteManager.tsx`):**
+  - Implementado botón dedicado `Compartir Cotización Oficial por WhatsApp` en tarjetas de citas (`AppointmentCard` y `TodayRouteCard`).
+  - Corregido el mensaje predeterminado: ahora envía formalmente la notificación programada de cotización lista (*"Hola [Cliente], le saluda el técnico de Legacy Detección de Fugas 💧. Ya realicé su cotización oficial para el servicio de [Servicio]..."*), incluyendo desglose resumido de trabajo, dirección, fecha programada, garantía y el enlace directo oficial `/cotizacion/:id`.
+  - Asegurado el registro y guardado automático de la cotización en Cloudflare D1 y almacenamiento local (`api.saveQuote`) al momento de compartirla para su visualización y descarga en PDF por parte del cliente.
+- **Aislamiento Estricto de Calificaciones Post-Servicio (`AppointmentCard.tsx` / `TodayRouteCard.tsx`):**
+  - Condicionado el botón y plantilla de solicitud de testimonios (*"Fue un placer haberle realizado el servicio... calificar..."*) para que se muestre **únicamente** cuando la cita ha sido marcada como finalizada (`status === 'completed'`), eliminándolo de citas pendientes o en curso.
+- **Encabezado Cálido en Cotizador Web (`JobQuoteManager.tsx`):**
+  - Actualizado el generador de texto de cotizaciones y copiado con título para anteponer siempre el saludo personalizado y el aviso de cotización completada antes del desglose de costos.
+
 ### [v2.49.0] - 2026-10-29 - Transformación de /PROYECTO en Landing Page de Venta de Alta Conversión e Inventario Llave en Mano
 - **Landing Page de Venta Persuasiva B2B (`ProjectPresentationPage.tsx`):**
   - Transformada la vista `/PROYECTO` en una propuesta comercial y página de venta de alta persuasión dirigida a David Rojas para asegurar la adquisición formal de la plataforma.

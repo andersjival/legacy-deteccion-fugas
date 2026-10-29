@@ -699,6 +699,11 @@ class ApiService {
   }
 
   async saveQuote(quote: any): Promise<any> {
+    const local = this.getStored<any[]>('royalty_saved_quotes_history', []);
+    const filtered = local.filter((q: any) => q.id !== quote.id && q.quoteData?.id !== quote.id);
+    filtered.unshift(quote);
+    this.setStored('royalty_saved_quotes_history', filtered);
+
     try {
       if (!this.useLocalFallback) {
         const res = await fetch('/api/quotes', {

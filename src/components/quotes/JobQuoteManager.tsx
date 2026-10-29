@@ -541,7 +541,11 @@ export const JobQuoteManager: React.FC = () => {
 
     const shareUrl = `${window.location.origin}/cotizacion/${entry.id}`;
 
-    const msg = `📋 *COTIZACIÓN OFICIAL — ${q.companyName.toUpperCase()}*
+    const msg = `Hola *${q.clientName || 'Cliente'}*, le saluda el técnico de *Legacy Detección de Fugas* 💧.
+
+Ya realicé su cotización oficial para *${q.workReference || 'el servicio solicitado'}*.
+
+📋 *COTIZACIÓN OFICIAL — ${q.companyName.toUpperCase()}*
 *N° de Control:* ${q.quoteNumber}
 *Fecha de Emisión:* ${q.date}
 *Cliente / Lugar:* ${q.clientName || 'Cliente Particular'} ${q.clientLocation ? `(${q.clientLocation})` : ''}
@@ -563,7 +567,7 @@ ${q.applyIVA ? `• IVA (13% Factura Electrónica): ₡${iva.toLocaleString('es-
 🛡️ *Garantía:* 100% satisfacción y materiales certificados.
 
 🌐 *Ver y Descargar Cotización Oficial en Línea:*
-${shareUrl}
+👉 ${shareUrl}
 
 👤 *Atendido por:* ${q.responsibleName} (${q.responsibleTitle})
 📞 *Teléfono:* ${q.responsiblePhone}
@@ -601,7 +605,11 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
 
     const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://legacydetec.pages.dev'}/cotizacion/${quote.id}`;
 
-    const msg = `📋 *COTIZACIÓN OFICIAL — ${quote.companyName.toUpperCase()}*
+    const msg = `Hola *${quote.clientName || 'Cliente'}*, le saluda el técnico de *Legacy Detección de Fugas* 💧.
+
+Ya realicé su cotización oficial para *${quote.workReference || 'el servicio solicitado'}*.
+
+📋 *COTIZACIÓN OFICIAL — ${quote.companyName.toUpperCase()}*
 *N° de Control:* ${quote.quoteNumber}
 *Fecha de Emisión:* ${quote.date}
 *Cliente / Lugar:* ${quote.clientName || 'Cliente Particular'} ${quote.clientLocation ? `(${quote.clientLocation})` : ''}
@@ -623,7 +631,7 @@ ${quote.applyIVA ? `• IVA (13% Factura Electrónica): ₡${ivaAmount.toLocaleS
 🛡️ *Garantía:* 100% satisfacción y materiales certificados.
 
 🌐 *Ver y Descargar Cotización Oficial en Línea:*
-${shareUrl}
+👉 ${shareUrl}
 
 👤 *Atendido por:* ${quote.responsibleName} (${quote.responsibleTitle})
 📞 *Teléfono:* ${quote.responsiblePhone}
@@ -671,7 +679,7 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
     let textToCopy = url;
     if (withHeader) {
       const client = quote.clientName ? quote.clientName.trim() : 'Cliente Particular';
-      textToCopy = `📋 *COTIZACIÓN OFICIAL — ${quote.companyName.toUpperCase()}*\n*N°:* ${quote.quoteNumber} | *Cliente:* ${client}\n💰 *Monto Cotizado:* ₡${totalGeneral.toLocaleString('es-CR')}\n\n👉 *Consulte y descargue su cotización oficial aquí:*\n${url}`;
+      textToCopy = `Hola *${client}*, le saluda el técnico de *Legacy Detección de Fugas* 💧.\n\nYa realicé su cotización oficial para ${quote.workReference || 'el trabajo solicitado'}.\n\n📋 *COTIZACIÓN OFICIAL — ${quote.companyName.toUpperCase()}*\n*N°:* ${quote.quoteNumber} | *Cliente:* ${client}\n💰 *Monto Cotizado:* ₡${totalGeneral.toLocaleString('es-CR')}\n\n👉 *Consulte y descargue su cotización oficial aquí:*\n${url}`;
       setCopiedWithTitle(true);
       setTimeout(() => setCopiedWithTitle(false), 2500);
     } else {

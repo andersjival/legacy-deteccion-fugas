@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Navigation, Phone, MessageSquare, CheckCircle, MapPin, ChevronDown, ChevronUp, Image as ImageIcon, Clock, Edit3, FastForward, DollarSign, Star, Calendar } from 'lucide-react';
+import { Navigation, Phone, MessageSquare, CheckCircle, MapPin, ChevronDown, ChevronUp, Image as ImageIcon, Clock, Edit3, FastForward, DollarSign, Star, Calendar, FileText } from 'lucide-react';
 import { Appointment, AppointmentStatus, PaymentMethod } from '../../types/appointment';
 import { formatTime12h, formatDateToSpanish } from '../../utils/dateFormatter';
 import { ServiceEditorModal } from './ServiceEditorModal';
 import { PaymentModal } from './PaymentModal';
+import { api } from '../../services/api';
 
 interface TodayRouteCardProps {
   appointment: Appointment;
@@ -49,6 +50,52 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
   const handleAdvanceAppointmentWhatsApp = () => {
     const fecha = formatDateToSpanish(appointment.appointment_date);
     const mensaje = `Hola *${appointment.client_name}*, le saluda el técnico de *Legacy Detección de Fugas* 💧.\n\nLe consultamos sobre su cita para *${appointment.service_type}*, programada para el día *${fecha}* (${rangoHora}).\n\nAcabamos de terminar un trabajo previo más rápido de lo esperado y ya contamos con disponibilidad inmediata en este momento. ¿Le sería posible atendernos más temprano el día de hoy?\n\nQuedamos atentos a su confirmación. ¡Muchas gracias!`;
+    const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleSendQuoteWhatsApp = async () => {
+    const origin = window.location.origin;
+    const cleanId = appointment.id.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10);
+    const quoteId = `cot_${cleanId || 'cli'}`;
+    const fecha = formatDateToSpanish(appointment.appointment_date);
+    const quoteNumber = `COT-${appointment.appointment_date ? appointment.appointment_date.replace(/-/g, '').slice(2) : '2026'}-${appointment.id.slice(0, 4).toUpperCase()}`;
+    const quoteUrl = `${origin}/cotizacion/${quoteId}`;
+    const amount = Number(appointment.amount_collected || 0);
+
+    try {
+      await api.saveQuote({
+        id: quoteId,
+        quote_number: quoteNumber,
+        date: appointment.appointment_date,
+        company_name: 'Royalty Detección de Fugas & Destaqueos',
+        client_name: appointment.client_name,
+        client_location: appointment.client_address,
+        client_phone: appointment.client_phone,
+        work_reference: appointment.service_type,
+        scope_items: JSON.stringify([
+          { id: '1', text: `Inspección técnica especializada para: ${appointment.service_type}` },
+          { id: '2', text: appointment.problem_description || 'Diagnóstico y reparación no invasiva según solicitud del cliente.' }
+        ]),
+        labor_cost: amount > 0 ? amount : 45000,
+        materials_cost: 0,
+        materials_detail: 'Insumos profesionales y sellos de alta calidad incluidos',
+        apply_iva: 0,
+        delivery_time: 'Atención técnica según agenda programada',
+        total_amount: amount > 0 ? amount : 45000,
+        file_name: `Cotizacion-${appointment.client_name.replace(/\s+/g, '-')}`,
+        responsible_name: 'David Rojas',
+        responsible_phone: '6408-0124',
+        status: 'enviada'
+      });
+    } catch (e) {
+      console.warn('Error guardando cotizacion antes de compartir:', e);
+    }
+
+    const montoStr = amount > 0 ? `• *Inversión Estimada:* ₡${amount.toLocaleString('es-CR')}\n` : '';
+
+    const mensaje = `Hola *${appointment.client_name}*, le saluda el técnico de *Legacy Detección de Fugas* 💧.\n\nYa realicé su cotización oficial para el servicio de *${appointment.service_type}*.\n\n📋 *Resumen de la Cotización:*\n• *N° de Control:* ${quoteNumber}\n• *Trabajo:* ${appointment.service_type}\n• *Ubicación:* ${appointment.client_address}\n• *Fecha estimada:* ${fecha} (${rangoHora})\n${montoStr}• *Garantía:* 100% satisfacción y reporte técnico digital.\n\n🌐 *Puede consultar y descargar su cotización formal en línea aquí:*\n👉 ${quoteUrl}\n\nQuedamos a su disposición para coordinar o atender cualquier consulta. ¡Muchas gracias por su preferencia!`;
+
     const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(mensaje)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };
@@ -215,15 +262,27 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
           </button>
         )}
 
-        {/* Botón Solicitar Reseña / Calificación por WhatsApp */}
+        {/* Botón Compartir Cotización Oficial por WhatsApp (mensaje programado con link y desglose) */}
         <button
           type="button"
-          onClick={handleSendReviewLinkWhatsApp}
-          className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl text-xs font-black text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-300 shadow-xs active:scale-98 transition-all cursor-pointer"
+          onClick={handleSendQuoteWhatsApp}
+          className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl text-xs font-black text-blue-950 bg-blue-50 hover:bg-blue-100 border border-blue-300 shadow-xs active:scale-98 transition-all cursor-pointer"
         >
-          <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-          <span>Enviar Link de Calificación (1-5★) por WhatsApp</span>
+          <FileText className="w-4 h-4 text-brand-blue" />
+          <span>Compartir Cotización Oficial por WhatsApp</span>
         </button>
+
+        {/* Botón Solicitar Reseña / Calificación por WhatsApp (SOLO citas completadas) */}
+        {isCompleted && (
+          <button
+            type="button"
+            onClick={handleSendReviewLinkWhatsApp}
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl text-xs font-black text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-300 shadow-xs active:scale-98 transition-all cursor-pointer"
+          >
+            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+            <span>Enviar Link de Calificación (1-5★) por WhatsApp</span>
+          </button>
+        )}
       </div>
 
       {/* Detalle Desplegable: Descripción y Fotos */}
