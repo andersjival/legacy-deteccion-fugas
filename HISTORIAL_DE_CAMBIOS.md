@@ -15,6 +15,17 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.30.0] - 2026-10-29 - Preservación de Todas las Cotizaciones sin Sobrescritura, Hora Real del Usuario y Subida Automática a la Notificación
+- **Preservación Total de Cotizaciones en Bandeja y Base de Datos D1 (`JobQuoteManager.tsx`):**
+  - Erradicado el fallo de sobrescritura: anteriormente, si el usuario modificaba el formulario para otro cliente, se reutilizaba el mismo ID anterior y borraba la cotización previa.
+  - Implementada detección inteligente: si el cliente o los datos cambian respecto a una cotización ya guardada, el sistema genera automáticamente un nuevo identificador único (`targetId`) y un nuevo consecutivo (`targetQuoteNumber`), registrando cada cotización de forma acumulativa sin borrar ninguna anterior.
+  - Añadido estado `editingQuoteId` con distintivo visual en cabecera (*"Modo Edición"* y botón *"Crear Otra Nueva"*).
+- **Subida Automática y Enfoque Directo a la Notificación Superior (`JobQuoteManager.tsx`):**
+  - Al presionar *"Guardar en Cotizaciones por Enviar"*, el sistema ejecuta un desplazamiento suave inmediato al tope absoluto de la pantalla (`window.scrollTo({ top: 0, behavior: 'smooth' })`), desplegando la notificación en verde y la bandeja de pendientes con la nueva cotización posicionada en primer lugar.
+- **Hora Real y Exacta del Dispositivo del Usuario (`JobQuoteManager.tsx`):**
+  - Eliminadas horas inventadas o desfases de 6 horas producidos por servidores UTC.
+  - Se implementó `formatUserLocalTime` utilizando la configuración regional de Costa Rica (`es-CR`) en formato de 12 horas con AM/PM tanto en el mensaje de confirmación superior como en la tarjeta de cada cotización en la lista (`📅 29/10/2026 • 🕒 [Hora Real]`).
+
 ### [v2.29.0] - 2026-10-29 - Corrección Integral de Acción y Retroalimentación en Tarjeta Inferior "Guardar en Cotizaciones por Enviar"
 - **Guardado Optimista Instantáneo y Desplazamiento Suave (`JobQuoteManager.tsx`):**
   - Corregido el flujo de ejecución en `handleSaveQuoteForLater`: ahora guarda de forma inmediata y síncrona en `localStorage` y en el estado local de cotizaciones antes del envío a la nube, erradicando congelamientos o clics sin respuesta.

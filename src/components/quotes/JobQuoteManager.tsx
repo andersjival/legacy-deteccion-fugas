@@ -58,7 +58,27 @@ export const JobQuoteManager: React.FC = () => {
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
   const [isSavingLater, setIsSavingLater] = useState(false);
   const [savedLaterFeedback, setSavedLaterFeedback] = useState(false);
+  const [editingQuoteId, setEditingQuoteId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Formateador de fecha y hora local del usuario en Costa Rica (12h con AM/PM)
+  const formatUserLocalTime = (isoOrUtcStr?: string | null): string => {
+    if (!isoOrUtcStr) return '';
+    try {
+      const normalized = isoOrUtcStr.includes('T') ? isoOrUtcStr : isoOrUtcStr.replace(' ', 'T') + 'Z';
+      const d = new Date(normalized);
+      if (isNaN(d.getTime())) return isoOrUtcStr;
+      const time = d.toLocaleTimeString('es-CR', { hour: 'numeric', minute: '2-digit', hour12: true });
+      const date = d.toLocaleDateString('es-CR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      return `${date} • ${time}`;
+    } catch {
+      return isoOrUtcStr;
+    }
+  };
+
+  const getNowLocalTime12h = (): string => {
+    return new Date().toLocaleTimeString('es-CR', { hour: 'numeric', minute: '2-digit', hour12: true });
+  };
 
   // Generador de consecutivo inicial
   const generateQuoteNumber = () => {
@@ -285,25 +305,29 @@ export const JobQuoteManager: React.FC = () => {
   };
 
   // Reiniciar cotización
-  const handleResetQuote = () => {
-    if (confirm('¿Desea crear una nueva cotización en blanco? Se restablecerán los campos.')) {
+  const handleResetQuote = (skipConfirm = false) => {
+    if (skipConfirm || confirm('¿Desea crear una nueva cotización en blanco? Se restablecerán los campos para un nuevo cliente.')) {
       const fresh: JobQuote = {
         ...getInitialQuote(),
-        id: `quote_${Date.now()}`,
+        id: `quote_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
         quoteNumber: generateQuoteNumber(),
         date: getTodayDateString(),
         clientName: '',
         clientLocation: '',
         clientPhone: '',
-        workReference: '',
+        workReference: 'Destaqueo de tubería e inspección técnica',
         scopeItems: [
-          { id: '1', text: '' }
+          { id: '1', text: 'Inspección técnica preliminar del sistema de tuberías.' },
+          { id: '2', text: 'Destaqueo y desobstrucción con equipo electromecánico de alta presión.' },
+          { id: '3', text: 'Pruebas de evacuación y verificación de flujo continuo.' }
         ],
-        laborCost: 0,
-        materialsCost: 0,
-        materialsDetail: '',
-        applyIVA: false
+        laborCost: 45000,
+        materialsCost: 15000,
+        materialsDetail: 'Materiales básicos de ensamble, accesorios PVC y selladores herméticos.',
+        applyIVA: false,
+        createdAt: new Date().toISOString()
       };
+      setEditingQuoteId(null);
       setQuote(fresh);
       try {
         localStorage.removeItem(STORAGE_KEY);
@@ -312,30 +336,41 @@ export const JobQuoteManager: React.FC = () => {
   };
 
   // Guardar en Cloudflare D1
-  const saveToCloud = async (overrideName?: string, status: 'por_enviar' | 'enviada' = 'por_enviar') => {
-    const finalName = overrideName || customFileName.trim() || `Cotizacion-${quote.quoteNumber}`;
+  const saveToCloud = async (
+    overrideName?: string, 
+    status: 'por_enviar' | 'enviada' = 'por_enviar',
+    quoteOverride?: JobQuote
+  ) => {
+    const activeQuote = quoteOverride || quote;
+    const finalName = overrideName || customFileName.trim() || `Cotizacion-${activeQuote.quoteNumber}`;
+    const laborVal = Number(activeQuote.laborCost) || 0;
+    const materialsVal = Number(activeQuote.materialsCost) || 0;
+    const sub = laborVal + materialsVal;
+    const iva = activeQuote.applyIVA ? Math.round(sub * (activeQuote.ivaRate || 0.13)) : 0;
+    const tot = sub + iva;
+
     setIsSyncing(true);
     try {
       await api.saveQuote({
-        id: quote.id,
-        quote_number: quote.quoteNumber,
-        date: quote.date,
-        company_name: quote.companyName,
-        client_name: quote.clientName || 'Cliente Particular',
-        client_location: quote.clientLocation,
-        client_phone: quote.clientPhone,
-        work_reference: quote.workReference,
-        scope_items: quote.scopeItems,
-        labor_cost: labor,
-        materials_cost: materials,
-        materials_detail: quote.materialsDetail,
-        apply_iva: quote.applyIVA ? 1 : 0,
-        delivery_time: quote.deliveryTime,
-        total_amount: totalGeneral,
+        id: activeQuote.id,
+        quote_number: activeQuote.quoteNumber,
+        date: activeQuote.date,
+        company_name: activeQuote.companyName,
+        client_name: activeQuote.clientName || 'Cliente Particular',
+        client_location: activeQuote.clientLocation,
+        client_phone: activeQuote.clientPhone,
+        work_reference: activeQuote.workReference,
+        scope_items: activeQuote.scopeItems,
+        labor_cost: laborVal,
+        materials_cost: materialsVal,
+        materials_detail: activeQuote.materialsDetail,
+        apply_iva: activeQuote.applyIVA ? 1 : 0,
+        delivery_time: activeQuote.deliveryTime,
+        total_amount: tot,
         file_name: finalName,
         status,
-        responsible_name: quote.responsibleName,
-        responsible_phone: quote.responsiblePhone
+        responsible_name: activeQuote.responsibleName,
+        responsible_phone: activeQuote.responsiblePhone
       });
       await syncCloudQuotes();
     } catch (err) {
@@ -346,19 +381,45 @@ export const JobQuoteManager: React.FC = () => {
   };
 
   // Guardar específicamente para Enviar Después (en "Cotizaciones por Enviar")
-  const handleSaveQuoteForLater = async (shouldScrollToPanel = true) => {
+  const handleSaveQuoteForLater = async (shouldScrollToTop = true) => {
     setIsSavingLater(true);
-    const clientClean = quote.clientName.trim()
-      ? quote.clientName.trim().replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g, '-')
-      : 'Cliente';
-    const finalName = `Cotizacion-${clientClean}-${quote.quoteNumber}`;
+
+    const now = new Date();
+    const userTimeStr = now.toLocaleTimeString('es-CR', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+    // Determinar ID y consecutivo único para NUNCA sobreescribir ni borrar cotizaciones previas
+    let targetId = quote.id;
+    let targetQuoteNumber = quote.quoteNumber;
+
+    const existingIndex = savedHistory.findIndex((item) => item.id === targetId);
+    const isExplicitlyEditing = editingQuoteId === targetId;
+    const clientNameTrimmed = quote.clientName.trim();
+    const existingClientName = existingIndex !== -1 ? savedHistory[existingIndex].clientName.trim() : '';
+    const clientChanged = existingIndex !== -1 && clientNameTrimmed !== existingClientName;
+
+    // Si ya existe en el historial y no se cargó expresamente para editarla, o si el cliente cambió:
+    // Se genera un nuevo registro independiente para proteger y registrar TODAS las cotizaciones
+    if (existingIndex !== -1 && (!isExplicitlyEditing || clientChanged)) {
+      targetId = `quote_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+      targetQuoteNumber = generateQuoteNumber();
+    }
+
+    const clientClean = (clientNameTrimmed || 'Cliente').replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g, '-');
+    const finalName = `Cotizacion-${clientClean}-${targetQuoteNumber}`;
+
+    const quoteToSave: JobQuote = {
+      ...quote,
+      id: targetId,
+      quoteNumber: targetQuoteNumber,
+      status: 'por_enviar'
+    };
 
     // 1. Guardar de forma optimista inmediata en LocalStorage y Estado para reactividad instantánea
-    const existing = savedHistory.find((item) => item.id === quote.id);
+    const existing = savedHistory.find((item) => item.id === targetId);
     const entry: SavedQuoteEntry = {
-      id: quote.id,
+      id: targetId,
       fileName: finalName,
-      savedAt: new Date().toISOString(),
+      savedAt: now.toISOString(),
       totalAmount: totalGeneral,
       clientName: quote.clientName || 'Cliente Particular',
       workReference: quote.workReference || 'Trabajo Técnico',
@@ -366,24 +427,30 @@ export const JobQuoteManager: React.FC = () => {
       viewCount: existing?.viewCount || 0,
       isDownloaded: existing?.isDownloaded || false,
       downloadedAt: existing?.downloadedAt || null,
-      shareUrl: `${window.location.origin}/cotizacion/${quote.id}`,
-      quoteData: { ...quote, status: 'por_enviar' }
+      shareUrl: `${window.location.origin}/cotizacion/${targetId}`,
+      quoteData: quoteToSave
     };
 
-    const updated = [entry, ...savedHistory.filter((item) => item.id !== quote.id)];
+    // Conservar todas las anteriores y añadir o actualizar únicamente la actual
+    const updated = [entry, ...savedHistory.filter((item) => item.id !== targetId)];
     setSavedHistory(updated);
     try {
       localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(updated));
     } catch (e) {}
 
-    // 2. Notificaciones y apertura de bandeja
-    setSaveSuccessMessage(`✅ Cotización guardada en "Cotizaciones por Enviar" (${quote.quoteNumber}). Lista para enviar después al cliente.`);
+    // Mantener sincronizado el editor con el ID asignado
+    setQuote(quoteToSave);
+    setEditingQuoteId(targetId);
+
+    // 2. Notificaciones y apertura de bandeja con HORA EXACTA REAL DEL USUARIO
+    setSaveSuccessMessage(`✅ Cotización guardada en "Cotizaciones por Enviar" (${targetQuoteNumber} • ${quote.clientName || 'Cliente Particular'}) guardada hoy a las ${userTimeStr}. Lista para enviar.`);
     setIsHistoryOpen(true);
     setHistoryFilter('por_enviar');
     setSavedLaterFeedback(true);
 
-    // 3. Desplazamiento suave para que el usuario VEA la acción completada
-    if (shouldScrollToPanel) {
+    // 3. Subir de inmediato al tope de la pantalla para mostrar la notificación y la lista arriba
+    if (shouldScrollToTop) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       setTimeout(() => {
         const panelEl = document.getElementById('cotizaciones-por-enviar-panel');
         if (panelEl) {
@@ -391,17 +458,17 @@ export const JobQuoteManager: React.FC = () => {
         } else {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-      }, 150);
+      }, 100);
     }
 
-    // 4. Sincronización en la nube (Cloudflare D1)
+    // 4. Sincronización en la nube (Cloudflare D1) sin alterar cotizaciones anteriores
     try {
-      await saveToCloud(finalName, 'por_enviar');
+      await saveToCloud(finalName, 'por_enviar', quoteToSave);
     } catch (err) {
       console.warn('Sync cloud error:', err);
     } finally {
       setIsSavingLater(false);
-      setTimeout(() => setSaveSuccessMessage(null), 4000);
+      setTimeout(() => setSaveSuccessMessage(null), 5000);
       setTimeout(() => setSavedLaterFeedback(false), 6000);
     }
   };
@@ -594,15 +661,34 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
 
   // Guardar en el sistema (Historial persistente y Cloudflare D1)
   const handleSaveToSystem = async () => {
-    const finalName = customFileName.trim() || `Cotizacion-${quote.quoteNumber}`;
-    await saveToCloud(finalName);
+    const now = new Date();
+    const userTimeStr = now.toLocaleTimeString('es-CR', { hour: 'numeric', minute: '2-digit', hour12: true });
 
-    const existing = savedHistory.find((item) => item.id === quote.id);
+    let targetId = quote.id;
+    let targetQuoteNumber = quote.quoteNumber;
+
+    const existingIndex = savedHistory.findIndex((item) => item.id === targetId);
+    const isExplicitlyEditing = editingQuoteId === targetId;
+    const clientNameTrimmed = quote.clientName.trim();
+    const existingClientName = existingIndex !== -1 ? savedHistory[existingIndex].clientName.trim() : '';
+    const clientChanged = existingIndex !== -1 && clientNameTrimmed !== existingClientName;
+
+    if (existingIndex !== -1 && (!isExplicitlyEditing || clientChanged)) {
+      targetId = `quote_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+      targetQuoteNumber = generateQuoteNumber();
+    }
+
+    const finalName = customFileName.trim() || `Cotizacion-${targetQuoteNumber}`;
+    const quoteToSave: JobQuote = { ...quote, id: targetId, quoteNumber: targetQuoteNumber };
+
+    await saveToCloud(finalName, undefined, quoteToSave);
+
+    const existing = savedHistory.find((item) => item.id === targetId);
     const entryStatus = existing?.status || 'por_enviar';
     const entry: SavedQuoteEntry = {
-      id: quote.id,
+      id: targetId,
       fileName: finalName,
-      savedAt: new Date().toISOString(),
+      savedAt: now.toISOString(),
       totalAmount: totalGeneral,
       clientName: quote.clientName || 'Cliente Particular',
       workReference: quote.workReference || 'Trabajo Técnico',
@@ -611,26 +697,31 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
       viewCount: existing?.viewCount || 0,
       isDownloaded: existing?.isDownloaded || false,
       downloadedAt: existing?.downloadedAt || null,
-      shareUrl: `${window.location.origin}/cotizacion/${quote.id}`,
-      quoteData: { ...quote, status: entryStatus }
+      shareUrl: `${window.location.origin}/cotizacion/${targetId}`,
+      quoteData: { ...quoteToSave, status: entryStatus }
     };
 
-    const updated = [entry, ...savedHistory.filter((item) => item.id !== quote.id)];
+    const updated = [entry, ...savedHistory.filter((item) => item.id !== targetId)];
     setSavedHistory(updated);
     try {
       localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(updated));
     } catch (e) {}
 
-    setSaveSuccessMessage(`✅ Guardado con éxito como "${finalName}" en el sistema.`);
-    setTimeout(() => setSaveSuccessMessage(null), 3500);
+    setQuote(quoteToSave);
+    setEditingQuoteId(targetId);
+
+    setSaveSuccessMessage(`✅ Guardado con éxito como "${finalName}" a las ${userTimeStr} en el sistema.`);
+    setTimeout(() => setSaveSuccessMessage(null), 4500);
   };
 
   // Cargar cotización desde el historial
   const handleLoadFromHistory = (entry: SavedQuoteEntry) => {
-    if (confirm(`¿Desea cargar la cotización "${entry.fileName}"? Reemplazará los campos actuales.`)) {
+    if (confirm(`¿Desea cargar la cotización "${entry.fileName}"? Reemplazará los campos actuales del editor.`)) {
+      setEditingQuoteId(entry.id);
       setQuote(entry.quoteData);
       setIsHistoryOpen(false);
       setActiveMobileView('preview');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -910,16 +1001,37 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
 
           <button
             type="button"
-            onClick={handleResetQuote}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all cursor-pointer"
-            title="Nueva cotización en blanco"
+            onClick={() => handleResetQuote(false)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all active:scale-95 cursor-pointer"
+            title="Crear nueva cotización en blanco para otro cliente"
           >
-            <RefreshCw className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-brand-blue" />
+            <span className="hidden sm:inline">Nueva Cotización</span>
           </button>
         </div>
       </div>
 
-      {/* MENSAJE DE CONFIRMACIÓN DE GUARDADO */}
+      {/* AVISO DE COTIZACIÓN EN EDICIÓN */}
+      {editingQuoteId && (
+        <div className="no-print bg-amber-50 border border-amber-300 p-3 rounded-2xl flex items-center justify-between gap-2 text-xs shadow-xs animate-in fade-in">
+          <div className="flex items-center gap-2 text-amber-900 font-bold">
+            <span className="px-2 py-0.5 rounded-md bg-amber-200 text-amber-950 text-[10px] font-black uppercase">
+              Modo Edición
+            </span>
+            <span>Editando cotización guardada: <strong>{quote.quoteNumber}</strong> ({quote.clientName || 'Sin cliente'})</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => handleResetQuote(true)}
+            className="px-3 py-1 rounded-xl bg-white hover:bg-amber-100 text-amber-900 font-black border border-amber-300 text-[11px] flex items-center gap-1 cursor-pointer shadow-2xs"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Crear Otra Nueva</span>
+          </button>
+        </div>
+      )}
+
+      {/* MENSAJE DE CONFIRMACIÓN DE GUARDADO CON HORA EXACTA */}
       {saveSuccessMessage && (
         <div className="no-print bg-emerald-600 text-white p-3.5 rounded-2xl shadow-md flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
           <div className="flex items-center gap-2.5 text-xs font-black">
@@ -1148,10 +1260,11 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
                       ) : null}
                     </div>
 
-                    {/* Fecha y Monto Total */}
+                    {/* Fecha, Hora Real del Usuario y Monto Total */}
                     <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[11px]">
-                      <span className="font-mono text-slate-400 text-[10px]">
-                        {item.savedAt ? item.savedAt.split('T')[0] : ''}
+                      <span className="font-mono text-slate-600 font-bold text-[10px] flex items-center gap-1" title="Fecha y hora exacta de guardado">
+                        <Clock className="w-3 h-3 text-amber-600 shrink-0" />
+                        <span>{formatUserLocalTime(item.savedAt)}</span>
                       </span>
                       <span className="font-black text-emerald-800 text-xs">
                         ₡{item.totalAmount.toLocaleString('es-CR')}
@@ -1968,7 +2081,7 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
                   savedLaterFeedback ? 'text-emerald-800' : 'text-amber-800'
                 }`}>
                   {savedLaterFeedback 
-                    ? `Guardada en "Cotizaciones por Enviar" (${quote.quoteNumber}). La puedes revisar o enviar por WhatsApp arriba.`
+                    ? `Guardada en "Cotizaciones por Enviar" (${quote.quoteNumber}) a las ${getNowLocalTime12h()}. La puedes revisar o enviar por WhatsApp arriba.`
                     : <>Presiona el botón para guardarla en <strong>"Cotizaciones por Enviar"</strong>. Podrás revisarla, editarla o mandarla por WhatsApp en cualquier momento.</>
                   }
                 </p>
@@ -1980,13 +2093,14 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
               <div className="bg-emerald-600 text-white p-3 rounded-2xl flex items-center justify-between gap-2 shadow-xs animate-in fade-in">
                 <div className="flex items-center gap-2 text-xs font-bold">
                   <CheckCircle2 className="w-4 h-4 shrink-0 text-white" />
-                  <span>✅ Guardada en pendientes ({quote.quoteNumber})</span>
+                  <span>✅ Guardada a las {getNowLocalTime12h()} en pendientes ({quote.quoteNumber})</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => {
                     setIsHistoryOpen(true);
                     setHistoryFilter('por_enviar');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                     const panel = document.getElementById('cotizaciones-por-enviar-panel');
                     if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }}
