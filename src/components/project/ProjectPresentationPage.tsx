@@ -193,22 +193,7 @@ export const DELIVERABLES_SUMMARY: DeliverableSummaryItem[] = [
   },
   {
     id: 'del_10',
-    pillar: '4. TECNOLOGÍA & PROPIEDAD',
-    title: 'Nube Serverless Edge Distribuida (300+ Centros de Datos)',
-    tag: 'Infraestructura Silicon Valley',
-    tagColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30',
-    summary: 'Despliegue distribuido en Cloudflare Pages con base de datos SQL D1 de alta disponibilidad, carga en <0.5s y cifrado bancario HTTPS.',
-    bullets: [
-      'Cero costos mensuales fijos de hosting (ahorro de $20 a $50 al mes)',
-      'Máxima velocidad de carga que posiciona a Royalty de primero en Google',
-      'Inmune a caídas de servidores convencionales o ataques web'
-    ],
-    actionPath: '/',
-    actionText: 'Ver Web'
-  },
-  {
-    id: 'del_11',
-    pillar: '4. TECNOLOGÍA & PROPIEDAD',
+    pillar: '4. TECNOLOGÍA MÓVIL & ENTREGA',
     title: 'Aplicación Web Progresiva (PWA Móvil Primero)',
     tag: 'Instalación en 1-Clic',
     tagColor: 'bg-teal-500/10 text-teal-400 border-teal-500/30',
@@ -222,16 +207,16 @@ export const DELIVERABLES_SUMMARY: DeliverableSummaryItem[] = [
     actionText: 'Probar App'
   },
   {
-    id: 'del_12',
-    pillar: '4. TECNOLOGÍA & PROPIEDAD',
-    title: '100% Propiedad del Código Fuente y Llave en Mano',
-    tag: 'Activo Propio de Royalty',
+    id: 'del_11',
+    pillar: '4. TECNOLOGÍA MÓVIL & ENTREGA',
+    title: 'Despliegue Llave en Mano en Producción',
+    tag: 'Listo para Facturar',
     tagColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-    summary: 'Código propio en React, TypeScript y Tailwind CSS sin mensualidades de WordPress ni plugins de terceros que se desactualicen.',
+    summary: 'Plataforma 100% operativa y verificada en producción, lista para generar cotizaciones y captar clientes desde el primer día.',
     bullets: [
-      'El software pertenece 100% a Royalty como activo de la empresa',
-      'Sin costos recurrentes ni suscripciones de mantenimiento forzoso',
-      'Entrega llave en mano verificada en producción lista para facturar'
+      'Sin configuraciones complejas ni instalaciones técnicas por tu cuenta',
+      'Calibración continua y soporte técnico garantizado',
+      'Puesta en marcha inmediata con dominio y sistemas activos'
     ],
     actionPath: '/proyecto',
     actionText: 'Propuesta'
@@ -247,9 +232,7 @@ export const EXECUTIVE_CHECKLIST = [
   'Agenda de Reservas 24/7 interactiva con validación visual intuitiva que despacha citas confirmadas directo a tu WhatsApp.',
   'Sistema de Testimonios Verificados con blindaje estricto que solo permite calificar a números registrados con citas previas.',
   'Panel Administrativo Todo-en-Uno (Modo Claro y Pro) con vista de rutas, cobros, base de datos y control de disponibilidad.',
-  'Infraestructura Global en Cloudflare Pages con Base de Datos SQL D1 distribuida, carga en <0.5s y cero costos mensuales de hosting.',
   'Aplicación Web PWA instalable en 1 clic en la pantalla de inicio del celular, con funcionamiento rápido y soporte offline.',
-  'Propiedad Total del Código Fuente en React, TypeScript y Tailwind CSS, sin suscripciones a WordPress ni plugins de terceros.',
   'Despliegue Llave en Mano verificado en producción, listo para facturar y con soporte técnico de calibración continua.'
 ];
 
@@ -295,7 +278,7 @@ const DEFAULT_METRICS: ProjectMetric[] = [
   { value: '30 seg', label: 'Emisión de Cotización', sublabel: 'PDF membretado formal' },
   { value: '100%', label: 'Cero Fugas de Tráfico', sublabel: 'Atribución FB, IG y WhatsApp' },
   { value: '1-Clic', label: 'Conexión Directa', sublabel: 'WhatsApp enrutado inmediato' },
-  { value: '<0.5s', label: 'Carga Ultra Rápida', sublabel: 'Nube Cloudflare Serverless' },
+  { value: '<0.5s', label: 'Carga Ultra Rápida', sublabel: 'Infraestructura de Alta Velocidad' },
 ];
 
 const DEFAULT_FEATURES: ProjectFeature[] = [
@@ -400,10 +383,10 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
     order: 9,
     category: 'INFRAESTRUCTURA DE VANGUARDIA',
     badge: 'Grado Silicon Valley',
-    title: 'Nube Serverless Edge Distribuida (Cloudflare Pages + Base de Datos en la Nube)',
-    problem: 'Ya no más sitios lentos, caídas de servidor ni cobros mensuales excesivos por hosting convencional. Tu empresa opera sobre infraestructura global de última generación con máxima velocidad y seguridad bancaria.',
-    solution: 'Despliegue distribuido en más de 300 centros de datos globales con base de datos SQL distribuida de alta disponibilidad. Carga ultra rápida en menos de 0.5 segundos, cifrado bancario HTTPS y cero costos fijos mensuales de hosting tradicional.',
-    impact: 'Cero costos fijos mensuales y máxima velocidad para liderar en Google.',
+    title: 'Infraestructura Web de Alta Velocidad y Carga Instantánea',
+    problem: 'Ya no más sitios lentos, caídas de servidor ni esperas que desesperen a los clientes. Tu empresa opera sobre infraestructura de vanguardia con máxima velocidad y seguridad bancaria.',
+    solution: 'Despliegue distribuido de alta disponibilidad con máxima velocidad y seguridad bancaria HTTPS. Carga ultra rápida en menos de 0.5 segundos y blindaje contra caídas para que tu web nunca falle ante consultas de emergencia.',
+    impact: 'Máxima velocidad de carga y disponibilidad 24/7 para no perder clientes.',
     actionText: 'Ver Web',
     actionPath: '/'
   },
@@ -922,11 +905,11 @@ export const ProjectPresentationPage: React.FC<ProjectPresentationPageProps> = (
               Todo Lo Que Estás Recibiendo: Punto por Punto
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
-              No estás adquiriendo un simple folleto web. Recibes un ecosistema digital de alta rentabilidad compuesto por 12 herramientas comerciales, operativas y tecnológicas diseñadas exclusivamente a la medida de Royalty.
+              No estás adquiriendo un simple folleto web. Recibes un ecosistema digital de alta rentabilidad compuesto por herramientas comerciales, operativas y tecnológicas diseñadas exclusivamente a la medida de Royalty.
             </p>
           </div>
 
-          {/* Cuadrícula de 12 Entregables Ejecutivos */}
+          {/* Cuadrícula de Entregables Ejecutivos */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {DELIVERABLES_SUMMARY.map((item, idx) => (
               <div

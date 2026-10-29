@@ -15,6 +15,14 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.54.0] - 2026-10-29 - Depuración Comercial en /PROYECTO y Confirmación de Rastreo de Clics
+- **Depuración de Textos Técnicos en Propuesta Comercial (`ProjectPresentationPage.tsx`):**
+  - Removidos de forma quirúrgica los ítems técnicos del acta de entrega ejecutiva: *"Infraestructura Global en Cloudflare Pages con Base de Datos SQL D1 distribuida, carga en <0.5s y cero costos mensuales de hosting"* y *"Propiedad Total del Código Fuente en React, TypeScript y Tailwind CSS, sin suscripciones a WordPress ni plugins de terceros"*.
+  - Ajustados los módulos de entregables y métricas de infraestructura para orientarse 100% al valor de negocio y velocidad comercial sin comprometer detalles técnicos internos ni propiedad de código.
+- **Auditoría de Registro de Clics y Vistas en Cotizaciones:**
+  - Confirmado el funcionamiento del rastreador en vivo: cada clic del cliente en `/cotizacion/:id` incrementa automáticamente `view_count` en Cloudflare D1 y actualiza la tarjeta en el panel con `👁️ Vista (X veces) - No descargada aún`, `✅ Descargada por el cliente` al descargar el PDF, y `✅ Aceptada por Cliente` al confirmar la propuesta.
+
+
 ### [v2.53.0] - 2026-10-29 - Doble Acción en Cotizador: "Guardar y enviar" y "Solo guardar"
 - **Acciones Duales de Cotización en Barra Superior e Inferior (`JobQuoteManager.tsx`):**
   - Implementados los dos botones directos en la interfaz de creación y edición de cotizaciones:
