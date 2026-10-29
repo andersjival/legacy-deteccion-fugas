@@ -60,6 +60,37 @@ export const JobQuoteManager: React.FC = () => {
   const [savedLaterFeedback, setSavedLaterFeedback] = useState(false);
   const [editingQuoteId, setEditingQuoteId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const autoScrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saveSuccessTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savedLaterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Limpieza de temporizadores de auto-scroll y mensajes de 10s al desmontar
+  useEffect(() => {
+    return () => {
+      if (autoScrollTimerRef.current) clearTimeout(autoScrollTimerRef.current);
+      if (saveSuccessTimerRef.current) clearTimeout(saveSuccessTimerRef.current);
+      if (savedLaterTimerRef.current) clearTimeout(savedLaterTimerRef.current);
+    };
+  }, []);
+
+  // Llevar inmediatamente arriba a la bandeja de cotizaciones por enviar y enfocar panel
+  const scrollToTopPanel = () => {
+    if (autoScrollTimerRef.current) {
+      clearTimeout(autoScrollTimerRef.current);
+      autoScrollTimerRef.current = null;
+    }
+    setIsHistoryOpen(true);
+    setHistoryFilter('por_enviar');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      const panelEl = document.getElementById('cotizaciones-por-enviar-panel');
+      if (panelEl) {
+        panelEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 120);
+  };
 
   // Formateador de fecha y hora local del usuario en Costa Rica (12h con AM/PM)
   const formatUserLocalTime = (isoOrUtcStr?: string | null): string => {
@@ -448,18 +479,24 @@ export const JobQuoteManager: React.FC = () => {
     setHistoryFilter('por_enviar');
     setSavedLaterFeedback(true);
 
-    // 3. Subir de inmediato al tope de la pantalla para mostrar la notificación y la lista arriba
-    if (shouldScrollToTop) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setTimeout(() => {
-        const panelEl = document.getElementById('cotizaciones-por-enviar-panel');
-        if (panelEl) {
-          panelEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } else {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      }, 100);
-    }
+    // Cancelar temporizadores activos para renovar el ciclo
+    if (autoScrollTimerRef.current) clearTimeout(autoScrollTimerRef.current);
+    if (saveSuccessTimerRef.current) clearTimeout(saveSuccessTimerRef.current);
+    if (savedLaterTimerRef.current) clearTimeout(savedLaterTimerRef.current);
+
+    // El mensaje en verde se queda ahí durante 10 segundos
+    saveSuccessTimerRef.current = setTimeout(() => {
+      setSaveSuccessMessage(null);
+    }, 10000);
+
+    savedLaterTimerRef.current = setTimeout(() => {
+      setSavedLaterFeedback(false);
+    }, 10000);
+
+    // Si el usuario no le da clic en "Ver arriba", el sistema lo lleva arriba automáticamente a los 3 segundos
+    autoScrollTimerRef.current = setTimeout(() => {
+      scrollToTopPanel();
+    }, 3000);
 
     // 4. Sincronización en la nube (Cloudflare D1) sin alterar cotizaciones anteriores
     try {
@@ -468,8 +505,6 @@ export const JobQuoteManager: React.FC = () => {
       console.warn('Sync cloud error:', err);
     } finally {
       setIsSavingLater(false);
-      setTimeout(() => setSaveSuccessMessage(null), 5000);
-      setTimeout(() => setSavedLaterFeedback(false), 6000);
     }
   };
 
@@ -711,7 +746,8 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
     setEditingQuoteId(targetId);
 
     setSaveSuccessMessage(`✅ Guardado con éxito como "${finalName}" a las ${userTimeStr} en el sistema.`);
-    setTimeout(() => setSaveSuccessMessage(null), 4500);
+    if (saveSuccessTimerRef.current) clearTimeout(saveSuccessTimerRef.current);
+    saveSuccessTimerRef.current = setTimeout(() => setSaveSuccessMessage(null), 10000);
   };
 
   // Cargar cotización desde el historial
@@ -1031,20 +1067,33 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
         </div>
       )}
 
-      {/* MENSAJE DE CONFIRMACIÓN DE GUARDADO CON HORA EXACTA */}
+      {/* MENSAJE DE CONFIRMACIÓN DE GUARDADO CON HORA EXACTA (10 SEGUNDOS) */}
       {saveSuccessMessage && (
         <div className="no-print bg-emerald-600 text-white p-3.5 rounded-2xl shadow-md flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
           <div className="flex items-center gap-2.5 text-xs font-black">
             <CheckCircle2 className="w-5 h-5 shrink-0" />
             <span>{saveSuccessMessage}</span>
           </div>
-          <button
-            type="button"
-            onClick={() => setSaveSuccessMessage(null)}
-            className="p-1 hover:bg-white/20 rounded-lg text-white"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={scrollToTopPanel}
+              className="px-2.5 py-1 bg-white/20 hover:bg-white/30 rounded-lg text-xs font-black underline cursor-pointer"
+            >
+              Ver arriba ↑
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (saveSuccessTimerRef.current) clearTimeout(saveSuccessTimerRef.current);
+                setSaveSuccessMessage(null);
+              }}
+              className="p-1 hover:bg-white/20 rounded-lg text-white cursor-pointer"
+              title="Cerrar notificación"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       )}
 
@@ -2088,7 +2137,7 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
               </div>
             </div>
 
-            {/* Mensaje de confirmación visual inmediato en la propia tarjeta */}
+            {/* Mensaje de confirmación visual inmediato en la propia tarjeta (10 segundos) */}
             {savedLaterFeedback && (
               <div className="bg-emerald-600 text-white p-3 rounded-2xl flex items-center justify-between gap-2 shadow-xs animate-in fade-in">
                 <div className="flex items-center gap-2 text-xs font-bold">
@@ -2097,16 +2146,11 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
                 </div>
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsHistoryOpen(true);
-                    setHistoryFilter('por_enviar');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    const panel = document.getElementById('cotizaciones-por-enviar-panel');
-                    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  }}
-                  className="px-2.5 py-1 bg-white/20 hover:bg-white/30 rounded-lg text-[11px] font-black underline cursor-pointer"
+                  onClick={scrollToTopPanel}
+                  className="px-2.5 py-1 bg-white/20 hover:bg-white/30 rounded-lg text-[11px] font-black underline cursor-pointer whitespace-nowrap"
+                  title="Subir de inmediato a cotizaciones por enviar"
                 >
-                  Ver Lista Arriba ↑
+                  Ver arriba ↑
                 </button>
               </div>
             )}

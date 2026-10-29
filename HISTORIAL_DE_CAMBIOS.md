@@ -15,6 +15,15 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.34.0] - 2026-10-29 - Mensaje Verde de Guardado Durante 10 Segundos y Auto-Scroll Superior Automático
+- **Permanencia de 10 Segundos para Mensajes de Éxito en Verde (`JobQuoteManager.tsx`):**
+  - Configurado temporizador estricto de 10 segundos (`10000ms`) tanto para el mensaje superior de guardado (`saveSuccessMessage`) como para el estado visual verde de la tarjeta inferior (`savedLaterFeedback`).
+  - La tarjeta inferior permanece en tono verde esmeralda con borde y anillo brillante (`bg-emerald-50 border-emerald-400 ring-4 ring-emerald-200`) durante los 10 segundos completos, confirmando la hora local exacta del usuario.
+- **Navegación Asistida y Auto-Scroll Automático Superior:**
+  - Se visualiza el botón *"Ver arriba ↑"* tanto en el mensaje verde de la tarjeta inferior como en el banner superior.
+  - Al pulsar *"Ver arriba ↑"*, el usuario es llevado inmediatamente con scroll suave al tope (`window.scrollTo({ top: 0, behavior: 'smooth' })`) enfocando el panel `#cotizaciones-por-enviar-panel`.
+  - Si el usuario **no** presiona *"Ver arriba ↑"*, el sistema ejecuta un temporizador de 3 segundos que desplaza la pantalla automáticamente hacia arriba, permitiendo apreciar la confirmación en la tarjeta y luego revisarla en la lista de cotizaciones por enviar.
+
 ### [v2.33.0] - 2026-10-29 - Precios Visibles en los 3 Servicios con Edición Dinámica en Tiempo Real por el Administrador
 - **Visualización de Precios a la Par en los 3 Servicios (`ServicesSection.tsx`):**
   - Añadido el precio comercial a la par en cada una de las 3 tarjetas de servicio principales:
