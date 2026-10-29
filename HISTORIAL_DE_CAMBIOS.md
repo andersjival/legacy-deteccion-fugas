@@ -15,6 +15,23 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.25.0] - 2026-10-29 - Botón "Guardar Cotización" y Sección "Cotizaciones por Enviar"
+- **Botón "Guardar Cotización" (`JobQuoteManager.tsx`):**
+  - Incorporado botón principal destacado en la barra superior de acciones con ícono `BookmarkPlus` y degradado ámbar para guardar la cotización directamente con estado `por_enviar`.
+  - Añadida tarjeta de acción rápida al pie del formulario del editor con el mensaje *"¿Deseas enviar esta cotización más tarde?"* para guardar sin necesidad de desplazarse arriba.
+  - Alerta visual inmediata de confirmación tras el guardado con consecutivo asignado (`saveSuccessMessage`).
+- **Sección y Gestor "Cotizaciones por Enviar" (`JobQuoteManager.tsx`):**
+  - Botón de acceso directo en la barra superior con contador en tiempo real de cotizaciones pendientes (`Por Enviar (X)`).
+  - Pestañas de filtro interactivo: **"Por Enviar"** (solo pendientes) y **"Todas"** (todas las guardadas).
+  - Estado vacío informativo cuando no hay cotizaciones pendientes de envío.
+  - Tarjetas de cotización con identificadores visuales claros (`⏳ Por Enviar` vs `📤 Enviada`).
+  - Botón directo de un clic **"Enviar WhatsApp"**: abre WhatsApp con la cotización formateada y el enlace web, y actualiza automáticamente el estado a `enviada`.
+  - Acciones complementarias por tarjeta: Cargar en Editor, Copiar Enlace, Ver Online, Alternar Estado y Eliminar.
+- **Persistencia en la Nube y Base de Datos D1 (`functions/api/[[route]].ts` / `src/services/api.ts`):**
+  - Columna `status` (`por_enviar` / `enviada`) añadida a la tabla `quotes` en Cloudflare D1 (`legacy-fugas-db`).
+  - Endpoint REST `PATCH /api/quotes/:id/status` para conmutación de estado entre por enviar y enviada.
+  - Actualización automática a `enviada` cuando el cliente abre o descarga la cotización en línea.
+
 ### [v2.24.0] - 2026-10-29 - Rastreador de Tráfico, Enlaces Cortos (FB, IG, WA) y Embudo de Conversión
 - **Enlaces Cortos Profesionales con Atribución Automática (`src/App.tsx` / `TrafficAnalytics.tsx`):**
   - Creadas rutas cortas oficiales directas para marketing:

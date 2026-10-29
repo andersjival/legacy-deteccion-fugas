@@ -718,6 +718,7 @@ app.post('/quotes', async (c) => {
   const fileName = body.file_name || body.fileName || `Cotizacion-${quoteNumber}`;
   const responsibleName = body.responsible_name || body.responsibleName || 'David Rojas';
   const responsiblePhone = body.responsible_phone || body.responsiblePhone || '6408-0124';
+  const status = body.status || 'por_enviar';
 
   if (c.env.DB) {
     try {
@@ -725,9 +726,9 @@ app.post('/quotes', async (c) => {
         INSERT INTO quotes (
           id, quote_number, date, company_name, client_name, client_location, client_phone,
           work_reference, scope_items, labor_cost, materials_cost, materials_detail,
-          apply_iva, delivery_time, total_amount, file_name, responsible_name, responsible_phone
+          apply_iva, delivery_time, total_amount, file_name, responsible_name, responsible_phone, status
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
           quote_number = excluded.quote_number,
           date = excluded.date,
@@ -746,11 +747,12 @@ app.post('/quotes', async (c) => {
           file_name = excluded.file_name,
           responsible_name = excluded.responsible_name,
           responsible_phone = excluded.responsible_phone,
+          status = excluded.status,
           updated_at = CURRENT_TIMESTAMP
       `).bind(
         id, quoteNumber, date, companyName, clientName, clientLocation, clientPhone,
         workReference, scopeItems, laborCost, materialsCost, materialsDetail,
-        applyIva, deliveryTime, totalAmount, fileName, responsibleName, responsiblePhone
+        applyIva, deliveryTime, totalAmount, fileName, responsibleName, responsiblePhone, status
       ).run();
     } catch (e) {
       console.warn('D1 insert/update quote error:', e);
@@ -763,8 +765,25 @@ app.post('/quotes', async (c) => {
     client_name: clientName,
     total_amount: totalAmount,
     file_name: fileName,
+    status,
     share_url: `/cotizacion/${id}`
   }, 201);
+});
+
+// Actualizar estado de la cotización (por_enviar / enviada)
+app.patch('/quotes/:id/status', async (c) => {
+  const id = c.req.param('id');
+  const body = await c.req.json().catch(() => ({}));
+  const status = body.status || 'por_enviar';
+  if (c.env.DB) {
+    try {
+      await c.env.DB.prepare('UPDATE quotes SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').bind(status, id).run();
+      return c.json({ success: true, id, status });
+    } catch (e) {
+      console.warn('D1 update quote status error:', e);
+    }
+  }
+  return c.json({ success: true, id, status });
 });
 
 // Registrar evento de descarga por parte del cliente
@@ -775,7 +794,7 @@ app.post('/quotes/:id/downloaded', async (c) => {
     try {
       await c.env.DB.prepare(`
         UPDATE quotes 
-        SET is_downloaded = 1, downloaded_at = ?, updated_at = CURRENT_TIMESTAMP
+        SET is_downloaded = 1, downloaded_at = ?, status = 'enviada', updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `).bind(now, id).run();
       return c.json({ success: true, downloaded_at: now });

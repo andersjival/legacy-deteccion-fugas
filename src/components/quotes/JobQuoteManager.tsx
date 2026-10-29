@@ -30,7 +30,9 @@ import {
   FileCheck,
   Eye,
   Bell,
-  Link as LinkIcon
+  Link as LinkIcon,
+  BookmarkPlus,
+  Send
 } from 'lucide-react';
 import { JobQuote, QuoteItem, SavedQuoteEntry } from '../../types/quote';
 import { getTodayDateString } from '../../utils/dateFormatter';
@@ -50,6 +52,7 @@ export const JobQuoteManager: React.FC = () => {
   const [copiedLink, setCopiedLink] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [historyFilter, setHistoryFilter] = useState<'por_enviar' | 'todas'>('por_enviar');
   const [customFileName, setCustomFileName] = useState('');
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -145,6 +148,8 @@ export const JobQuoteManager: React.FC = () => {
           totalAmount: Number(q.total_amount) || 0,
           clientName: q.client_name || 'Cliente Particular',
           workReference: q.work_reference || 'Trabajo Técnico',
+          status: (q.status as 'por_enviar' | 'enviada') || 'por_enviar',
+          sentAt: q.status === 'enviada' ? (q.updated_at || null) : null,
           viewCount: Number(q.view_count) || 0,
           isDownloaded: Boolean(q.is_downloaded),
           downloadedAt: q.downloaded_at ? new Date(q.downloaded_at).toLocaleString('es-CR') : null,
@@ -153,6 +158,7 @@ export const JobQuoteManager: React.FC = () => {
             id: q.id,
             quoteNumber: q.quote_number,
             date: q.date,
+            status: (q.status as 'por_enviar' | 'enviada') || 'por_enviar',
             companyName: q.company_name || 'Royalty Destaqueo de Tuberías',
             companyLogoUrl: DEFAULT_LOGO,
             customLogoUrl: null,
@@ -303,7 +309,7 @@ export const JobQuoteManager: React.FC = () => {
   };
 
   // Guardar en Cloudflare D1
-  const saveToCloud = async (overrideName?: string) => {
+  const saveToCloud = async (overrideName?: string, status: 'por_enviar' | 'enviada' = 'por_enviar') => {
     const finalName = overrideName || customFileName.trim() || `Cotizacion-${quote.quoteNumber}`;
     setIsSyncing(true);
     try {
@@ -324,6 +330,7 @@ export const JobQuoteManager: React.FC = () => {
         delivery_time: quote.deliveryTime,
         total_amount: totalGeneral,
         file_name: finalName,
+        status,
         responsible_name: quote.responsibleName,
         responsible_phone: quote.responsiblePhone
       });
@@ -333,6 +340,127 @@ export const JobQuoteManager: React.FC = () => {
     } finally {
       setIsSyncing(false);
     }
+  };
+
+  // Guardar específicamente para Enviar Después (en "Cotizaciones por Enviar")
+  const handleSaveQuoteForLater = async () => {
+    const clientClean = quote.clientName.trim()
+      ? quote.clientName.trim().replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g, '-')
+      : 'Cliente';
+    const finalName = `Cotizacion-${clientClean}-${quote.quoteNumber}`;
+    
+    await saveToCloud(finalName, 'por_enviar');
+
+    const existing = savedHistory.find((item) => item.id === quote.id);
+    const entry: SavedQuoteEntry = {
+      id: quote.id,
+      fileName: finalName,
+      savedAt: new Date().toISOString(),
+      totalAmount: totalGeneral,
+      clientName: quote.clientName || 'Cliente Particular',
+      workReference: quote.workReference || 'Trabajo Técnico',
+      status: 'por_enviar',
+      viewCount: existing?.viewCount || 0,
+      isDownloaded: existing?.isDownloaded || false,
+      downloadedAt: existing?.downloadedAt || null,
+      shareUrl: `${window.location.origin}/cotizacion/${quote.id}`,
+      quoteData: { ...quote, status: 'por_enviar' }
+    };
+
+    const updated = [entry, ...savedHistory.filter((item) => item.id !== quote.id)];
+    setSavedHistory(updated);
+    try {
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(updated));
+    } catch (e) {}
+
+    setSaveSuccessMessage(`✅ Cotización guardada en "Cotizaciones por Enviar" (${quote.quoteNumber}). Lista para enviar después al cliente.`);
+    setIsHistoryOpen(true);
+    setHistoryFilter('por_enviar');
+    setTimeout(() => setSaveSuccessMessage(null), 4000);
+  };
+
+  // Alternar estado de cotización (por enviar vs enviada)
+  const handleToggleQuoteStatus = async (id: string, currentStatus?: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const newStatus: 'por_enviar' | 'enviada' = currentStatus === 'enviada' ? 'por_enviar' : 'enviada';
+    try {
+      await api.updateQuoteStatus(id, newStatus);
+    } catch {}
+    const updated = savedHistory.map((item) => 
+      item.id === id ? { ...item, status: newStatus, sentAt: newStatus === 'enviada' ? new Date().toISOString() : null } : item
+    );
+    setSavedHistory(updated);
+    try {
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(updated));
+    } catch {}
+  };
+
+  // Enviar cualquier cotización guardada directamente por WhatsApp y marcarla como enviada
+  const handleSendQuoteViaWhatsApp = async (entry: SavedQuoteEntry, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const q = entry.quoteData;
+    const laborVal = Number(q.laborCost) || 0;
+    const matVal = Number(q.materialsCost) || 0;
+    const sub = laborVal + matVal;
+    const iva = q.applyIVA ? Math.round(sub * (q.ivaRate || 0.13)) : 0;
+    const tot = sub + iva;
+
+    const itemsList = q.scopeItems
+      .filter((i) => i.text.trim())
+      .map((i, idx) => `  ${idx + 1}. ${i.text}`)
+      .join('\n');
+
+    const shareUrl = `${window.location.origin}/cotizacion/${entry.id}`;
+
+    const msg = `📋 *COTIZACIÓN OFICIAL — ${q.companyName.toUpperCase()}*
+*N° de Control:* ${q.quoteNumber}
+*Fecha de Emisión:* ${q.date}
+*Cliente / Lugar:* ${q.clientName || 'Cliente Particular'} ${q.clientLocation ? `(${q.clientLocation})` : ''}
+
+🛠️ *Referencia del Trabajo:*
+${q.workReference || 'Trabajo Técnico Especializado'}
+
+📝 *Alcance de Trabajos a Realizar:*
+${itemsList || '  • Trabajos técnicos especializados de acuerdo a inspección.'}
+
+💰 *Desglose Económico:*
+• Mano de Obra: ₡${laborVal.toLocaleString('es-CR')}
+• Estimado de Materiales: ₡${matVal.toLocaleString('es-CR')}
+• Subtotal: ₡${sub.toLocaleString('es-CR')}
+${q.applyIVA ? `• IVA (13% Factura Electrónica): ₡${iva.toLocaleString('es-CR')}\n` : ''}*TOTAL GENERAL:* ₡${tot.toLocaleString('es-CR')}
+
+⏱️ *Tiempo Estimado de Entrega:* ${q.deliveryTime}
+✅ *Condiciones:* ${q.paymentTerms}
+🛡️ *Garantía:* 100% satisfacción y materiales certificados.
+
+🌐 *Ver y Descargar Cotización Oficial en Línea:*
+${shareUrl}
+
+👤 *Atendido por:* ${q.responsibleName} (${q.responsibleTitle})
+📞 *Teléfono:* ${q.responsiblePhone}
+📸 *Instagram:* https://www.instagram.com/legacy.deteccion
+🌐 *Web:* ${q.websiteUrl}
+
+_Esta cotización fue generada de manera digital por el sistema de Royalty._`;
+
+    try {
+      await api.updateQuoteStatus(entry.id, 'enviada');
+    } catch {}
+
+    const updated = savedHistory.map((item) => 
+      item.id === entry.id ? { ...item, status: 'enviada' as const, sentAt: new Date().toISOString() } : item
+    );
+    setSavedHistory(updated);
+    try {
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(updated));
+    } catch {}
+
+    const text = encodeURIComponent(msg);
+    const phone = q.clientPhone ? q.clientPhone.replace(/\D/g, '') : '';
+    const url = phone.length >= 8 
+      ? `https://wa.me/506${phone.slice(-8)}?text=${text}`
+      : `https://wa.me/?text=${text}`;
+    window.open(url, '_blank');
   };
 
   // Generar texto para WhatsApp con enlace dinámico
@@ -379,7 +507,10 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
   };
 
   const handleShareWhatsApp = async () => {
-    await saveToCloud();
+    await saveToCloud(undefined, 'enviada');
+    setSavedHistory((prev) => 
+      prev.map((item) => item.id === quote.id ? { ...item, status: 'enviada', sentAt: new Date().toISOString() } : item)
+    );
     const text = encodeURIComponent(generateWhatsAppMessage());
     const phone = quote.clientPhone ? quote.clientPhone.replace(/\D/g, '') : '';
     const url = phone.length >= 8 
@@ -397,7 +528,10 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
   };
 
   const handleOpenShareModal = async () => {
-    await saveToCloud();
+    await saveToCloud(undefined, 'enviada');
+    setSavedHistory((prev) => 
+      prev.map((item) => item.id === quote.id ? { ...item, status: 'enviada', sentAt: new Date().toISOString() } : item)
+    );
     setIsShareModalOpen(true);
   };
 
@@ -427,6 +561,7 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
     await saveToCloud(finalName);
 
     const existing = savedHistory.find((item) => item.id === quote.id);
+    const entryStatus = existing?.status || 'por_enviar';
     const entry: SavedQuoteEntry = {
       id: quote.id,
       fileName: finalName,
@@ -434,11 +569,13 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
       totalAmount: totalGeneral,
       clientName: quote.clientName || 'Cliente Particular',
       workReference: quote.workReference || 'Trabajo Técnico',
+      status: entryStatus,
+      sentAt: existing?.sentAt || null,
       viewCount: existing?.viewCount || 0,
       isDownloaded: existing?.isDownloaded || false,
       downloadedAt: existing?.downloadedAt || null,
       shareUrl: `${window.location.origin}/cotizacion/${quote.id}`,
-      quoteData: { ...quote }
+      quoteData: { ...quote, status: entryStatus }
     };
 
     const updated = [entry, ...savedHistory.filter((item) => item.id !== quote.id)];
@@ -593,6 +730,10 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
 
   const currentLogo = quote.customLogoUrl || quote.companyLogoUrl || DEFAULT_LOGO;
 
+  const pendingQuotes = savedHistory.filter((item) => (item.status || 'por_enviar') === 'por_enviar');
+  const sentQuotes = savedHistory.filter((item) => item.status === 'enviada');
+  const itemsToDisplay = historyFilter === 'por_enviar' ? pendingQuotes : savedHistory;
+
   return (
     <div className="space-y-6">
       
@@ -639,6 +780,41 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
             </button>
           </div>
 
+          {/* BOTÓN MANDATORIO: Guardar Cotización para Enviar Después */}
+          <button
+            type="button"
+            onClick={handleSaveQuoteForLater}
+            disabled={isSyncing}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 shadow-sm transition-all active:scale-95 cursor-pointer"
+            title="Guardar cotización en 'Cotizaciones por Enviar' para enviarla luego al cliente"
+          >
+            <BookmarkPlus className="w-4 h-4" />
+            <span>Guardar Cotización</span>
+          </button>
+
+          {/* BOTÓN: Cotizaciones por Enviar (con contador de pendientes) */}
+          <button
+            type="button"
+            onClick={() => {
+              setIsHistoryOpen(!isHistoryOpen);
+              setHistoryFilter('por_enviar');
+            }}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+              pendingQuotes.length > 0
+                ? 'text-amber-900 bg-amber-100 hover:bg-amber-200 border border-amber-300 shadow-xs'
+                : 'text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200'
+            }`}
+            title="Ver cotizaciones guardadas para enviar después"
+          >
+            <Clock className="w-4 h-4 text-amber-600" />
+            <span>Por Enviar</span>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+              pendingQuotes.length > 0 ? 'bg-amber-500 text-white' : 'bg-slate-300 text-slate-700'
+            }`}>
+              {pendingQuotes.length}
+            </span>
+          </button>
+
           {/* Botón: Compartir Enlace Dinámico con Cliente */}
           <button
             type="button"
@@ -650,7 +826,7 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
             <span>Compartir Enlace</span>
           </button>
 
-          {/* Botón Principal: Guardar y Descargar con Nombre */}
+          {/* Botón: Descargar / Guardar con Nombre */}
           <button
             type="button"
             onClick={handleOpenDownloadModal}
@@ -658,24 +834,8 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
             title="Poner nombre, guardar en el sistema y descargar"
           >
             <Download className="w-4 h-4" />
-            <span>Descargar / Guardar</span>
+            <span>Descargar PDF</span>
           </button>
-
-          {/* Botón de Historial si existen cotizaciones guardadas */}
-          {savedHistory.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setIsHistoryOpen(!isHistoryOpen)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all cursor-pointer"
-              title="Ver cotizaciones guardadas en el sistema"
-            >
-              <FolderDown className="w-4 h-4 text-indigo-600" />
-              <span className="hidden sm:inline">Guardadas</span>
-              <span className="bg-indigo-100 text-indigo-800 text-[10px] px-1.5 py-0.2 rounded-full font-black">
-                {savedHistory.length}
-              </span>
-            </button>
-          )}
 
           <button
             type="button"
@@ -717,6 +877,23 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
           </button>
         </div>
       </div>
+
+      {/* MENSAJE DE CONFIRMACIÓN DE GUARDADO */}
+      {saveSuccessMessage && (
+        <div className="no-print bg-emerald-600 text-white p-3.5 rounded-2xl shadow-md flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-2.5 text-xs font-black">
+            <CheckCircle2 className="w-5 h-5 shrink-0" />
+            <span>{saveSuccessMessage}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSaveSuccessMessage(null)}
+            className="p-1 hover:bg-white/20 rounded-lg text-white"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* ALERTA DE ESTADO EN TIEMPO REAL: Si el cliente ya descargó la cotización */}
       {activeSavedEntry?.isDownloaded && (
@@ -775,105 +952,241 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
         </div>
       )}
 
-      {/* PANEL DESPLEGABLE DE HISTORIAL DE COTIZACIONES GUARDADAS */}
+      {/* PANEL DESPLEGABLE DE COTIZACIONES POR ENVIAR & GUARDADAS */}
       {isHistoryOpen && (
-        <div className="no-print bg-white p-5 rounded-3xl border border-indigo-200 shadow-md space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-            <div className="flex items-center gap-2">
-              <FolderOpen className="w-5 h-5 text-indigo-600" />
-              <h3 className="text-xs font-black text-brand-dark uppercase tracking-wider">
-                Cotizaciones Guardadas en el Sistema ({savedHistory.length})
-              </h3>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsHistoryOpen(false)}
-              className="text-slate-400 hover:text-slate-700 p-1"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-80 overflow-y-auto">
-            {savedHistory.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => handleLoadFromHistory(item)}
-                className="bg-slate-50 hover:bg-indigo-50/50 p-3.5 rounded-2xl border border-slate-200 hover:border-indigo-300 transition-all cursor-pointer space-y-2 relative group"
-              >
-                <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-black text-brand-dark truncate pr-6">
-                    {item.fileName}
-                  </h4>
-                  <button
-                    type="button"
-                    onClick={(e) => handleDeleteFromHistory(item.id, e)}
-                    className="text-slate-400 hover:text-red-500 p-1 absolute top-2.5 right-2.5 transition-colors"
-                    title="Eliminar del historial"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-                <p className="text-[11px] text-slate-500 truncate font-semibold">
-                  Cliente: <span className="text-brand-dark font-bold">{item.clientName}</span>
-                </p>
-                <p className="text-[10px] text-slate-400 truncate">
-                  {item.workReference}
-                </p>
-
-                {/* Badge de Estado del Cliente */}
-                <div>
-                  {item.isDownloaded ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                      <span>Descargada ({item.downloadedAt || 'Cliente'})</span>
-                    </span>
-                  ) : Boolean(item.viewCount && item.viewCount > 0) ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 border border-amber-200">
-                      <Eye className="w-3 h-3 text-amber-600 shrink-0" />
-                      <span>Vista {item.viewCount} {item.viewCount === 1 ? 'vez' : 'veces'}</span>
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-200/60 text-slate-500">
-                      <Clock className="w-3 h-3 text-slate-400 shrink-0" />
-                      <span>Sin abrir</span>
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[11px]">
-                  <span className="font-mono text-slate-400">{item.savedAt ? item.savedAt.split('T')[0] : ''}</span>
-                  <span className="font-black text-emerald-800">₡{item.totalAmount.toLocaleString('es-CR')}</span>
-                </div>
-
-                {/* Acciones directas por cotización */}
-                <div className="flex items-center justify-end gap-1.5 pt-1 border-t border-slate-100">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCopyShareLink(item.id);
-                    }}
-                    className="px-2 py-1 rounded-lg text-[10px] font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 flex items-center gap-1 cursor-pointer"
-                    title="Copiar link dinámico para enviar al cliente"
-                  >
-                    <Copy className="w-3 h-3" />
-                    <span>Link</span>
-                  </button>
-                  <a
-                    href={`/cotizacion/${item.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="p-1 rounded-lg text-slate-400 hover:text-brand-blue hover:bg-white"
-                    title="Abrir como cliente en nueva pestaña"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                </div>
+        <div className="no-print bg-white p-5 rounded-3xl border-2 border-amber-300/80 shadow-lg space-y-4 animate-in fade-in slide-in-from-top-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                <Clock className="w-5 h-5" />
               </div>
-            ))}
+              <div>
+                <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider flex items-center gap-2">
+                  <span>Cotizaciones por Enviar & Guardadas</span>
+                  <span className="text-[10px] font-mono font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full">
+                    {pendingQuotes.length} pendientes
+                  </span>
+                </h3>
+                <p className="text-[11px] text-slate-500 font-medium">
+                  Gestiona las cotizaciones listas para enviar a tus clientes o que guardaste para después.
+                </p>
+              </div>
+            </div>
+
+            {/* Pestañas de Filtro y Botón Cerrar */}
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+              <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-black">
+                <button
+                  type="button"
+                  onClick={() => setHistoryFilter('por_enviar')}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                    historyFilter === 'por_enviar'
+                      ? 'bg-amber-500 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-brand-dark'
+                  }`}
+                >
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>Por Enviar ({pendingQuotes.length})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHistoryFilter('todas')}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                    historyFilter === 'todas'
+                      ? 'bg-brand-dark text-white shadow-xs'
+                      : 'text-slate-600 hover:text-brand-dark'
+                  }`}
+                >
+                  <FolderOpen className="w-3.5 h-3.5" />
+                  <span>Todas ({savedHistory.length})</span>
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsHistoryOpen(false)}
+                className="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors"
+                title="Cerrar panel"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
+
+          {/* Lista de Cotizaciones o Estado Vacío */}
+          {itemsToDisplay.length === 0 ? (
+            <div className="text-center py-10 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-2">
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 mx-auto flex items-center justify-center">
+                <Clock className="w-6 h-6" />
+              </div>
+              <h4 className="text-xs font-black text-brand-dark uppercase tracking-wider">
+                {historyFilter === 'por_enviar' 
+                  ? 'No tienes cotizaciones pendientes por enviar' 
+                  : 'Aún no hay cotizaciones guardadas'}
+              </h4>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                {historyFilter === 'por_enviar'
+                  ? 'Todas las cotizaciones han sido enviadas o puedes crear una nueva y presionar "Guardar Cotización" para almacenarla aquí.'
+                  : 'Empieza rellenando el formulario y pulsa "Guardar Cotización" para conservarla.'}
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 max-h-96 overflow-y-auto pr-1">
+              {itemsToDisplay.map((item) => {
+                const isPending = (item.status || 'por_enviar') === 'por_enviar';
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => handleLoadFromHistory(item)}
+                    className={`p-3.5 rounded-2xl border transition-all cursor-pointer space-y-2.5 relative group shadow-xs ${
+                      isPending 
+                        ? 'bg-amber-50/40 hover:bg-amber-50 border-amber-200 hover:border-amber-400' 
+                        : 'bg-white hover:bg-slate-50 border-slate-200 hover:border-indigo-300'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 pr-6">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-mono text-[10px] font-black text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                            {item.quoteData?.quoteNumber || item.fileName}
+                          </span>
+                          {/* Badges de Estado Principal */}
+                          {isPending ? (
+                            <span className="inline-flex items-center gap-1 text-[9.5px] font-black px-2 py-0.5 rounded-md bg-amber-500 text-white shadow-2xs">
+                              <Clock className="w-3 h-3" />
+                              <span>Por Enviar</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-[9.5px] font-black px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 border border-blue-200">
+                              <Send className="w-3 h-3" />
+                              <span>Enviada</span>
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="text-xs font-black text-brand-dark truncate mt-1">
+                          {item.fileName}
+                        </h4>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteFromHistory(item.id, e)}
+                        className="text-slate-400 hover:text-red-500 p-1 absolute top-2.5 right-2.5 transition-colors"
+                        title="Eliminar de la lista"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <div className="text-[11px] space-y-0.5">
+                      <p className="text-slate-600 truncate font-semibold">
+                        Cliente: <span className="text-brand-dark font-black">{item.clientName}</span>
+                      </p>
+                      {item.quoteData?.clientPhone && (
+                        <p className="text-slate-400 font-medium text-[10px]">
+                          Tel: {item.quoteData.clientPhone}
+                        </p>
+                      )}
+                      <p className="text-[10px] text-slate-400 truncate">
+                        {item.workReference}
+                      </p>
+                    </div>
+
+                    {/* Alertas de interacción del cliente */}
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {item.isDownloaded ? (
+                        <span className="inline-flex items-center gap-1 text-[9.5px] font-black px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                          <span>Descargada ({item.downloadedAt || 'Cliente'})</span>
+                        </span>
+                      ) : Boolean(item.viewCount && item.viewCount > 0) ? (
+                        <span className="inline-flex items-center gap-1 text-[9.5px] font-black px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-800 border border-indigo-200">
+                          <Eye className="w-3 h-3 text-indigo-600 shrink-0" />
+                          <span>Vista {item.viewCount} {item.viewCount === 1 ? 'vez' : 'veces'}</span>
+                        </span>
+                      ) : null}
+                    </div>
+
+                    {/* Fecha y Monto Total */}
+                    <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[11px]">
+                      <span className="font-mono text-slate-400 text-[10px]">
+                        {item.savedAt ? item.savedAt.split('T')[0] : ''}
+                      </span>
+                      <span className="font-black text-emerald-800 text-xs">
+                        ₡{item.totalAmount.toLocaleString('es-CR')}
+                      </span>
+                    </div>
+
+                    {/* Acciones directas por cotización */}
+                    <div className="flex items-center justify-between gap-1 pt-1.5 border-t border-slate-100">
+                      {/* Botón WhatsApp: envía y marca como enviada */}
+                      <button
+                        type="button"
+                        onClick={(e) => handleSendQuoteViaWhatsApp(item, e)}
+                        className="px-2.5 py-1 rounded-xl text-[10px] font-black text-white bg-emerald-600 hover:bg-emerald-700 flex items-center gap-1 shadow-xs cursor-pointer active:scale-95 transition-all"
+                        title="Enviar cotización oficial por WhatsApp y marcar como enviada"
+                      >
+                        <MessageSquare className="w-3 h-3 fill-white" />
+                        <span>Enviar WhatsApp</span>
+                      </button>
+
+                      <div className="flex items-center gap-1">
+                        {/* Botón Cargar en Editor */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleLoadFromHistory(item);
+                          }}
+                          className="px-2 py-1 rounded-lg text-[10px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 flex items-center gap-1 cursor-pointer"
+                          title="Cargar en el editor para modificar o revisar"
+                        >
+                          <RefreshCw className="w-3 h-3" />
+                          <span>Editar</span>
+                        </button>
+
+                        {/* Copiar enlace */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCopyShareLink(item.id);
+                          }}
+                          className="px-2 py-1 rounded-lg text-[10px] font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 flex items-center gap-1 cursor-pointer"
+                          title="Copiar link dinámico para enviar al cliente"
+                        >
+                          <Copy className="w-3 h-3" />
+                          <span>Link</span>
+                        </button>
+
+                        {/* Alternar estado */}
+                        <button
+                          type="button"
+                          onClick={(e) => handleToggleQuoteStatus(item.id, item.status, e)}
+                          className="p-1 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                          title={isPending ? 'Marcar como enviada' : 'Mover de vuelta a Por Enviar'}
+                        >
+                          <Clock className="w-3.5 h-3.5" />
+                        </button>
+
+                        {/* Ver enlace online */}
+                        <a
+                          href={`/cotizacion/${item.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="p-1 rounded-lg text-slate-400 hover:text-brand-blue hover:bg-slate-100"
+                          title="Abrir vista de cliente en nueva pestaña"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
@@ -1551,6 +1864,33 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
                 />
               </div>
             </div>
+          </div>
+
+          {/* TARJETA DE ACCIÓN DIRECTA: GUARDAR EN COTIZACIONES POR ENVIAR */}
+          <div className="bg-gradient-to-br from-amber-500/10 via-amber-50 to-amber-100/40 p-4 sm:p-5 rounded-3xl border-2 border-amber-300 shadow-soft space-y-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-xs shrink-0">
+                <BookmarkPlus className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-amber-950 uppercase tracking-wider">
+                  ¿Deseas enviar esta cotización más tarde?
+                </h4>
+                <p className="text-[11px] text-amber-800 font-medium">
+                  Presiona el botón para guardarla en <strong>"Cotizaciones por Enviar"</strong>. Podrás revisarla, editarla o mandarla por WhatsApp en cualquier momento.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSaveQuoteForLater}
+              disabled={isSyncing}
+              className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-[0.99] text-white text-xs font-black shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+            >
+              <BookmarkPlus className="w-4 h-4" />
+              <span>Guardar en Cotizaciones por Enviar</span>
+            </button>
           </div>
 
         </div>

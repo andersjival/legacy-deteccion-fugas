@@ -670,6 +670,22 @@ class ApiService {
     }
   }
 
+  async updateQuoteStatus(id: string, status: 'por_enviar' | 'enviada'): Promise<boolean> {
+    try {
+      if (!this.useLocalFallback) {
+        const res = await fetch(`/api/quotes/${id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        if (res.ok) return true;
+      }
+    } catch {
+      this.useLocalFallback = true;
+    }
+    return true;
+  }
+
   async deleteQuote(id: string): Promise<boolean> {
     try {
       if (!this.useLocalFallback) {
