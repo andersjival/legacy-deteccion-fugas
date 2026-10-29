@@ -484,19 +484,19 @@ export const JobQuoteManager: React.FC = () => {
     if (saveSuccessTimerRef.current) clearTimeout(saveSuccessTimerRef.current);
     if (savedLaterTimerRef.current) clearTimeout(savedLaterTimerRef.current);
 
-    // El mensaje en verde se queda ahí durante 10 segundos
+    // Mantener los mensajes en verde y la tarjeta activa
     saveSuccessTimerRef.current = setTimeout(() => {
       setSaveSuccessMessage(null);
-    }, 10000);
+    }, 15000);
 
     savedLaterTimerRef.current = setTimeout(() => {
       setSavedLaterFeedback(false);
-    }, 10000);
+    }, 12000);
 
-    // Si el usuario no le da clic en "Ver arriba", el sistema lo lleva arriba automáticamente a los 3 segundos
+    // Esperar exactamente 10 segundos antes de subir automáticamente si el usuario no le da clic a "Ver arriba"
     autoScrollTimerRef.current = setTimeout(() => {
       scrollToTopPanel();
-    }, 3000);
+    }, 10000);
 
     // 4. Sincronización en la nube (Cloudflare D1) sin alterar cotizaciones anteriores
     try {

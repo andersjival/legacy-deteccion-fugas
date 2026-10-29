@@ -15,6 +15,12 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.36.0] - 2026-10-29 - Espera Estricta de 10 Segundos antes del Auto-Scroll en Guardar Cotización
+- **Calibración de Temporizador de Auto-Scroll a 10 Segundos (`JobQuoteManager.tsx`):**
+  - Ajustado el tiempo de espera del cuadro inferior a 10 segundos completos (`10000ms`) antes de que el sistema suba automáticamente a la lista superior.
+  - Se garantiza que el usuario pueda apreciar tranquilamente el estado verde de confirmación y la hora exacta de guardado.
+  - Si el usuario desea subir antes de que transcurran los 10 segundos, puede pulsar el botón *"Ver arriba ↑"* para desplazarse inmediatamente y cancelar la espera automática.
+
 ### [v2.35.0] - 2026-10-29 - Testimonios y Reseñas en Página Independiente, Botón Compacto y Erradicación de Parpadeo y Salto en Métricas
 - **Testimonios y Reseñas en Página Propia (`AdminView.tsx` / `App.tsx` / `Navbar.tsx` / `Footer.tsx`):**
   - Retirada la tarjeta de testimonios del tab de Citas en el panel administrativo y creada la pestaña dedicada `reviews` (`/detec/panel?tab=reviews` o `/resenas`).
