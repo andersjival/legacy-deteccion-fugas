@@ -66,6 +66,11 @@ export const AgendaPage: React.FC<AgendaPageProps> = ({
       {/* Pie de Página Mínimo y Seguro */}
       <footer className="bg-white border-t border-slate-100 py-6 px-4 text-center text-xs text-brand-slate space-y-2">
         <div className="flex items-center justify-center gap-2 font-semibold">
+          <img 
+            src="/images/logo-royalty-shield.png" 
+            alt="Royalty Escudo" 
+            className="w-5 h-6 object-contain inline-block" 
+          />
           <ShieldCheck className="w-4 h-4 text-emerald-600" />
           <span>Proceso 100% Seguro y Confidencial · Respuesta Inmediata</span>
         </div>

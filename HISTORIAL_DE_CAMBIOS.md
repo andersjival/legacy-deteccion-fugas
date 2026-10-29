@@ -15,6 +15,22 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.23.0] - 2026-10-29 - Redes Oficiales con Logos, WhatsApp Directo, Escudo León en Pie de Página y Cotización en 1 Sola Hoja
+- **Sustitución de Banner por Canales Oficiales y WhatsApp Directo (`JobQuoteManager.tsx` / `ClientQuoteView.tsx`):**
+  - Removido el banner de imagen estático de las cotizaciones.
+  - Implementados enlaces con sus logotipos oficiales correspondientes:
+    - **Facebook Oficial:** `https://www.facebook.com/profile.php?id=61588596020935` (ícono oficial azul).
+    - **Instagram Oficial:** `https://www.instagram.com/legacy.deteccion` (ícono gradiente oficial).
+    - **Botón WhatsApp Directo:** Conexión directa al WhatsApp de David (`+506 6408-0124`) con mensaje precargado con el número de cotización y nombre del cliente.
+- **Escudo León en la Parte Inferior de las Páginas (`logo-royalty-shield.png`):**
+  - Incorporado el nuevo logo del escudo con león coronado en color vino (`public/images/logo-royalty-shield.png`).
+  - Añadido en la parte inferior de las páginas: pie de página de la web principal (`Footer.tsx`), pie de las cotizaciones (`JobQuoteManager.tsx` / `ClientQuoteView.tsx`), pie de agenda (`AgendaPage.tsx`) y pie de calificaciones (`ClientReviewPage.tsx`).
+- **Cotización Compacta en 1 Sola Hoja (Hasta 7 Ítems de Alcance) (`src/index.css` / `JobQuoteManager.tsx` / `ClientQuoteView.tsx`):**
+  - Reajuste métrico de espaciados, paddings y alturas en tablas y listas.
+  - Garantiza que con hasta 7 ítems de alcance técnico la cotización encaje completa y perfectamente en una única plana de impresión/PDF (`page-break-inside: avoid`), eliminando saltos de página indeseados.
+- **Difuminado Profesional en la Cabecera de la Cotización (`ClientQuoteView.tsx` / `JobQuoteManager.tsx`):**
+  - Añadido difuminado ambiental de alta gama (*ambient diffuse glow*) con degradados suaves en tonos vino `#67141d` y azul técnico `#0066CC` con desenfoque (`blur-2xl` y `blur-3xl`) que realza la cabecera de la hoja membretada.
+
 ### [v2.22.0] - 2026-10-29 - Cotizador Dinámico con Enlace Compartible, Visualizador para Clientes y Rastreo de Descarga en Vivo
 - **Persistencia en la Nube y Base de Datos D1 (`functions/api/[[route]].ts` / `src/services/api.ts`):**
   - Creada tabla `quotes` en Cloudflare D1 (`legacy-fugas-db`) con columnas de metadatos, alcance, montos, métricas de apertura (`view_count`), estado de descarga (`is_downloaded`) y fecha/hora (`downloaded_at`).

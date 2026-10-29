@@ -35,11 +35,12 @@ import {
 import { JobQuote, QuoteItem, SavedQuoteEntry } from '../../types/quote';
 import { getTodayDateString } from '../../utils/dateFormatter';
 import { api } from '../../services/api';
+import { FacebookIcon, InstagramIcon, SOCIAL_URLS } from '../common/SocialLinks';
 
 const STORAGE_KEY = 'royalty_saved_job_quote';
 const HISTORY_STORAGE_KEY = 'royalty_saved_quotes_history';
 const DEFAULT_LOGO = '/images/logo-royalty-destaqueo.png';
-const CONTACT_BANNER = '/images/royalty-contacto-banner.png';
+const SHIELD_LOGO = '/images/logo-royalty-shield.png';
 
 export const JobQuoteManager: React.FC = () => {
   const [activeMobileView, setActiveMobileView] = useState<'editor' | 'preview'>('editor');
@@ -566,13 +567,15 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
 
     <div class="footer">
       <div>
-        <div style="font-size: 16px; font-weight: bold; color: #67141d;">${quote.responsibleName}</div>
+        <div style="font-size: 15px; font-weight: bold; color: #67141d;">${quote.responsibleName}</div>
         <div style="font-size: 11px; color: #64748b;">${quote.responsibleTitle}</div>
         <div style="font-size: 12px; font-weight: bold; color: #0066CC;">Tel: ${quote.responsiblePhone}</div>
       </div>
-      <div style="text-align: right; font-size: 11px; color: #64748b;">
-        <div>Royalty Detección & Tuberías</div>
-        <div>${quote.websiteUrl}</div>
+      <div style="text-align: right; font-size: 11px; color: #475569;">
+        <div><strong>Facebook:</strong> /legacy.deteccion</div>
+        <div><strong>Instagram:</strong> @legacy.deteccion</div>
+        <div><strong>WhatsApp Directo:</strong> 6408-0124</div>
+        <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">${quote.websiteUrl}</div>
       </div>
     </div>
   </div>
@@ -1596,18 +1599,21 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
           {/* Contenedor Imprimible Oficial (Hoja Membretada) con ID único para aislamiento en impresión */}
           <div 
             id="printable-quote-sheet"
-            className="print-area bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/90 shadow-xl space-y-6 text-brand-dark font-sans relative overflow-hidden"
+            className="print-area bg-white rounded-3xl p-5 sm:p-7 print:p-3 border border-slate-200/90 shadow-xl space-y-3.5 print:space-y-2 text-brand-dark font-sans relative overflow-hidden"
           >
-            
             {/* Barra Decorativa Superior */}
-            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#67141d] via-[#8B1826] to-[#0066CC]" />
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#67141d] via-[#8B1826] to-[#0066CC] shadow-xs z-10" />
+
+            {/* Difuminado Profesional en la Cabecera */}
+            <div className="absolute top-0 right-0 w-80 h-32 bg-gradient-to-bl from-[#0066CC]/10 via-[#67141d]/10 to-transparent rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute top-0 left-0 w-64 h-32 bg-gradient-to-br from-[#67141d]/15 to-transparent rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[#67141d]/[0.03] to-transparent pointer-events-none" />
 
             {/* ENCABEZADO OFICIAL DE LA COTIZACIÓN */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-6 pt-2">
-              
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-200/80 pb-2.5 pt-1 relative z-10">
               {/* Logo y Nombre Comercial */}
               <div className="flex items-center gap-3">
-                <div className="w-24 sm:w-28 h-16 sm:h-20 flex items-center justify-center shrink-0">
+                <div className="w-20 sm:w-24 h-12 sm:h-14 flex items-center justify-center shrink-0">
                   <img 
                     src={currentLogo} 
                     alt="Logo Empresa" 
@@ -1615,43 +1621,43 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
                   />
                 </div>
                 <div>
-                  <h1 className="text-base sm:text-lg font-black tracking-tight text-[#67141d] leading-tight">
+                  <h1 className="text-sm sm:text-base font-black tracking-tight text-[#67141d] leading-tight">
                     {quote.companyName}
                   </h1>
-                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  <p className="text-[10px] sm:text-[10.5px] font-bold text-slate-500 uppercase tracking-wider">
                     Especialistas en Tuberías & Detección Técnica
                   </p>
-                  <p className="text-[11px] font-semibold text-slate-400">
+                  <p className="text-[10px] font-semibold text-slate-400">
                     Costa Rica • Tel. {quote.responsiblePhone}
                   </p>
                 </div>
               </div>
 
               {/* Consecutivo y Fecha */}
-              <div className="bg-slate-50 sm:bg-transparent p-3 sm:p-0 rounded-2xl sm:rounded-none w-full sm:w-auto text-left sm:text-right border sm:border-0 border-slate-100">
-                <div className="text-sm font-mono font-black text-brand-dark">
+              <div className="bg-slate-50 sm:bg-transparent p-2 sm:p-0 rounded-xl sm:rounded-none w-full sm:w-auto text-left sm:text-right border sm:border-0 border-slate-100">
+                <div className="text-xs sm:text-sm font-mono font-black text-brand-dark">
                   {quote.quoteNumber}
                 </div>
-                <div className="text-xs font-bold text-slate-500 mt-0.5">
+                <div className="text-[11px] font-bold text-slate-500 mt-0.5">
                   Fecha: <span className="text-brand-dark font-extrabold">{quote.date}</span>
                 </div>
-                <div className="text-[10px] text-slate-400 font-semibold">
+                <div className="text-[9.5px] text-slate-400 font-semibold">
                   Validez: 15 días naturales
                 </div>
               </div>
             </div>
 
             {/* DATOS DEL CLIENTE Y LUGAR */}
-            <div className="bg-slate-50/80 p-4 sm:p-5 rounded-2xl border border-slate-200/70 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div className="bg-slate-50/80 p-2.5 sm:p-3 print:p-2 rounded-xl border border-slate-200/70 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs relative z-10">
               <div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
+                <span className="text-[9.5px] font-black text-slate-400 uppercase tracking-wider block">
                   Cotizado Para:
                 </span>
-                <span className="text-sm font-black text-brand-dark block mt-0.5">
+                <span className="text-xs sm:text-sm font-black text-brand-dark block mt-0.5">
                   {quote.clientName || 'Cliente Particular'}
                 </span>
                 {quote.clientPhone && (
-                  <span className="text-slate-500 font-semibold flex items-center gap-1 mt-0.5">
+                  <span className="text-slate-500 font-semibold flex items-center gap-1 mt-0.5 text-[11px]">
                     <Phone className="w-3 h-3 text-brand-blue" />
                     <span>{quote.clientPhone}</span>
                   </span>
@@ -1659,95 +1665,95 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
               </div>
 
               <div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
+                <span className="text-[9.5px] font-black text-slate-400 uppercase tracking-wider block">
                   Lugar / Ubicación del Trabajo:
                 </span>
                 <span className="text-xs font-extrabold text-slate-700 block mt-0.5 flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-brand-orange shrink-0" />
+                  <MapPin className="w-3 h-3 text-brand-orange shrink-0" />
                   <span>{quote.clientLocation || 'Área Metropolitana / A convenir'}</span>
                 </span>
               </div>
             </div>
 
             {/* REFERENCIA PRINCIPAL */}
-            <div>
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">
+            <div className="relative z-10">
+              <span className="text-[9.5px] font-black text-slate-400 uppercase tracking-wider block mb-0.5">
                 Referencia del Proyecto / Trabajo:
               </span>
-              <div className="bg-blue-50/40 p-3 rounded-xl border border-blue-100 font-extrabold text-brand-dark text-xs sm:text-sm">
+              <div className="bg-blue-50/50 py-1.5 px-3 rounded-lg border border-blue-100 font-extrabold text-brand-dark text-xs">
                 {quote.workReference || 'Trabajos Técnicos Especializados de Destaqueo y Fontanería'}
               </div>
             </div>
 
-            {/* DESCRIPCIÓN DE ALCANCE LÍNEA POR LÍNEA */}
-            <div>
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-2">
+            {/* DESCRIPCIÓN DE ALCANCE LÍNEA POR LÍNEA (Hasta 7 items en una sola hoja) */}
+            <div className="relative z-10">
+              <span className="text-[9.5px] font-black text-slate-400 uppercase tracking-wider block mb-1">
                 Alcance y Puntos de Trabajo a Realizar:
               </span>
-              <div className="space-y-2">
+              <div className="space-y-1 print:space-y-0.5">
                 {quote.scopeItems
                   .filter((item) => item.text.trim())
                   .map((item, idx) => (
-                    <div key={item.id} className="flex items-start gap-2.5 text-xs text-slate-700">
-                      <span className="w-5 h-5 rounded-md bg-[#67141d]/10 text-[#67141d] font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">
+                    <div key={item.id} className="flex items-start gap-2 text-[11px] sm:text-xs print:text-[10.5px] text-slate-700 leading-snug">
+                      <span className="w-4 h-4 rounded bg-[#67141d]/10 text-[#67141d] font-black text-[10px] flex items-center justify-center shrink-0 mt-0.5">
                         {idx + 1}
                       </span>
-                      <p className="leading-relaxed font-semibold">{item.text}</p>
+                      <p className="font-semibold">{item.text}</p>
                     </div>
                   ))}
               </div>
             </div>
 
             {/* TABLA FORMAL DE DESGLOSE ECONÓMICO */}
-            <div>
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-2">
+            <div className="relative z-10">
+              <span className="text-[9.5px] font-black text-slate-400 uppercase tracking-wider block mb-1">
                 Desglose Económico de la Propuesta:
               </span>
-              <div className="border border-slate-200 rounded-2xl overflow-hidden">
+              <div className="border border-slate-200 rounded-xl overflow-hidden">
                 <table className="w-full text-xs">
-                  <thead className="bg-slate-100/80 text-slate-600 font-black uppercase text-[10px] border-b border-slate-200">
+                  <thead className="bg-slate-100/80 text-slate-600 font-black uppercase text-[9.5px] border-b border-slate-200">
                     <tr>
-                      <th className="py-2.5 px-4 text-left">Concepto</th>
-                      <th className="py-2.5 px-4 text-right">Monto Estimado</th>
+                      <th className="py-1.5 px-3 text-left">Concepto</th>
+                      <th className="py-1.5 px-3 text-right">Monto Estimado</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
+                  <tbody className="divide-y divide-slate-100 text-slate-700 font-medium text-[11px] sm:text-xs">
                     <tr>
-                      <td className="py-2.5 px-4 font-bold">Mano de Obra Calificada y Ejecución Técnica</td>
-                      <td className="py-2.5 px-4 text-right font-extrabold text-brand-dark">
+                      <td className="py-1.5 px-3 font-bold">Mano de Obra Calificada y Ejecución Técnica</td>
+                      <td className="py-1.5 px-3 text-right font-extrabold text-brand-dark">
                         ₡{labor.toLocaleString('es-CR')}
                       </td>
                     </tr>
                     <tr>
-                      <td className="py-2.5 px-4">
+                      <td className="py-1.5 px-3">
                         <div className="font-bold">Estimado de Materiales e Insumos</div>
                         {quote.materialsDetail && (
-                          <div className="text-[10px] text-slate-400 italic mt-0.5">
+                          <div className="text-[9.5px] text-slate-400 italic">
                             {quote.materialsDetail}
                           </div>
                         )}
                       </td>
-                      <td className="py-2.5 px-4 text-right font-extrabold text-brand-dark">
+                      <td className="py-1.5 px-3 text-right font-extrabold text-brand-dark">
                         ₡{materials.toLocaleString('es-CR')}
                       </td>
                     </tr>
                     <tr className="bg-slate-50/60 font-bold">
-                      <td className="py-2 px-4 text-slate-600">Subtotal de la Obra:</td>
-                      <td className="py-2 px-4 text-right font-black text-brand-dark">
+                      <td className="py-1 px-3 text-slate-600">Subtotal de la Obra:</td>
+                      <td className="py-1 px-3 text-right font-black text-brand-dark">
                         ₡{subtotal.toLocaleString('es-CR')}
                       </td>
                     </tr>
                     {quote.applyIVA && (
                       <tr className="bg-slate-50/60 font-bold text-slate-600">
-                        <td className="py-2 px-4">IVA (13% - Factura Electrónica):</td>
-                        <td className="py-2 px-4 text-right font-black text-emerald-800">
+                        <td className="py-1 px-3">IVA (13% - Factura Electrónica):</td>
+                        <td className="py-1 px-3 text-right font-black text-emerald-800">
                           ₡{ivaAmount.toLocaleString('es-CR')}
                         </td>
                       </tr>
                     )}
-                    <tr className="bg-[#67141d]/5 font-black text-sm text-[#67141d]">
-                      <td className="py-3 px-4">TOTAL GENERAL COTIZADO:</td>
-                      <td className="py-3 px-4 text-right text-base font-black">
+                    <tr className="bg-[#67141d]/5 font-black text-xs sm:text-sm text-[#67141d]">
+                      <td className="py-2 px-3">TOTAL GENERAL COTIZADO:</td>
+                      <td className="py-2 px-3 text-right font-black text-sm sm:text-base">
                         ₡{totalGeneral.toLocaleString('es-CR')}
                       </td>
                     </tr>
@@ -1756,86 +1762,123 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
               </div>
             </div>
 
-            {/* TIEMPO DE ENTREGA Y CHECKPOINTS */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-1">
+            {/* TIEMPO DE ENTREGA Y CHECKPOINTS COMPACTOS */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs relative z-10">
               
               {/* Tiempo de Entrega */}
-              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 space-y-1">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
+              <div className="bg-slate-50 p-2 sm:p-2.5 print:p-2 rounded-xl border border-slate-200/80 space-y-0.5">
+                <span className="text-[9.5px] font-black text-slate-400 uppercase tracking-wider block">
                   Tiempo Estimado de Entrega:
                 </span>
-                <div className="font-black text-brand-dark text-sm flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-brand-blue" />
+                <div className="font-black text-brand-dark text-xs sm:text-sm flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-brand-blue" />
                   <span>{quote.deliveryTime || '1 día hábil'}</span>
                 </div>
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[9.5px] text-slate-400">
                   Sujeto a confirmación tras inicio de labores.
                 </p>
               </div>
 
               {/* Checkpoints de Calidad */}
-              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 space-y-1.5">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
+              <div className="bg-slate-50 p-2 sm:p-2.5 print:p-2 rounded-xl border border-slate-200/80 space-y-1 text-[10px] sm:text-[11px]">
+                <span className="text-[9.5px] font-black text-slate-400 uppercase tracking-wider block">
                   Condiciones y Compromisos:
                 </span>
-                <div className="space-y-1 text-[11px] font-bold text-slate-700">
+                <div className="space-y-0.5 font-bold text-slate-700">
                   {quote.checkpoints.paymentOnDelivery && (
                     <div className="flex items-center gap-1.5 text-emerald-700">
-                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                      <CheckCircle2 className="w-3 h-3 shrink-0" />
                       <span>Pago 100% contra entrega y satisfacción</span>
                     </div>
                   )}
                   {quote.checkpoints.certifiedMaterials && (
                     <div className="flex items-center gap-1.5 text-brand-dark">
-                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-brand-blue" />
-                      <span>Materiales certificados y duraderos</span>
-                    </div>
-                  )}
-                  {quote.checkpoints.satisfactionGuarantee && (
-                    <div className="flex items-center gap-1.5 text-brand-dark">
-                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-brand-blue" />
-                      <span>Garantía técnica por escrito en mano de obra</span>
+                      <CheckCircle2 className="w-3 h-3 shrink-0 text-brand-blue" />
+                      <span>Materiales certificados y garantía técnica por escrito</span>
                     </div>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* FIRMA Y DATOS DE DAVID ROJAS + CONTACTO BANNER */}
-            <div className="pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-6">
+            {/* FIRMA OFICIAL, REDES SOCIALES Y WHATSAPP DIRECTO */}
+            <div className="pt-2.5 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs relative z-10">
               
-              {/* Firma */}
-              <div className="space-y-1 text-center sm:text-left">
-                <div className="font-script text-lg sm:text-xl text-[#67141d] font-bold tracking-wider">
-                  {quote.responsibleName}
+              {/* Firma y Sello Escudo */}
+              <div className="flex items-center gap-3 text-center sm:text-left">
+                <img 
+                  src={SHIELD_LOGO} 
+                  alt="Escudo Oficial Royalty" 
+                  className="w-9 h-11 object-contain shrink-0 drop-shadow-xs hidden sm:block"
+                />
+                <div className="space-y-0.5">
+                  <div className="font-script text-base sm:text-lg text-[#67141d] font-bold tracking-wider leading-none">
+                    {quote.responsibleName}
+                  </div>
+                  <div className="h-0.5 w-28 bg-slate-300 mx-auto sm:mx-0 my-0.5" />
+                  <h4 className="text-[11px] font-black text-brand-dark leading-tight">{quote.responsibleName}</h4>
+                  <p className="text-[9.5px] font-bold text-slate-400 leading-tight">{quote.responsibleTitle}</p>
+                  <p className="text-[10.5px] font-black text-brand-blue leading-tight">Tel: {quote.responsiblePhone}</p>
                 </div>
-                <div className="h-0.5 w-36 bg-slate-300 mx-auto sm:mx-0 my-1" />
-                <h4 className="text-xs font-black text-brand-dark">{quote.responsibleName}</h4>
-                <p className="text-[10px] font-bold text-slate-400">{quote.responsibleTitle}</p>
-                <p className="text-[11px] font-black text-brand-blue">Tel: {quote.responsiblePhone}</p>
               </div>
 
-              {/* Banner Oficial de Redes Sociales Subido por el Cliente */}
-              <div className="text-center sm:text-right space-y-2">
-                <div className="inline-block bg-white p-2 rounded-xl border border-slate-200 shadow-xs">
-                  <img 
-                    src={CONTACT_BANNER} 
-                    alt="Royalty Contacto" 
-                    className="h-10 sm:h-12 object-contain mx-auto"
-                  />
-                </div>
-                <div className="text-[10px] font-bold text-slate-500">
-                  <a href={quote.websiteUrl} target="_blank" rel="noopener noreferrer" className="hover:underline text-brand-blue">
-                    {quote.websiteUrl}
+              {/* Redes Sociales Oficiales y Botón de WhatsApp Directo */}
+              <div className="flex flex-col items-center sm:items-end gap-1 w-full sm:w-auto">
+                <span className="text-[9.5px] font-black uppercase text-slate-400 tracking-wider">
+                  Contacto Directo & Redes Oficiales:
+                </span>
+                <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-end">
+                  {/* Facebook */}
+                  <a
+                    href={SOCIAL_URLS.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-white bg-[#1877F2] hover:bg-[#1567d3] transition-all shadow-xs text-[10px] sm:text-[10.5px] font-bold cursor-pointer"
+                    title="Página Oficial de Facebook"
+                  >
+                    <FacebookIcon className="w-3.5 h-3.5" />
+                    <span>Facebook</span>
+                  </a>
+
+                  {/* Instagram */}
+                  <a
+                    href={SOCIAL_URLS.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-white bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] hover:opacity-90 transition-all shadow-xs text-[10px] sm:text-[10.5px] font-bold cursor-pointer"
+                    title="Perfil Oficial de Instagram"
+                  >
+                    <InstagramIcon className="w-3.5 h-3.5" />
+                    <span>Instagram</span>
+                  </a>
+
+                  {/* WhatsApp Directo */}
+                  <a
+                    href={`https://wa.me/50664080124?text=${encodeURIComponent(`Hola David, le escribo desde la cotización ${quote.quoteNumber} (${quote.clientName || 'Cliente'}) para coordinar el trabajo.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-white bg-[#25D366] hover:bg-[#20ba5a] transition-all shadow-xs text-[10px] sm:text-[10.5px] font-black cursor-pointer"
+                    title="Enviar mensaje directo a David por WhatsApp"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5 fill-white" />
+                    <span>WhatsApp Directo (6408-0124)</span>
                   </a>
                 </div>
+                <div className="text-[9.5px] text-slate-400 font-semibold flex items-center gap-1.5">
+                  <span>Royalty Destaqueo & Tuberías</span>
+                  <span>•</span>
+                  <span className="text-brand-blue font-bold">https://legacydetec.pages.dev</span>
+                </div>
               </div>
             </div>
 
-            {/* Pie Legal Mínimo */}
-            <div className="pt-4 border-t border-slate-100 text-[9px] text-slate-400 text-center flex flex-col sm:flex-row items-center justify-between gap-1">
+            {/* Pie Legal Mínimo y Logo Escudo */}
+            <div className="pt-2 border-t border-slate-100 text-[8.5px] text-slate-400 text-center flex flex-row items-center justify-between gap-1 relative z-10">
               <span>Documento emitido electrónicamente con plena validez comercial.</span>
-              <span>Royalty Detección & Tuberías • David Rojas</span>
+              <div className="flex items-center gap-1.5">
+                <img src={SHIELD_LOGO} alt="Royalty" className="w-3.5 h-4 object-contain inline-block opacity-75" />
+                <span>Royalty Detección & Tuberías • David Rojas</span>
+              </div>
             </div>
 
           </div>

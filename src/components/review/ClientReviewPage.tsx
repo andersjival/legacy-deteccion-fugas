@@ -276,7 +276,12 @@ export const ClientReviewPage: React.FC<ClientReviewPageProps> = ({ onBackToHome
       </div>
 
       {/* Footer de Confianza */}
-      <div className="max-w-xl mx-auto w-full text-center pt-6 text-[11px] text-slate-400">
+      <div className="max-w-xl mx-auto w-full text-center pt-6 text-[11px] text-slate-400 flex items-center justify-center gap-2">
+        <img 
+          src="/images/logo-royalty-shield.png" 
+          alt="Royalty Escudo" 
+          className="w-4 h-5 object-contain opacity-75" 
+        />
         <p>🔒 Sistema Oficial de Testimonios Directos — Legacy Detección de Fugas</p>
       </div>
 

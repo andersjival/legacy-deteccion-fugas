@@ -20,10 +20,17 @@ export const Footer: React.FC<FooterProps> = ({
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-slate-800">
           
-          {/* Columna 1: Marca y Misión con Águila Animada */}
+          {/* Columna 1: Marca y Misión con Águila Animada y Escudo Oficial */}
           <div className="space-y-4 md:col-span-1">
             <div className="flex items-center gap-3">
-              <AnimatedEagleLogo className="w-10 h-10 rounded-xl" />
+              <div className="relative flex items-center gap-2">
+                <AnimatedEagleLogo className="w-10 h-10 rounded-xl" />
+                <img 
+                  src="/images/logo-royalty-shield.png" 
+                  alt="Escudo Oficial Royalty" 
+                  className="w-8 h-9 object-contain drop-shadow-[0_2px_6px_rgba(103,20,29,0.5)]" 
+                />
+              </div>
               <div className="flex flex-col">
                 <span className="text-xl font-black tracking-tight leading-none bg-gradient-to-r from-blue-400 via-sky-300 to-cyan-300 bg-[length:200%_auto] animate-shimmer-fast bg-clip-text text-transparent">
                   ROYALITY
@@ -116,7 +123,14 @@ export const Footer: React.FC<FooterProps> = ({
 
         {/* Copyright y Redes Rápidas */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-          <p>© {new Date().getFullYear()} Royality Detección de Fugas. Todos los derechos reservados.</p>
+          <div className="flex items-center gap-2">
+            <img 
+              src="/images/logo-royalty-shield.png" 
+              alt="Royalty Sello" 
+              className="w-5 h-6 object-contain opacity-70"
+            />
+            <p>© {new Date().getFullYear()} Royality Detección de Fugas. Todos los derechos reservados.</p>
+          </div>
           <div className="flex items-center gap-2">
             <span className="text-[11px] text-slate-400 font-semibold hidden md:inline">Síguenos:</span>
             <SocialLinks size="sm" />
