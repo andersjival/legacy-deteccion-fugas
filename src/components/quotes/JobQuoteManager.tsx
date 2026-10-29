@@ -56,6 +56,8 @@ export const JobQuoteManager: React.FC = () => {
   const [historyFilter, setHistoryFilter] = useState<'por_enviar' | 'todas'>('por_enviar');
   const [customFileName, setCustomFileName] = useState('');
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
+  const [isSavingLater, setIsSavingLater] = useState(false);
+  const [savedLaterFeedback, setSavedLaterFeedback] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Generador de consecutivo inicial
@@ -344,14 +346,14 @@ export const JobQuoteManager: React.FC = () => {
   };
 
   // Guardar específicamente para Enviar Después (en "Cotizaciones por Enviar")
-  const handleSaveQuoteForLater = async () => {
+  const handleSaveQuoteForLater = async (shouldScrollToPanel = true) => {
+    setIsSavingLater(true);
     const clientClean = quote.clientName.trim()
       ? quote.clientName.trim().replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g, '-')
       : 'Cliente';
     const finalName = `Cotizacion-${clientClean}-${quote.quoteNumber}`;
-    
-    await saveToCloud(finalName, 'por_enviar');
 
+    // 1. Guardar de forma optimista inmediata en LocalStorage y Estado para reactividad instantánea
     const existing = savedHistory.find((item) => item.id === quote.id);
     const entry: SavedQuoteEntry = {
       id: quote.id,
@@ -374,10 +376,34 @@ export const JobQuoteManager: React.FC = () => {
       localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(updated));
     } catch (e) {}
 
+    // 2. Notificaciones y apertura de bandeja
     setSaveSuccessMessage(`✅ Cotización guardada en "Cotizaciones por Enviar" (${quote.quoteNumber}). Lista para enviar después al cliente.`);
     setIsHistoryOpen(true);
     setHistoryFilter('por_enviar');
-    setTimeout(() => setSaveSuccessMessage(null), 4000);
+    setSavedLaterFeedback(true);
+
+    // 3. Desplazamiento suave para que el usuario VEA la acción completada
+    if (shouldScrollToPanel) {
+      setTimeout(() => {
+        const panelEl = document.getElementById('cotizaciones-por-enviar-panel');
+        if (panelEl) {
+          panelEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 150);
+    }
+
+    // 4. Sincronización en la nube (Cloudflare D1)
+    try {
+      await saveToCloud(finalName, 'por_enviar');
+    } catch (err) {
+      console.warn('Sync cloud error:', err);
+    } finally {
+      setIsSavingLater(false);
+      setTimeout(() => setSaveSuccessMessage(null), 4000);
+      setTimeout(() => setSavedLaterFeedback(false), 6000);
+    }
   };
 
   // Alternar estado de cotización (por enviar vs enviada)
@@ -794,13 +820,17 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
           {/* BOTÓN MANDATORIO: Guardar Cotización para Enviar Después */}
           <button
             type="button"
-            onClick={handleSaveQuoteForLater}
-            disabled={isSyncing}
+            onClick={() => handleSaveQuoteForLater(false)}
+            disabled={isSavingLater || isSyncing}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 shadow-sm transition-all active:scale-95 cursor-pointer"
             title="Guardar cotización en 'Cotizaciones por Enviar' para enviarla luego al cliente"
           >
-            <BookmarkPlus className="w-4 h-4" />
-            <span>Guardar Cotización</span>
+            {isSavingLater ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <BookmarkPlus className="w-4 h-4" />
+            )}
+            <span>{isSavingLater ? 'Guardando...' : 'Guardar Cotización'}</span>
           </button>
 
           {/* BOTÓN: Cotizaciones por Enviar (con contador de pendientes) */}
@@ -965,7 +995,7 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
 
       {/* PANEL DESPLEGABLE DE COTIZACIONES POR ENVIAR & GUARDADAS */}
       {isHistoryOpen && (
-        <div className="no-print bg-white p-5 rounded-3xl border-2 border-amber-300/80 shadow-lg space-y-4 animate-in fade-in slide-in-from-top-2">
+        <div id="cotizaciones-por-enviar-panel" className="no-print bg-white p-5 rounded-3xl border-2 border-amber-300/80 shadow-lg space-y-4 animate-in fade-in slide-in-from-top-2">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
@@ -1917,29 +1947,82 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
           </div>
 
           {/* TARJETA DE ACCIÓN DIRECTA: GUARDAR EN COTIZACIONES POR ENVIAR */}
-          <div className="bg-gradient-to-br from-amber-500/10 via-amber-50 to-amber-100/40 p-4 sm:p-5 rounded-3xl border-2 border-amber-300 shadow-soft space-y-3">
+          <div className={`p-4 sm:p-5 rounded-3xl border-2 shadow-soft space-y-3 transition-all ${
+            savedLaterFeedback 
+              ? 'bg-emerald-50 border-emerald-400 ring-4 ring-emerald-200' 
+              : 'bg-gradient-to-br from-amber-500/10 via-amber-50 to-amber-100/40 border-amber-300'
+          }`}>
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-xs shrink-0">
-                <BookmarkPlus className="w-5 h-5" />
+              <div className={`w-9 h-9 rounded-2xl flex items-center justify-center shadow-xs shrink-0 transition-colors ${
+                savedLaterFeedback ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white'
+              }`}>
+                {savedLaterFeedback ? <CheckCircle2 className="w-5 h-5" /> : <BookmarkPlus className="w-5 h-5" />}
               </div>
-              <div>
-                <h4 className="text-xs font-black text-amber-950 uppercase tracking-wider">
-                  ¿Deseas enviar esta cotización más tarde?
+              <div className="min-w-0 flex-1">
+                <h4 className={`text-xs font-black uppercase tracking-wider ${
+                  savedLaterFeedback ? 'text-emerald-950' : 'text-amber-950'
+                }`}>
+                  {savedLaterFeedback ? '¡Cotización Guardada con Éxito!' : '¿Deseas enviar esta cotización más tarde?'}
                 </h4>
-                <p className="text-[11px] text-amber-800 font-medium">
-                  Presiona el botón para guardarla en <strong>"Cotizaciones por Enviar"</strong>. Podrás revisarla, editarla o mandarla por WhatsApp en cualquier momento.
+                <p className={`text-[11px] font-medium ${
+                  savedLaterFeedback ? 'text-emerald-800' : 'text-amber-800'
+                }`}>
+                  {savedLaterFeedback 
+                    ? `Guardada en "Cotizaciones por Enviar" (${quote.quoteNumber}). La puedes revisar o enviar por WhatsApp arriba.`
+                    : <>Presiona el botón para guardarla en <strong>"Cotizaciones por Enviar"</strong>. Podrás revisarla, editarla o mandarla por WhatsApp en cualquier momento.</>
+                  }
                 </p>
               </div>
             </div>
 
+            {/* Mensaje de confirmación visual inmediato en la propia tarjeta */}
+            {savedLaterFeedback && (
+              <div className="bg-emerald-600 text-white p-3 rounded-2xl flex items-center justify-between gap-2 shadow-xs animate-in fade-in">
+                <div className="flex items-center gap-2 text-xs font-bold">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-white" />
+                  <span>✅ Guardada en pendientes ({quote.quoteNumber})</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsHistoryOpen(true);
+                    setHistoryFilter('por_enviar');
+                    const panel = document.getElementById('cotizaciones-por-enviar-panel');
+                    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                  className="px-2.5 py-1 bg-white/20 hover:bg-white/30 rounded-lg text-[11px] font-black underline cursor-pointer"
+                >
+                  Ver Lista Arriba ↑
+                </button>
+              </div>
+            )}
+
             <button
               type="button"
-              onClick={handleSaveQuoteForLater}
-              disabled={isSyncing}
-              className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-[0.99] text-white text-xs font-black shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+              onClick={() => handleSaveQuoteForLater(true)}
+              disabled={isSavingLater || isSyncing}
+              className={`w-full py-3 px-4 rounded-2xl text-xs font-black shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                savedLaterFeedback
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white ring-2 ring-emerald-300'
+                  : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-[0.99] text-white'
+              }`}
             >
-              <BookmarkPlus className="w-4 h-4" />
-              <span>Guardar en Cotizaciones por Enviar</span>
+              {isSavingLater ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>Guardando en Cotizaciones por Enviar...</span>
+                </>
+              ) : savedLaterFeedback ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>✅ ¡Guardada en Cotizaciones por Enviar!</span>
+                </>
+              ) : (
+                <>
+                  <BookmarkPlus className="w-4 h-4" />
+                  <span>Guardar en Cotizaciones por Enviar</span>
+                </>
+              )}
             </button>
           </div>
 

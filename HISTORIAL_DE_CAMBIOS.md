@@ -15,6 +15,15 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.29.0] - 2026-10-29 - Corrección Integral de Acción y Retroalimentación en Tarjeta Inferior "Guardar en Cotizaciones por Enviar"
+- **Guardado Optimista Instantáneo y Desplazamiento Suave (`JobQuoteManager.tsx`):**
+  - Corregido el flujo de ejecución en `handleSaveQuoteForLater`: ahora guarda de forma inmediata y síncrona en `localStorage` y en el estado local de cotizaciones antes del envío a la nube, erradicando congelamientos o clics sin respuesta.
+  - Implementado desplazamiento suave automático (`scrollIntoView` hacia `#cotizaciones-por-enviar-panel`) al pulsar el botón inferior, llevando la vista directamente a la bandeja superior abierta donde se observa la cotización guardada y el contador de pendientes actualizado.
+- **Retroalimentación Visual Inmediata en la Tarjeta Inferior (`JobQuoteManager.tsx`):**
+  - Añadidos estados `savedLaterFeedback` e `isSavingLater` específicos para la tarjeta y el botón inferior.
+  - Al hacer clic, el botón muestra spinner animado (*"Guardando en Cotizaciones por Enviar..."*) y al confirmarse muta a color esmeralda con checkmark (*"✅ ¡Guardada en Cotizaciones por Enviar!"*).
+  - La tarjeta inferior adopta un borde verde esmeralda con resalte y despliega un banner interno de confirmación con enlace directo *"Ver Lista Arriba ↑"*, garantizando que el usuario perciba de inmediato la acción sin importar en qué parte del scroll se encuentre.
+
 ### [v2.28.0] - 2026-10-29 - Botón "Ver Cita" en Notificaciones de Nueva Cita y Navegación Directa con Resalte Visual
 - **Botón Interactivo "Ver Cita" en Banner Flotante en Tiempo Real (`AdminView.tsx`):**
   - Incorporado botón de alta visibilidad *"Ver Cita"* (con ícono de ojo) en la alerta flotante naranja de nueva cita.
