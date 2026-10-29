@@ -12,6 +12,7 @@ interface TodayRouteCardProps {
   onOpenLightbox: (photos: string[], index: number) => void;
   onUpdateService?: (id: string, newServiceType: string) => Promise<void>;
   onUpdatePayment?: (id: string, amount: number, method: PaymentMethod) => Promise<void>;
+  isHighlighted?: boolean;
 }
 
 export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
@@ -20,7 +21,8 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
   onUpdateStatus,
   onOpenLightbox,
   onUpdateService,
-  onUpdatePayment
+  onUpdatePayment,
+  isHighlighted = false
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -63,9 +65,14 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
   const isCompleted = appointment.status === 'completed';
 
   return (
-    <div className={`rounded-3xl border p-4 sm:p-5 shadow-card transition-all ${
-      isCompleted ? 'bg-slate-50 border-slate-200 opacity-75' : 'bg-white border-brand-blue/20 ring-1 ring-brand-blue/10'
-    }`}>
+    <div 
+      id={`appointment-${appointment.id}`}
+      className={`rounded-3xl border p-4 sm:p-5 shadow-card transition-all ${
+        isHighlighted
+          ? 'border-brand-orange ring-4 ring-brand-orange shadow-xl shadow-brand-orange/30 animate-pulse bg-amber-50/40'
+          : isCompleted ? 'bg-slate-50 border-slate-200 opacity-75' : 'bg-white border-brand-blue/20 ring-1 ring-brand-blue/10'
+      }`}
+    >
       
       {/* Turno y Número de Parada */}
       <div className="flex items-center justify-between pb-3 border-b border-slate-100">

@@ -11,6 +11,7 @@ interface AppointmentCardProps {
   onOpenLightbox: (photos: string[], index: number) => void;
   onUpdateService?: (id: string, newServiceType: string) => Promise<void>;
   onUpdatePayment?: (id: string, amount: number, method: PaymentMethod) => Promise<void>;
+  isHighlighted?: boolean;
 }
 
 export const AppointmentCard: React.FC<AppointmentCardProps> = ({
@@ -18,7 +19,8 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
   onUpdateStatus,
   onOpenLightbox,
   onUpdateService,
-  onUpdatePayment
+  onUpdatePayment,
+  isHighlighted = false
 }) => {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
@@ -72,7 +74,14 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-soft hover:shadow-card transition-all space-y-4">
+    <div 
+      id={`appointment-${appointment.id}`}
+      className={`bg-white rounded-2xl p-5 border shadow-soft hover:shadow-card transition-all space-y-4 ${
+        isHighlighted 
+          ? 'border-brand-orange ring-4 ring-brand-orange shadow-xl shadow-brand-orange/30 animate-pulse bg-amber-50/20' 
+          : 'border-slate-200/80'
+      }`}
+    >
       {/* Top: Cliente, Servicio y Estado */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
         <div className="space-y-1">

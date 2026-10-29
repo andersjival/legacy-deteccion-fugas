@@ -92,7 +92,9 @@ self.addEventListener('push', (event) => {
     badge: '/icon.svg',
     vibrate: [200, 100, 200, 100, 400],
     data: {
-      url: data.url || '/?view=admin',
+      url: (data.appointment_id || data.appointmentId) 
+        ? `/?view=admin&appointmentId=${data.appointment_id || data.appointmentId}` 
+        : (data.url || '/?view=admin'),
       dateOfArrival: Date.now()
     },
     actions: [
@@ -105,7 +107,7 @@ self.addEventListener('push', (event) => {
   );
 });
 
-// Clic en la notificación abre la app directamente en el panel
+// Clic en la notificación abre la app directamente en el panel y la cita
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const targetUrl = event.notification.data?.url || '/?view=admin';

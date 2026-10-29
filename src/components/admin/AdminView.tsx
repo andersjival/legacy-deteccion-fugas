@@ -13,8 +13,8 @@ import { TrafficAnalytics } from './TrafficAnalytics';
 import { AnimatedEagleLogo } from '../common/AnimatedEagleLogo';
 import { useAppointments } from '../../hooks/useAppointments';
 import { useReviews } from '../../hooks/useReviews';
-import { getTodayDateString, getTomorrowDateString } from '../../utils/dateFormatter';
-import { Bell, RefreshCw, X, Navigation, Star, Laptop, Smartphone, Calendar, Clock, Settings, FileText, BarChart3 } from 'lucide-react';
+import { getTodayDateString, getTomorrowDateString, formatTime12h } from '../../utils/dateFormatter';
+import { Bell, RefreshCw, X, Navigation, Star, Laptop, Smartphone, Calendar, Clock, Settings, FileText, BarChart3, Eye } from 'lucide-react';
 
 interface AdminViewProps {
   onClose: () => void;
@@ -55,6 +55,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
   const [activeTab, setActiveTab] = useState<AdminTab>('route');
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'confirmed' | 'tomorrow'>('all');
   const [lightboxState, setLightboxState] = useState<{ photos: string[]; index: number } | null>(null);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
   const [isDesktop, setIsDesktop] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -69,6 +70,47 @@ export const AdminView: React.FC<AdminViewProps> = ({
 
   const todayStr = getTodayDateString();
   const tomorrowStr = getTomorrowDateString();
+
+  // Función para llevar directamente a la cita especificada
+  const handleViewAppointment = (app: any) => {
+    if (!app) return;
+    const isToday = app.appointment_date === todayStr;
+    if (isToday) {
+      setActiveTab('route');
+    } else {
+      setActiveTab('all');
+      setFilterStatus('all');
+    }
+
+    setHighlightedId(app.id);
+    dismissAlert();
+
+    // Desplazamiento suave directo hacia la tarjeta de la cita
+    setTimeout(() => {
+      const el = document.getElementById(`appointment-${app.id}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 200);
+
+    // Retirar el resalte después de 6 segundos
+    setTimeout(() => {
+      setHighlightedId(null);
+    }, 6000);
+  };
+
+  // Escuchar si se abre el panel con parámetro de cita en URL (?appointmentId=... o ?cita=...)
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const targetAppointmentId = params.get('appointmentId') || params.get('cita');
+    if (targetAppointmentId && appointments.length > 0) {
+      const found = appointments.find((a) => a.id === targetAppointmentId);
+      if (found) {
+        handleViewAppointment(found);
+      }
+    }
+  }, [appointments]);
 
   const todayAppointments = appointments.filter((a) => a.appointment_date === todayStr);
   const pendingAppointments = appointments.filter((a) => a.status === 'pending');
@@ -166,14 +208,47 @@ export const AdminView: React.FC<AdminViewProps> = ({
 
       {/* Alerta flotante en tiempo real si entra una nueva cita */}
       {newAppointmentAlert && (
-        <div className="bg-brand-orange text-white px-4 py-3 shadow-lg flex items-center justify-between animate-bounce shrink-0">
-          <div className="flex items-center gap-2 text-xs font-black">
-            <Bell className="w-4 h-4 shrink-0" />
-            <span>¡NUEVA CITA! {newAppointmentAlert.client_name} ({newAppointmentAlert.appointment_date})</span>
+        <div className="bg-brand-orange text-white px-4 py-3 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0 animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <Bell className="w-4 h-4 text-white animate-bounce" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] font-black uppercase tracking-wider bg-black/20 px-2 py-0.5 rounded">
+                  ¡NUEVA CITA REGISTRADA!
+                </span>
+                <span className="text-xs font-black">
+                  {newAppointmentAlert.appointment_date} {newAppointmentAlert.start_time ? `(${formatTime12h(newAppointmentAlert.start_time)})` : ''}
+                </span>
+              </div>
+              <p className="text-xs font-bold text-white/95 mt-0.5">
+                Cliente: <strong>{newAppointmentAlert.client_name}</strong> • {newAppointmentAlert.service_type}
+              </p>
+            </div>
           </div>
-          <button onClick={dismissAlert} className="p-1 hover:bg-black/20 rounded-lg">
-            <X className="w-4 h-4" />
-          </button>
+
+          <div className="flex items-center gap-2 self-end sm:self-auto w-full sm:w-auto justify-end">
+            {/* BOTÓN VER CITA QUE LO LLEVA DIRECTO A LA CITA */}
+            <button
+              type="button"
+              onClick={() => handleViewAppointment(newAppointmentAlert)}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-black text-brand-dark bg-white hover:bg-slate-100 active:scale-95 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+              title="Ir directamente a los detalles de esta cita"
+            >
+              <Eye className="w-4 h-4 text-brand-orange" />
+              <span>Ver Cita</span>
+            </button>
+
+            <button 
+              type="button"
+              onClick={dismissAlert} 
+              className="p-1.5 hover:bg-black/20 rounded-xl transition-colors cursor-pointer"
+              title="Cerrar notificación"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       )}
 
@@ -236,6 +311,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                     onUpdateService={updateService}
                     onUpdatePayment={updatePayment}
                     onOpenLightbox={(photos, index) => setLightboxState({ photos, index })}
+                    isHighlighted={highlightedId === app.id}
                   />
                 ))}
               </div>
@@ -294,6 +370,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                     onUpdateService={updateService}
                     onUpdatePayment={updatePayment}
                     onOpenLightbox={(photos, index) => setLightboxState({ photos, index })}
+                    isHighlighted={highlightedId === app.id}
                   />
                 ))}
               </div>

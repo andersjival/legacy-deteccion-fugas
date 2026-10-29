@@ -15,6 +15,19 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.28.0] - 2026-10-29 - Botón "Ver Cita" en Notificaciones de Nueva Cita y Navegación Directa con Resalte Visual
+- **Botón Interactivo "Ver Cita" en Banner Flotante en Tiempo Real (`AdminView.tsx`):**
+  - Incorporado botón de alta visibilidad *"Ver Cita"* (con ícono de ojo) en la alerta flotante naranja de nueva cita.
+  - Al pulsar el botón, el sistema conmuta automáticamente a la pestaña correspondiente (`route` si la cita es para hoy, o `all` con filtros restablecidos si es para otra fecha).
+  - Cierra la alerta y ejecuta un desplazamiento suave (`scrollIntoView` centrado) directo hacia la tarjeta de la cita.
+  - Aplica un anillo de resalte visual dinámico (`ring-4 ring-brand-orange animate-pulse`) durante 6 segundos para identificar de inmediato la tarjeta entre el listado.
+- **Identificadores DOM y Estados de Resalte en Tarjetas (`TodayRouteCard.tsx` / `AppointmentCard.tsx`):**
+  - Añadida prop `isHighlighted` y atributo `id={`appointment-${appointment.id}`}` a ambas tarjetas.
+  - Efecto de iluminación ámbar con sombra expandida y pulso para localización inmediata.
+- **Compatibilidad con Notificaciones Push y Deep Linking (`public/sw.js` / `AdminView.tsx`):**
+  - El Service Worker (`sw.js`) adjunta automáticamente el parámetro `&appointmentId=` a la URL de apertura al recibir la notificación push.
+  - Detección automática al cargar o reenfocar el panel mediante parámetros de consulta (`?appointmentId=` o `?cita=`), focalizando y resaltando la cita sin intervención manual.
+
 ### [v2.27.0] - 2026-10-29 - Nueva Página Estratégica `/proyecto` con Desglose Persuasivo y Modo Desarrollador con Clave Secreta (1985)
 - **Página de Alto Impacto para el Dueño del Negocio (`ProjectPresentationPage.tsx` / `src/App.tsx`):**
   - Creada ruta exclusiva responsive `/proyecto` diseñada con estética de alta gama (vino profundo `#67141d`, azul técnico y detalles dorados).
