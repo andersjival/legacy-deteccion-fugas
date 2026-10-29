@@ -47,17 +47,45 @@ export function App() {
     }
   }, []);
 
-  // Redirigir variantes /detec, /panel, /admin o ?view=admin a la ruta oficial /detec/panel
+  // Redirigir variantes /detec, /panel, /admin o ?view=admin a la ruta oficial /detec/panel preservando parámetros
   useEffect(() => {
     const raw = window.location.pathname.replace(/\/+$/, '');
-    if (raw === '/detec' || raw === '/panel' || raw === '/admin') {
-      window.history.replaceState({}, '', '/detec/panel');
-      setCurrentPath('/detec/panel');
-    }
     const params = new URLSearchParams(window.location.search);
-    if (params.get('view') === 'admin') {
-      window.history.replaceState({}, '', '/detec/panel');
+    let changed = false;
+
+    if (raw === '/detec' || raw === '/panel' || raw === '/admin') {
       setCurrentPath('/detec/panel');
+      changed = true;
+    }
+
+    if (params.get('view') === 'admin') {
+      params.delete('view');
+      setCurrentPath('/detec/panel');
+      changed = true;
+    }
+
+    // Atajos directos de URL a pestañas del panel administrativo
+    if (raw === '/horarios' || raw === '/horario') {
+      params.set('tab', 'schedule');
+      setCurrentPath('/detec/panel');
+      changed = true;
+    } else if (raw === '/trafico' || raw === '/metricas') {
+      params.set('tab', 'traffic');
+      setCurrentPath('/detec/panel');
+      changed = true;
+    } else if (raw === '/citas') {
+      params.set('tab', 'all');
+      setCurrentPath('/detec/panel');
+      changed = true;
+    } else if (raw === '/ajustes') {
+      params.set('tab', 'settings');
+      setCurrentPath('/detec/panel');
+      changed = true;
+    }
+
+    if (changed) {
+      const search = params.toString() ? `?${params.toString()}` : '';
+      window.history.replaceState({}, '', `/detec/panel${search}`);
     }
   }, []);
 

@@ -15,6 +15,15 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.31.0] - 2026-10-29 - Persistencia Absoluta de Pestañas y Ventanas al Refrescar (Horarios, Cotizador, Tráfico, Citas)
+- **Persistencia de Pestañas en el Panel Administrativo (`AdminView.tsx`):**
+  - Implementada sincronización bidireccional entre el estado `activeTab`, `localStorage` (`royalty_admin_active_tab`) y parámetros de consulta en URL (`?tab=schedule`, `?tab=quotes`, `?tab=traffic`, `?tab=all`, `?tab=route`, `?tab=settings`).
+  - Al recargar la página (F5 o botón de refrescar del navegador), el sistema restaura de inmediato la pestaña activa donde se encontraba el usuario: si estaba en *Horarios*, permanece en *Horarios*; si estaba en *Cotizador*, permanece en *Cotizador*; si estaba en *Tráfico & Métricas*, permanece en *Tráfico & Métricas*.
+  - Añadido soporte para los botones atrás/adelante (`popstate`) del navegador entre pestañas.
+- **Preservación de Parámetros y Rutas Directas (`src/App.tsx`):**
+  - Configurada preservación de parámetros de búsqueda (`searchParams`) al redirigir a `/detec/panel`, evitando pérdida de contexto.
+  - Habilitados atajos limpios `/horarios`, `/trafico`, `/metricas`, `/citas` y `/ajustes` que conectan automáticamente con su pestaña correspondiente en el panel.
+
 ### [v2.30.0] - 2026-10-29 - Preservación de Todas las Cotizaciones sin Sobrescritura, Hora Real del Usuario y Subida Automática a la Notificación
 - **Preservación Total de Cotizaciones en Bandeja y Base de Datos D1 (`JobQuoteManager.tsx`):**
   - Erradicado el fallo de sobrescritura: anteriormente, si el usuario modificaba el formulario para otro cliente, se reutilizaba el mismo ID anterior y borraba la cotización previa.

@@ -25,6 +25,25 @@ interface AdminViewProps {
   notificationsGranted?: boolean;
 }
 
+const VALID_ADMIN_TABS: AdminTab[] = ['route', 'all', 'quotes', 'traffic', 'schedule', 'settings'];
+
+const getInitialAdminTab = (): AdminTab => {
+  if (typeof window !== 'undefined') {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab') as AdminTab;
+      if (tabParam && VALID_ADMIN_TABS.includes(tabParam)) {
+        return tabParam;
+      }
+      const savedTab = localStorage.getItem('royalty_admin_active_tab') as AdminTab;
+      if (savedTab && VALID_ADMIN_TABS.includes(savedTab)) {
+        return savedTab;
+      }
+    } catch (e) {}
+  }
+  return 'route';
+};
+
 export const AdminView: React.FC<AdminViewProps> = ({
   onClose,
   onLogout,
@@ -52,7 +71,46 @@ export const AdminView: React.FC<AdminViewProps> = ({
     removeReview
   } = useReviews(true);
 
-  const [activeTab, setActiveTab] = useState<AdminTab>('route');
+  const [activeTab, setActiveTabState] = useState<AdminTab>(getInitialAdminTab);
+
+  const setActiveTab = (tab: AdminTab) => {
+    setActiveTabState(tab);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('royalty_admin_active_tab', tab);
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', tab);
+        window.history.replaceState({}, '', url.toString());
+      } catch (e) {}
+    }
+  };
+
+  // Mantener sincronizada la URL y localStorage en montaje o cambios
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('royalty_admin_active_tab', activeTab);
+        const url = new URL(window.location.href);
+        if (url.searchParams.get('tab') !== activeTab) {
+          url.searchParams.set('tab', activeTab);
+          window.history.replaceState({}, '', url.toString());
+        }
+      } catch (e) {}
+    }
+  }, [activeTab]);
+
+  // Escuchar si el usuario navega con botones adelante/atrás del navegador
+  React.useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab') as AdminTab;
+      if (tabParam && VALID_ADMIN_TABS.includes(tabParam) && tabParam !== activeTab) {
+        setActiveTabState(tabParam);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [activeTab]);
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'confirmed' | 'tomorrow'>('all');
   const [lightboxState, setLightboxState] = useState<{ photos: string[]; index: number } | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
