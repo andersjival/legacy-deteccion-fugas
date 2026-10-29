@@ -88,27 +88,52 @@
   animation: eagleBorderAura 4s ease-in-out infinite;
 }
 
-/* Reglas de Impresión y Exportación a PDF para Cotizaciones */
+/* Reglas de Impresión Quirúrgica para la Hoja de Cotización Oficial */
 @media print {
   @page {
-    margin: 1cm;
+    margin: 8mm;
     size: letter portrait;
   }
-  body {
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
     background: #ffffff !important;
     color: #0f172a !important;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    overflow: visible !important;
+    height: auto !important;
   }
-  .no-print {
-    display: none !important;
+
+  /* Ocultar absolutamente todos los elementos del sitio web */
+  body * {
+    visibility: hidden !important;
   }
-  .print-area {
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
+
+  /* Mostrar ÚNICAMENTE el contenedor de la cotización y sus hijos */
+  #printable-quote-sheet,
+  #printable-quote-sheet * {
+    visibility: visible !important;
+  }
+
+  /* Posicionar la cotización para que llene la hoja sin bordes ni elementos externos */
+  #printable-quote-sheet {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+  }
+
+  .no-print {
+    display: none !important;
   }
 }

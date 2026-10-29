@@ -22,18 +22,28 @@ import {
   ExternalLink,
   Percent,
   Sparkles,
-  MessageSquare
+  MessageSquare,
+  Download,
+  FolderDown,
+  FolderOpen,
+  X,
+  FileCheck
 } from 'lucide-react';
-import { JobQuote, QuoteItem } from '../../types/quote';
+import { JobQuote, QuoteItem, SavedQuoteEntry } from '../../types/quote';
 import { getTodayDateString } from '../../utils/dateFormatter';
 
 const STORAGE_KEY = 'royalty_saved_job_quote';
+const HISTORY_STORAGE_KEY = 'royalty_saved_quotes_history';
 const DEFAULT_LOGO = '/images/logo-royalty-destaqueo.png';
 const CONTACT_BANNER = '/images/royalty-contacto-banner.png';
 
 export const JobQuoteManager: React.FC = () => {
   const [activeMobileView, setActiveMobileView] = useState<'editor' | 'preview'>('editor');
   const [copied, setCopied] = useState(false);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [customFileName, setCustomFileName] = useState('');
+  const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Generador de consecutivo inicial
@@ -101,13 +111,22 @@ export const JobQuoteManager: React.FC = () => {
 
   const [quote, setQuote] = useState<JobQuote>(getInitialQuote);
 
-  // Auto-guardado en localStorage
+  // Historial de cotizaciones guardadas en el sistema
+  const [savedHistory, setSavedHistory] = useState<SavedQuoteEntry[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const historyRaw = localStorage.getItem(HISTORY_STORAGE_KEY);
+        if (historyRaw) return JSON.parse(historyRaw);
+      } catch (e) {}
+    }
+    return [];
+  });
+
+  // Auto-guardado de borrador activo en localStorage
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(quote));
-    } catch (e) {
-      // Ignorar si excede cuota
-    }
+    } catch (e) {}
   }, [quote]);
 
   // Cálculos financieros
@@ -205,7 +224,7 @@ export const JobQuoteManager: React.FC = () => {
     const msg = `📋 *COTIZACIÓN OFICIAL — ${quote.companyName.toUpperCase()}*
 *N° de Control:* ${quote.quoteNumber}
 *Fecha de Emisión:* ${quote.date}
-*Cliente / Lugar:* ${quote.clientName || 'Cliente'} ${quote.clientLocation ? `(${quote.clientLocation})` : ''}
+*Cliente / Lugar:* ${quote.clientName || 'Cliente Particular'} ${quote.clientLocation ? `(${quote.clientLocation})` : ''}
 
 🛠️ *Referencia del Trabajo:*
 ${quote.workReference || 'Trabajo Técnico Especializado'}
@@ -247,13 +266,176 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
       await navigator.clipboard.writeText(generateWhatsAppMessage());
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
-    } catch (e) {
-      // Fallback
+    } catch (e) {}
+  };
+
+  // Abrir Modal de Guardar y Descargar con nombre sugerido
+  const handleOpenDownloadModal = () => {
+    const clientClean = quote.clientName.trim()
+      ? quote.clientName.trim().replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g, '-')
+      : 'Cliente';
+    const suggested = `Cotizacion-${clientClean}-${quote.quoteNumber}`;
+    setCustomFileName(suggested);
+    setIsDownloadModalOpen(true);
+  };
+
+  // Guardar en el sistema (Historial persistente)
+  const handleSaveToSystem = () => {
+    const finalName = customFileName.trim() || `Cotizacion-${quote.quoteNumber}`;
+    const entry: SavedQuoteEntry = {
+      id: `quote_saved_${Date.now()}`,
+      fileName: finalName,
+      savedAt: new Date().toISOString(),
+      totalAmount: totalGeneral,
+      clientName: quote.clientName || 'Cliente Particular',
+      workReference: quote.workReference || 'Trabajo Técnico',
+      quoteData: { ...quote }
+    };
+
+    const updated = [entry, ...savedHistory.filter((item) => item.id !== entry.id)];
+    setSavedHistory(updated);
+    try {
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(updated));
+    } catch (e) {}
+
+    setSaveSuccessMessage(`✅ Guardado con éxito como "${finalName}" en el sistema.`);
+    setTimeout(() => setSaveSuccessMessage(null), 3500);
+  };
+
+  // Cargar cotización desde el historial
+  const handleLoadFromHistory = (entry: SavedQuoteEntry) => {
+    if (confirm(`¿Desea cargar la cotización "${entry.fileName}"? Reemplazará los campos actuales.`)) {
+      setQuote(entry.quoteData);
+      setIsHistoryOpen(false);
+      setActiveMobileView('preview');
     }
   };
 
-  const handlePrint = () => {
+  // Eliminar del historial
+  const handleDeleteFromHistory = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm('¿Eliminar esta cotización del historial guardado?')) {
+      const updated = savedHistory.filter((item) => item.id !== id);
+      setSavedHistory(updated);
+      try {
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(updated));
+      } catch (err) {}
+    }
+  };
+
+  // Descarga limpia como PDF (Impresión dirigida exclusivamente a la hoja de cotización)
+  const handlePrintOrDownloadPDF = (fileName?: string) => {
+    const targetName = fileName || customFileName.trim() || `Cotizacion-${quote.quoteNumber}`;
+    const previousTitle = document.title;
+    document.title = targetName.replace(/\.pdf$/i, '');
+    
     window.print();
+
+    setTimeout(() => {
+      document.title = previousTitle;
+    }, 1500);
+  };
+
+  // Descarga directa como archivo HTML membretado sin conexión
+  const handleDownloadHTML = () => {
+    const finalName = customFileName.trim() || `Cotizacion-${quote.quoteNumber}`;
+    const currentLogoUrl = quote.customLogoUrl || quote.companyLogoUrl || DEFAULT_LOGO;
+
+    const itemsHTML = quote.scopeItems
+      .filter((i) => i.text.trim())
+      .map((i, idx) => `<tr><td style="padding: 6px 10px; font-weight: bold; width: 24px;">${idx + 1}.</td><td style="padding: 6px 10px;">${i.text}</td></tr>`)
+      .join('');
+
+    const htmlContent = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>${finalName}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 25px; color: #0f172a; background: #ffffff; }
+    .sheet { max-width: 800px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+    .top-bar { height: 6px; background: linear-gradient(90deg, #67141d, #8B1826, #0066CC); margin: -32px -32px 24px -32px; border-radius: 16px 16px 0 0; }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; }
+    .company { font-size: 20px; font-weight: 900; color: #67141d; margin: 0; }
+    .badge { background: #67141d; color: white; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 900; display: inline-block; }
+    .box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin: 18px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th { background: #f1f5f9; padding: 8px 12px; text-align: left; font-size: 11px; text-transform: uppercase; color: #475569; }
+    td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    .total-row { background: #fdf2f3; color: #67141d; font-weight: 900; font-size: 16px; }
+    .footer { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
+    @media print { body { padding: 0; } .sheet { border: none; box-shadow: none; padding: 10px; } }
+  </style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="top-bar"></div>
+    <div class="header">
+      <div>
+        <h1 class="company">${quote.companyName}</h1>
+        <p style="margin: 3px 0; font-size: 12px; color: #64748b; font-weight: bold;">Especialistas en Tuberías & Detección Técnica</p>
+        <p style="margin: 0; font-size: 12px; color: #64748b;">Costa Rica • Tel. ${quote.responsiblePhone}</p>
+      </div>
+      <div style="text-align: right;">
+        <span class="badge">COTIZACIÓN FORMAL</span>
+        <div style="font-weight: 900; font-family: monospace; margin-top: 4px;">${quote.quoteNumber}</div>
+        <div style="font-size: 12px; color: #64748b;">Fecha: <strong>${quote.date}</strong></div>
+      </div>
+    </div>
+
+    <div class="box">
+      <strong>Cotizado Para:</strong> ${quote.clientName || 'Cliente Particular'}<br>
+      <strong>Lugar / Ubicación:</strong> ${quote.clientLocation || 'Área Metropolitana'}<br>
+      ${quote.clientPhone ? `<strong>Teléfono:</strong> ${quote.clientPhone}<br>` : ''}
+      <strong>Referencia:</strong> ${quote.workReference || 'Trabajo Técnico Especializado'}
+    </div>
+
+    <div style="margin: 18px 0;">
+      <strong style="font-size: 12px; text-transform: uppercase; color: #475569;">Alcance de Trabajos a Realizar:</strong>
+      <table>${itemsHTML}</table>
+    </div>
+
+    <div style="margin: 18px 0;">
+      <strong style="font-size: 12px; text-transform: uppercase; color: #475569;">Desglose Económico:</strong>
+      <table>
+        <thead><tr><th>Concepto</th><th style="text-align: right;">Monto Estimado</th></tr></thead>
+        <tbody>
+          <tr><td>Mano de Obra Calificada</td><td style="text-align: right; font-weight: bold;">₡${labor.toLocaleString('es-CR')}</td></tr>
+          <tr><td>Estimado de Materiales (${quote.materialsDetail || 'Insumos de instalación'})</td><td style="text-align: right; font-weight: bold;">₡${materials.toLocaleString('es-CR')}</td></tr>
+          <tr style="background: #f8fafc;"><td>Subtotal:</td><td style="text-align: right; font-weight: bold;">₡${subtotal.toLocaleString('es-CR')}</td></tr>
+          ${quote.applyIVA ? `<tr style="background: #f8fafc;"><td>IVA 13% (Factura Electrónica):</td><td style="text-align: right; font-weight: bold;">₡${ivaAmount.toLocaleString('es-CR')}</td></tr>` : ''}
+          <tr class="total-row"><td>TOTAL GENERAL COTIZADO:</td><td style="text-align: right;">₡${totalGeneral.toLocaleString('es-CR')}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box" style="font-size: 12px;">
+      <strong>Tiempo Estimado de Entrega:</strong> ${quote.deliveryTime}<br>
+      <strong>Condiciones:</strong> ${quote.paymentTerms} (Materiales certificados y garantía técnica por escrito).
+    </div>
+
+    <div class="footer">
+      <div>
+        <div style="font-size: 16px; font-weight: bold; color: #67141d;">${quote.responsibleName}</div>
+        <div style="font-size: 11px; color: #64748b;">${quote.responsibleTitle}</div>
+        <div style="font-size: 12px; font-weight: bold; color: #0066CC;">Tel: ${quote.responsiblePhone}</div>
+      </div>
+      <div style="text-align: right; font-size: 11px; color: #64748b;">
+        <div>Royalty Detección & Tuberías</div>
+        <div>${quote.websiteUrl}</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${finalName.endsWith('.html') ? finalName : finalName + '.html'}`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   const currentLogo = quote.customLogoUrl || quote.companyLogoUrl || DEFAULT_LOGO;
@@ -282,7 +464,7 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
 
         {/* Botones de Acción Rápida */}
         <div className="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
-          {/* Switch Móvil (Solo visible en pantallas pequeñas) */}
+          {/* Switch Móvil */}
           <div className="flex md:hidden bg-slate-100 p-1 rounded-2xl text-xs font-black w-full justify-center mb-1">
             <button
               type="button"
@@ -304,6 +486,33 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
             </button>
           </div>
 
+          {/* Botón Principal: Guardar y Descargar con Nombre */}
+          <button
+            type="button"
+            onClick={handleOpenDownloadModal}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-all active:scale-95 cursor-pointer"
+            title="Poner nombre, guardar en el sistema y descargar"
+          >
+            <Download className="w-4 h-4" />
+            <span>Descargar / Guardar</span>
+          </button>
+
+          {/* Botón de Historial si existen cotizaciones guardadas */}
+          {savedHistory.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all cursor-pointer"
+              title="Ver cotizaciones guardadas en el sistema"
+            >
+              <FolderDown className="w-4 h-4 text-indigo-600" />
+              <span className="hidden sm:inline">Guardadas</span>
+              <span className="bg-indigo-100 text-indigo-800 text-[10px] px-1.5 py-0.2 rounded-full font-black">
+                {savedHistory.length}
+              </span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={handleShareWhatsApp}
@@ -311,17 +520,17 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
             title="Enviar cotización formateada por WhatsApp"
           >
             <MessageSquare className="w-4 h-4 fill-white" />
-            <span>WhatsApp</span>
+            <span className="hidden sm:inline">WhatsApp</span>
           </button>
 
           <button
             type="button"
-            onClick={handlePrint}
+            onClick={() => handlePrintOrDownloadPDF()}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-brand-blue hover:bg-brand-blue/90 shadow-sm transition-all active:scale-95 cursor-pointer"
-            title="Imprimir o descargar en PDF"
+            title="Imprimir solo la hoja de cotización oficial"
           >
             <Printer className="w-4 h-4" />
-            <span>Imprimir / PDF</span>
+            <span className="hidden sm:inline">Imprimir</span>
           </button>
 
           <button
@@ -344,6 +553,160 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
           </button>
         </div>
       </div>
+
+      {/* PANEL DESPLEGABLE DE HISTORIAL DE COTIZACIONES GUARDADAS */}
+      {isHistoryOpen && (
+        <div className="no-print bg-white p-5 rounded-3xl border border-indigo-200 shadow-md space-y-3">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <div className="flex items-center gap-2">
+              <FolderOpen className="w-5 h-5 text-indigo-600" />
+              <h3 className="text-xs font-black text-brand-dark uppercase tracking-wider">
+                Cotizaciones Guardadas en el Sistema ({savedHistory.length})
+              </h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsHistoryOpen(false)}
+              className="text-slate-400 hover:text-slate-700 p-1"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-72 overflow-y-auto">
+            {savedHistory.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => handleLoadFromHistory(item)}
+                className="bg-slate-50 hover:bg-indigo-50/50 p-3 rounded-2xl border border-slate-200 hover:border-indigo-300 transition-all cursor-pointer space-y-1 relative group"
+              >
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-black text-brand-dark truncate pr-6">
+                    {item.fileName}
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={(e) => handleDeleteFromHistory(item.id, e)}
+                    className="text-slate-400 hover:text-red-500 p-1 absolute top-2 right-2 transition-colors"
+                    title="Eliminar del historial"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-500 truncate font-semibold">
+                  Cliente: <span className="text-brand-dark font-bold">{item.clientName}</span>
+                </p>
+                <p className="text-[10px] text-slate-400 truncate">
+                  {item.workReference}
+                </p>
+                <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[11px]">
+                  <span className="font-mono text-slate-400">{item.savedAt.split('T')[0]}</span>
+                  <span className="font-black text-emerald-800">₡{item.totalAmount.toLocaleString('es-CR')}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE GUARDAR Y DESCARGAR CON NOMBRE PERSONALIZADO */}
+      {isDownloadModalOpen && (
+        <div className="no-print fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                  <Download className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-brand-dark">Guardar y Descargar Cotización</h3>
+                  <p className="text-[11px] text-slate-500">Asigne un nombre para identificarla y descargarla</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDownloadModalOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {saveSuccessMessage && (
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{saveSuccessMessage}</span>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <label className="block text-xs font-black text-brand-dark uppercase tracking-wider">
+                Nombre de la Cotización / Archivo:
+              </label>
+              <input
+                type="text"
+                value={customFileName}
+                onChange={(e) => setCustomFileName(e.target.value)}
+                placeholder="Ej. Cotizacion-Casa-Curridabat"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-bold text-brand-dark focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
+                autoFocus
+              />
+              <p className="text-[10px] text-slate-400">
+                Este nombre se usará para el archivo guardado y descargado.
+              </p>
+            </div>
+
+            {/* Opciones de Acción */}
+            <div className="space-y-2 pt-1">
+              {/* Botón 1: Guardar en el sistema */}
+              <button
+                type="button"
+                onClick={handleSaveToSystem}
+                className="w-full py-2.5 px-4 rounded-xl text-xs font-black text-white bg-indigo-600 hover:bg-indigo-700 flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+              >
+                <FolderDown className="w-4 h-4" />
+                <span>1. Guardar en el Sistema</span>
+              </button>
+
+              {/* Botón 2: Descargar PDF Oficial con ese nombre */}
+              <button
+                type="button"
+                onClick={() => {
+                  handleSaveToSystem();
+                  handlePrintOrDownloadPDF(customFileName);
+                }}
+                className="w-full py-2.5 px-4 rounded-xl text-xs font-black text-white bg-brand-blue hover:bg-brand-blue/90 flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+              >
+                <Printer className="w-4 h-4" />
+                <span>2. Descargar como PDF (Hoja Oficial)</span>
+              </button>
+
+              {/* Botón 3: Descargar Archivo HTML Independiente */}
+              <button
+                type="button"
+                onClick={() => {
+                  handleSaveToSystem();
+                  handleDownloadHTML();
+                }}
+                className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 flex items-center justify-center gap-2 transition-all cursor-pointer"
+              >
+                <Download className="w-4 h-4 text-indigo-600" />
+                <span>3. Descargar Archivo HTML Membretado</span>
+              </button>
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsDownloadModalOpen(false)}
+                className="px-4 py-1.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Cuadrícula Principal: Formulario a la Izquierda / Hoja en Vivo a la Derecha */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -523,7 +886,7 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
                 <button
                   type="button"
                   onClick={handleAddScopeItem}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-blue hover:text-brand-dark transition-colors"
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-blue hover:text-brand-dark transition-colors cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Agregar Punto</span>
@@ -547,7 +910,7 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
                       <button
                         type="button"
                         onClick={() => handleRemoveScopeItem(item.id)}
-                        className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg transition-colors"
+                        className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg transition-colors cursor-pointer"
                         title="Eliminar punto"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -674,7 +1037,7 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
                     key={opt}
                     type="button"
                     onClick={() => setQuote({ ...quote, deliveryTime: opt })}
-                    className={`py-1.5 px-2 rounded-xl text-[11px] font-bold border transition-all ${
+                    className={`py-1.5 px-2 rounded-xl text-[11px] font-bold border transition-all cursor-pointer ${
                       quote.deliveryTime === opt
                         ? 'bg-brand-blue text-white border-brand-blue shadow-xs'
                         : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
@@ -795,8 +1158,11 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
           activeMobileView === 'editor' ? 'hidden lg:block' : 'block'
         }`}>
           
-          {/* Contenedor Imprimible Oficial (Hoja Membretada) */}
-          <div className="print-area bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/90 shadow-xl space-y-6 text-brand-dark font-sans relative overflow-hidden">
+          {/* Contenedor Imprimible Oficial (Hoja Membretada) con ID único para aislamiento en impresión */}
+          <div 
+            id="printable-quote-sheet"
+            className="print-area bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/90 shadow-xl space-y-6 text-brand-dark font-sans relative overflow-hidden"
+          >
             
             {/* Barra Decorativa Superior */}
             <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#67141d] via-[#8B1826] to-[#0066CC]" />

@@ -37,3 +37,13 @@ export interface JobQuote {
   websiteUrl: string;
   createdAt: string;
 }
+
+export interface SavedQuoteEntry {
+  id: string;
+  fileName: string;
+  savedAt: string;
+  totalAmount: number;
+  clientName: string;
+  workReference: string;
+  quoteData: JobQuote;
+}

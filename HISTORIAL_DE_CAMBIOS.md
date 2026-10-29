@@ -15,6 +15,17 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.20.0] - 2026-10-29 - Aislamiento Quirúrgico de Impresión Oficial y Descarga con Nombre Personalizado
+- **Aislamiento Absoluto de Impresión (`src/index.css` / `JobQuoteManager.tsx`):**
+  - Implementada regla de aislamiento `@media print` universal que oculta todo elemento del sitio web (`body * { visibility: hidden !important }`) y visibiliza única y exclusivamente la hoja membretada oficial (`#printable-quote-sheet`).
+  - Posicionamiento forzado en coordenadas `(0,0)` sin cabeceras, botones, barras de navegación ni fondos de la página web.
+- **Guardado y Descarga con Nombre Personalizado (`JobQuoteManager.tsx` / `types/quote.ts`):**
+  - Añadido modal intuitivo "Descargar / Guardar" que permite definir el nombre del archivo (ej. `Cotizacion-David-Rojas-Familia-Cordero`).
+  - **Guardado en el Sistema:** Persiste la cotización con su nombre en un historial accesible (`localStorage`) con fecha, cliente y total.
+  - **Descarga como PDF Oficial:** Asigna automáticamente el nombre personalizado al diálogo de impresión del navegador (`document.title = fileName`).
+  - **Descarga en HTML Independiente:** Descarga directa de archivo `.html` membretado autónomo con estilos inline para consulta sin internet.
+  - **Historial de Cotizaciones:** Panel desplegable con contador de cotizaciones guardadas para cargarlas, reeditarlas o descargarlas en cualquier momento.
+
 ### [v2.19.0] - 2026-10-29 - Resaltado Visual Anaranjado de Campos Faltantes y Botones Activos con Guía en Agenda
 - **Resaltado Inteligente de Campos Pendientes (`StepClientDetails.tsx`):**
   - Todo campo obligatorio incompleto (Nombre, Teléfono, Descripción y Dirección) se resalta con borde y sombra suave anaranjada (`border-amber-400 bg-amber-50/40 ring-2 ring-amber-300/50`) y la pastilla *"Falta rellenar"*.
