@@ -15,6 +15,18 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.38.0] - 2026-10-29 - Enlace de Testimonio Vinculado al Celular y Detección de Enlaces Compartidos en Panel
+- **Vinculación Obligatoria del Celular en Enlaces de Calificación (`AppointmentCard.tsx` / `TodayRouteCard.tsx`):**
+  - Los botones de envío por WhatsApp generan el enlace oficial con el número de teléfono del cliente verificado como parámetro (`&tel=...`).
+- **Blindaje y Verificación en Página de Calificación (`ClientReviewPage.tsx` / `/calificar`):**
+  - Al abrir el enlace, el sistema lee el celular y bloquea la sesión mostrando la insignia `🔒 Enlace Oficial y Blindado • Celular del cliente: [tel]` con estado verificado.
+  - Si se accede sin enlace de cita, se solicita de forma obligatoria el número de teléfono para verificación.
+  - La opinión se envía y registra en D1 y memoria local asociada al celular del cliente.
+- **Detección Automática de Enlaces Compartidos en Panel Administrativo (`AdminReviewsCard.tsx`):**
+  - Muestra en cada testimonio el número telefónico del cliente junto a su nombre.
+  - Detecta mediante conteo por normalización de dígitos si un mismo número de teléfono ha enviado 2 o más opiniones.
+  - Si se detecta repetición, despliega la alerta destacada: `⚠️ Enlace Compartido — Celular repetido X veces ([tel]). El cliente original compartió su enlace exclusivo con un tercero para generar esta opinión adicional`, y añade un contador superior de enlaces compartidos.
+
 ### [v2.37.0] - 2026-10-29 - Selector de Horarios (Hoy, Mañana, Pasado mañana, Esta semana) con Bloques Verde (Disponible) y Azul (Ocupado) y Reserva Telefónica Inmediata
 - **Selector de Rango de Fechas en Citas (`AdminView.tsx` / `dateFormatter.ts`):**
   - Implementados los botones interactivos de selección rápida: *"Hoy"*, *"Mañana"*, *"Pasado mañana"*, *"Esta semana"* y *"Todas"*.

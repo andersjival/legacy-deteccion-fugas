@@ -66,7 +66,7 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
 
   const handleSendReviewLinkWhatsApp = () => {
     const origin = window.location.origin;
-    const reviewUrl = `${origin}/calificar?id=${appointment.id}&cliente=${encodeURIComponent(appointment.client_name)}&servicio=${encodeURIComponent(appointment.service_type)}`;
+    const reviewUrl = `${origin}/calificar?id=${appointment.id}&cliente=${encodeURIComponent(appointment.client_name)}&tel=${encodeURIComponent(appointment.client_phone)}&servicio=${encodeURIComponent(appointment.service_type)}`;
     const mensaje = `Hola *${appointment.client_name}*, le saluda el técnico de *Legacy Detección de Fugas* 💧.\n\nFue un placer haberle realizado el servicio de *${appointment.service_type}*. Le agradeceríamos enormemente si nos regala un minuto para calificar nuestra atención y dejarnos un breve comentario en nuestro enlace oficial de testimonios verificados:\n\n👉 ${reviewUrl}\n\n¡Muchas gracias por su confianza y preferencia!`;
 
     const url = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(mensaje)}`;

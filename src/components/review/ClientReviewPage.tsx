@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Star, CheckCircle, Send, ArrowLeft, ShieldCheck, HeartHandshake } from 'lucide-react';
+import { Star, CheckCircle, Send, ArrowLeft, ShieldCheck, HeartHandshake, Phone, Lock } from 'lucide-react';
 import { api } from '../../services/api';
 import { AnimatedEagleLogo } from '../common/AnimatedEagleLogo';
 
@@ -11,6 +11,8 @@ export const ClientReviewPage: React.FC<ClientReviewPageProps> = ({ onBackToHome
   const [rating, setRating] = useState<number>(5);
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [clientName, setClientName] = useState<string>('');
+  const [clientPhone, setClientPhone] = useState<string>('');
+  const [isPhoneLocked, setIsPhoneLocked] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string>('Detección Especializada de Fugas');
   const [comment, setComment] = useState<string>('');
   const [appointmentId, setAppointmentId] = useState<string>('');
@@ -23,10 +25,15 @@ export const ClientReviewPage: React.FC<ClientReviewPageProps> = ({ onBackToHome
     const prefilledName = params.get('cliente') || params.get('name') || '';
     const prefilledService = params.get('servicio') || params.get('service') || '';
     const prefilledId = params.get('id') || params.get('cita') || '';
+    const prefilledPhone = params.get('tel') || params.get('telefono') || params.get('phone') || '';
 
     if (prefilledName) setClientName(prefilledName);
     if (prefilledService) setServiceType(prefilledService);
     if (prefilledId) setAppointmentId(prefilledId);
+    if (prefilledPhone) {
+      setClientPhone(prefilledPhone);
+      setIsPhoneLocked(true);
+    }
   }, []);
 
   const ratingLabels: Record<number, string> = {
@@ -43,6 +50,10 @@ export const ClientReviewPage: React.FC<ClientReviewPageProps> = ({ onBackToHome
       setErrorMessage('Por favor ingrese su nombre para el testimonio verificado.');
       return;
     }
+    if (!clientPhone.trim()) {
+      setErrorMessage('Por favor ingrese su número de teléfono para verificar su reseña.');
+      return;
+    }
     if (!comment.trim() || comment.trim().length < 5) {
       setErrorMessage('Por favor escriba un breve comentario sobre el trabajo realizado.');
       return;
@@ -54,6 +65,7 @@ export const ClientReviewPage: React.FC<ClientReviewPageProps> = ({ onBackToHome
     try {
       await api.createReview({
         client_name: clientName.trim(),
+        client_phone: clientPhone.trim() || undefined,
         service_type: serviceType,
         rating,
         comment: comment.trim(),
@@ -115,6 +127,12 @@ export const ClientReviewPage: React.FC<ClientReviewPageProps> = ({ onBackToHome
               <p className="text-sm text-brand-slate leading-relaxed">
                 Estimado/a <strong>{clientName}</strong>, su comentario y valoración de <strong>{rating} estrellas</strong> ya están registrados y publicados en nuestra sección de testimonios de clientes reales.
               </p>
+              {clientPhone && (
+                <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold justify-center pt-1">
+                  <Phone className="w-3.5 h-3.5 text-brand-blue" />
+                  <span>Celular verificado: <strong className="text-brand-dark font-mono">{clientPhone}</strong></span>
+                </div>
+              )}
             </div>
 
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 text-left space-y-2">
@@ -163,6 +181,47 @@ export const ClientReviewPage: React.FC<ClientReviewPageProps> = ({ onBackToHome
 
             <form onSubmit={handleSubmit} className="space-y-6">
               
+              {/* Insignia de Enlace Blindado con Celular o Campo de Verificación */}
+              {isPhoneLocked && clientPhone ? (
+                <div className="p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200/90 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2.5 text-brand-dark">
+                    <div className="p-2 rounded-xl bg-brand-blue text-white shadow-xs">
+                      <Lock className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="font-extrabold text-brand-blue flex items-center gap-1">
+                        <span>Enlace Oficial y Blindado</span>
+                        <ShieldCheck className="w-3.5 h-3.5 text-brand-blue" />
+                      </p>
+                      <p className="text-[11px] text-slate-600 font-medium">
+                        Celular del cliente: <span className="font-mono font-bold text-brand-dark">{clientPhone}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                    🔒 Verificado
+                  </span>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-black text-brand-dark flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-brand-blue" />
+                    <span>Su Teléfono Celular (Para validación oficial):</span>
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={clientPhone}
+                    onChange={(e) => setClientPhone(e.target.value)}
+                    placeholder="Ej: 8888-8888"
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-blue/30 focus:border-brand-blue transition-all font-mono"
+                  />
+                  <span className="text-[11px] text-slate-400">
+                    Se utiliza para registrar la autenticidad del servicio y evitar comentarios falsos.
+                  </span>
+                </div>
+              )}
+
               {/* Selector Interactivo de Estrellas */}
               <div className="text-center space-y-2.5 bg-gradient-to-b from-amber-50/50 to-amber-50/10 p-5 rounded-3xl border border-amber-200/60">
                 <p className="text-xs font-black text-amber-900 uppercase tracking-wider">
