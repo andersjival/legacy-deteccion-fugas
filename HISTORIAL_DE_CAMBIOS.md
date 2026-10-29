@@ -15,6 +15,16 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.17.0] - 2026-10-28 - Slider Interactivo de Testimonios y Corrección de Caracteres en D1
+- **Slider / Carrusel Interactivo de Testimonios (`TestimonialsSection.tsx`):**
+  - Transformada la sección de testimonios en un carrusel dinámico y fluido con física de transición suave (`transition-transform duration-500 ease-out`).
+  - Controles de navegación mediante flechas anteriores/siguientes (`ChevronLeft`, `ChevronRight`) e indicadores de puntos interactivos (*dots*).
+  - Visualización adaptativa automática: 1 tarjeta en móvil, 2 en tabletas y 3 en pantallas de escritorio.
+  - Soporte de gestos táctiles (*touch swipe*) para celulares y auto-avance inteligente con pausa al pasar el ratón (*hover*) y detección de pestaña oculta (*anti-drain*).
+- **Corrección de Codificación y Carácter Corrupto en D1 (`legacy-fugas-db` / `TestimonialsSection.tsx`):**
+  - Corregido registro en base de datos Cloudflare D1 donde `Detección` contenía el carácter de reemplazo  (`U+FFFD`).
+  - Añadida función de sanitizado universal `sanitizeText()` para neutralizar cualquier carácter mal codificado futuro.
+
 ### [v2.16.0] - 2026-10-28 - Optimización de Espacios y Erradicación de Vacíos en Métricas y Finanzas
 - **Reorganización del Panel de Control (`AdminView.tsx`):**
   - Desacopladas las tarjetas de métricas (`KPICards`) de la rejilla compartida, ubicándolas en su propia fila panorámica superior.
