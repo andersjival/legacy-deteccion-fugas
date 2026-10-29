@@ -15,6 +15,20 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.26.0] - 2026-10-29 - Título y Previsualización Enriquecida para WhatsApp en Enlaces de Cotización
+- **Servidor Edge y Metaetiquetas Dinámicas Open Graph (`functions/cotizacion/[id].ts`):**
+  - Implementada función en Cloudflare Pages para la ruta `/cotizacion/:id` que consulta D1 en tiempo real y sirve etiquetas Open Graph nativas para rastreadores (WhatsApp, Facebook, Telegram).
+  - Al compartir o pegar el link en WhatsApp, se genera automáticamente la tarjeta con:
+    - **Título:** `📋 Cotización Oficial: [Nombre Cliente] (COT-2026-XXX)`
+    - **Descripción:** `Cotización formal emitida por Royalty Destaqueos & Tuberías. Monto: ₡[Total]. Toque aquí para abrir y descargar su cotización en PDF.`
+    - **Imagen:** Logotipo oficial de Royalty (`/images/logo-royalty-destaqueo.png`).
+- **Simulador de Tarjeta y Copiado con Encabezado (`JobQuoteManager.tsx`):**
+  - Añadida previsualización interactiva tipo WhatsApp en el modal de compartir enlace para que David vea el título exacto que verá el cliente.
+  - Nuevo botón *"Copiar Enlace con Título para WhatsApp"* que copia el mensaje estructurado con consecutivo, nombre del cliente, monto cotizado y link directo.
+  - Título dinámico de pestaña en el navegador del cliente (`ClientQuoteView.tsx`).
+- **Etiquetas Globales Open Graph en Shell (`index.html`):**
+  - Integradas metaetiquetas `og:title`, `og:description`, `og:image` y `twitter:card` en la plantilla base para que todo el dominio proyecte previsualizaciones profesionales al ser compartido.
+
 ### [v2.25.0] - 2026-10-29 - Botón "Guardar Cotización" y Sección "Cotizaciones por Enviar"
 - **Botón "Guardar Cotización" (`JobQuoteManager.tsx`):**
   - Incorporado botón principal destacado en la barra superior de acciones con ícono `BookmarkPlus` y degradado ámbar para guardar la cotización directamente con estado `por_enviar`.

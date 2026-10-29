@@ -37,8 +37,9 @@ export const ClientQuoteView: React.FC<ClientQuoteViewProps> = ({
     let isMounted = true;
     api.getQuoteById(quoteId)
       .then((data) => {
-        if (isMounted) {
+        if (isMounted && data) {
           setQuote(data);
+          document.title = `📋 Cotización Oficial: ${data.client_name || 'Cliente'} (${data.quote_number || 'COT'}) | Royalty`;
         }
       })
       .catch((err) => console.warn(err))
@@ -46,7 +47,10 @@ export const ClientQuoteView: React.FC<ClientQuoteViewProps> = ({
         if (isMounted) setLoading(false);
       });
 
-    return () => { isMounted = false; };
+    return () => { 
+      isMounted = false;
+      document.title = 'Legacy Detección de Fugas | Especialistas No Invasivos';
+    };
   }, [quoteId]);
 
   const handleClientDownload = async () => {

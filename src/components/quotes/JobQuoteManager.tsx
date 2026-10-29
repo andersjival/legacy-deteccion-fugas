@@ -50,6 +50,7 @@ export const JobQuoteManager: React.FC = () => {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedWithTitle, setCopiedWithTitle] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [historyFilter, setHistoryFilter] = useState<'por_enviar' | 'todas'>('por_enviar');
@@ -535,13 +536,23 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
     setIsShareModalOpen(true);
   };
 
-  const handleCopyShareLink = async (customId?: string) => {
+  const handleCopyShareLink = async (customId?: string, withHeader = false) => {
     const targetId = customId || quote.id;
     const url = `${window.location.origin}/cotizacion/${targetId}`;
-    try {
-      await navigator.clipboard.writeText(url);
+    
+    let textToCopy = url;
+    if (withHeader) {
+      const client = quote.clientName ? quote.clientName.trim() : 'Cliente Particular';
+      textToCopy = `📋 *COTIZACIÓN OFICIAL — ${quote.companyName.toUpperCase()}*\n*N°:* ${quote.quoteNumber} | *Cliente:* ${client}\n💰 *Monto Cotizado:* ₡${totalGeneral.toLocaleString('es-CR')}\n\n👉 *Consulte y descargue su cotización oficial aquí:*\n${url}`;
+      setCopiedWithTitle(true);
+      setTimeout(() => setCopiedWithTitle(false), 2500);
+    } else {
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2500);
+    }
+
+    try {
+      await navigator.clipboard.writeText(textToCopy);
     } catch (e) {}
   };
 
@@ -1367,8 +1378,35 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
               )}
             </div>
 
-            {/* Input con Botón de Copiar Enlace */}
-            <div className="space-y-1.5">
+            {/* VISTA PREVIA VISUAL DE CÓMO SE VE EL TÍTULO EN WHATSAPP */}
+            <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/90 space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-black uppercase text-slate-500 tracking-wider">
+                <span>Título generado para WhatsApp:</span>
+                <span className="text-[10px] text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md font-bold">
+                  Vista Previa Enlace
+                </span>
+              </div>
+              
+              <div className="bg-[#f0f2f5] p-2.5 rounded-xl border border-slate-300 flex items-center gap-3 shadow-xs">
+                <div className="w-14 h-14 rounded-lg bg-white border border-slate-200 flex items-center justify-center p-1 shrink-0 overflow-hidden">
+                  <img src={DEFAULT_LOGO} alt="Royalty" className="w-full h-full object-contain" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h5 className="text-xs font-black text-slate-900 truncate">
+                    📋 Cotización Oficial: {quote.clientName || 'Cliente'} ({quote.quoteNumber})
+                  </h5>
+                  <p className="text-[10.5px] text-slate-600 line-clamp-2 leading-tight">
+                    Cotización formal de {quote.companyName}. Monto: ₡{totalGeneral.toLocaleString('es-CR')}. Toque para consultar y descargar en PDF.
+                  </p>
+                  <span className="text-[9px] font-mono text-slate-400 block mt-0.5 truncate">
+                    legacydetec.pages.dev/cotizacion/...
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Input con Botones de Copiado */}
+            <div className="space-y-2">
               <label className="block text-xs font-black text-brand-dark uppercase tracking-wider">
                 Enlace Único de la Cotización:
               </label>
@@ -1381,13 +1419,25 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
                 />
                 <button
                   type="button"
-                  onClick={() => handleCopyShareLink(quote.id)}
-                  className="px-4 py-2.5 rounded-xl text-xs font-black text-white bg-indigo-600 hover:bg-indigo-700 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer shadow-xs"
+                  onClick={() => handleCopyShareLink(quote.id, false)}
+                  className="px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer shadow-xs"
+                  title="Copiar solo la dirección web"
                 >
-                  {copiedLink ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
-                  <span>{copiedLink ? '¡Copiado!' : 'Copiar'}</span>
+                  {copiedLink ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                  <span>{copiedLink ? '¡Copiado!' : 'Solo Link'}</span>
                 </button>
               </div>
+
+              {/* Botón Destacado: Copiar con Título de Cotización */}
+              <button
+                type="button"
+                onClick={() => handleCopyShareLink(quote.id, true)}
+                className="w-full py-2.5 px-4 rounded-xl text-xs font-black text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                title="Copiar texto con encabezado formal de cotización y enlace web para WhatsApp"
+              >
+                {copiedWithTitle ? <Check className="w-4 h-4 text-emerald-600" /> : <FileText className="w-4 h-4 text-indigo-600" />}
+                <span>{copiedWithTitle ? '¡Copiado con Encabezado Oficial!' : 'Copiar Enlace con Título para WhatsApp'}</span>
+              </button>
             </div>
 
             {/* Botones de Envío Rápido y Vista Previa */}
