@@ -77,6 +77,7 @@ export const Footer: React.FC<FooterProps> = ({
                 </a>
               </li>
               <li><a href="#testimonios" className="hover:text-white transition-colors">Testimonios Verificados</a></li>
+              <li><a href="/proyecto" className="text-amber-400 hover:text-amber-300 font-bold transition-colors">⚡ Arquitectura del Sistema (/proyecto)</a></li>
             </ul>
           </div>
 

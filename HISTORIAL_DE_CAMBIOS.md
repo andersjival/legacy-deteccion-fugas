@@ -15,6 +15,30 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.27.0] - 2026-10-29 - Nueva Página Estratégica `/proyecto` con Desglose Persuasivo y Modo Desarrollador con Clave Secreta (1985)
+- **Página de Alto Impacto para el Dueño del Negocio (`ProjectPresentationPage.tsx` / `src/App.tsx`):**
+  - Creada ruta exclusiva responsive `/proyecto` diseñada con estética de alta gama (vino profundo `#67141d`, azul técnico y detalles dorados).
+  - Redacción persuasiva orientada a la psicología del dueño del negocio (David Rojas), destacando la superioridad frente a la competencia, la erradicación de cotizaciones informales en WhatsApp y el retorno financiero inmediato.
+  - Métricas visuales de impacto: cotizaciones formales en 30 segundos, cero fugas de clientes con atribución, conexión directa a WhatsApp y servidor serverless en la nube.
+- **Lista Ordenada Funcionalidad por Funcionalidad (Dolor -> Solución -> Impacto):**
+  - Desglose cronológico y exhaustivo de las 10 capacidades del sistema:
+    1. Cotizador Formal Dinámico con Membrete Oficial y Firma de David Rojas.
+    2. Previsualización Enriquecida en WhatsApp con Open Graph dinámico en el servidor.
+    3. Rastreo Silencioso en Vivo de Lectura y Descarga del Documento PDF.
+    4. Bandeja Inteligente de "Cotizaciones por Enviar" con contador de pendientes.
+    5. Rastreador de Tráfico y Embudo de Conversión de Redes Sociales (FB, IG, WA).
+    6. Agenda Técnica Inteligente con Detección Visual Ámbar de Campos Requeridos.
+    7. Muro Dinámico de Reseñas y Testimonios Verificados con Slider Interactivo.
+    8. Panel de Control Administrativo Integral (Modo Claro / Modo Pro).
+    9. Infraestructura Serverless en la Nube Edge (Cloudflare Pages + D1).
+    10. Aplicación Web Progresiva (PWA Móvil Primero Instalable).
+- **Modo Desarrollador con Clave Secreta (`1985` - No Visible en Pantalla):**
+  - Botón discreto con ícono de candado en la barra superior.
+  - Modal con verificación de clave secreta (`1985`) con campo ofuscado (`••••`).
+  - Al desbloquearse, permite editar títulos, categorías, problemas, soluciones e impactos, reordenar las tarjetas (subir/bajar) y añadir nuevas funcionalidades con persistencia en `localStorage`.
+- **Enlace de Acceso en Pie de Página (`Footer.tsx`):**
+  - Enlace discreto *"⚡ Arquitectura del Sistema (/proyecto)"* en la sección de navegación.
+
 ### [v2.26.0] - 2026-10-29 - Título y Previsualización Enriquecida para WhatsApp en Enlaces de Cotización
 - **Servidor Edge y Metaetiquetas Dinámicas Open Graph (`functions/cotizacion/[id].ts`):**
   - Implementada función en Cloudflare Pages para la ruta `/cotizacion/:id` que consulta D1 en tiempo real y sirve etiquetas Open Graph nativas para rastreadores (WhatsApp, Facebook, Telegram).

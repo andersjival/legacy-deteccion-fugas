@@ -11,6 +11,7 @@ import { AdminLogin } from './components/admin/AdminLogin';
 import { AdminView } from './components/admin/AdminView';
 import { JobQuoteManager } from './components/quotes/JobQuoteManager';
 import { ClientQuoteView } from './components/quotes/ClientQuoteView';
+import { ProjectPresentationPage } from './components/project/ProjectPresentationPage';
 import { useAdminAuth } from './hooks/useAdminAuth';
 import { usePWA } from './hooks/usePWA';
 import { ServiceType } from './types/appointment';
@@ -106,6 +107,7 @@ export function App() {
   const isReviewRoute = currentPath === '/calificar' || currentPath === '/review' || currentPath === '/resena' || currentPath === '/valorar';
   const isQuoteRoute = currentPath === '/cotizador' || currentPath === '/cotizar' || currentPath === '/presupuesto';
   const isClientQuoteRoute = currentPath.startsWith('/cotizacion');
+  const isProjectRoute = currentPath === '/proyecto' || currentPath === '/sistema' || currentPath === '/propuesta';
 
   const clientQuoteId = (() => {
     if (!isClientQuoteRoute) return '';
@@ -151,6 +153,13 @@ export function App() {
       ) : isReviewRoute ? (
         /* Vista Exclusiva para Calificación de Clientes: /calificar */
         <ClientReviewPage onBackToHome={() => navigateTo('/')} />
+      ) : isProjectRoute ? (
+        /* Vista Estratégica del Sistema y Funcionalidades: /proyecto */
+        <ProjectPresentationPage
+          onBackToHome={() => navigateTo('/')}
+          onNavigateAgenda={() => navigateTo('/agenda')}
+          onOpenAdmin={() => navigateTo('/detec/panel')}
+        />
       ) : isClientQuoteRoute ? (
         /* Vista Oficial Dinámica de Cotización para el Cliente: /cotizacion/:id */
         <ClientQuoteView
