@@ -33,14 +33,14 @@ import {
 } from 'lucide-react';
 import { ProjectFeature, ProjectMetric, ProjectPresentationData } from '../../types/project';
 
-const STORAGE_KEY = 'royalty_project_presentation_data';
+const STORAGE_KEY = 'royalty_project_presentation_data_v3';
 const SHIELD_LOGO = '/images/logo-royalty-shield.png';
 const LOGO_DESTAQUEO = '/images/logo-royalty-destaqueo.png';
 
 const DEFAULT_METRICS: ProjectMetric[] = [
   { value: '30 seg', label: 'Emisión de Cotización', sublabel: 'PDF membretado formal' },
   { value: '100%', label: 'Cero Fugas de Tráfico', sublabel: 'Atribución FB, IG y WhatsApp' },
-  { value: '1-Clic', label: 'Conexión Directa', sublabel: 'WhatsApp enrutado a David' },
+  { value: '1-Clic', label: 'Conexión Directa', sublabel: 'WhatsApp enrutado inmediato' },
   { value: '<0.5s', label: 'Carga Ultra Rápida', sublabel: 'Nube Cloudflare Serverless' },
 ];
 
@@ -51,9 +51,9 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
     category: 'COMERCIAL & CIERRE DE VENTAS',
     badge: 'Herramienta de Cierre',
     title: 'Cotizador Formal Dinámico con Membrete y Firma Oficial',
-    problem: 'La mayoría de empresas técnicas envían costos por mensajes informales de audio o textos sueltos en WhatsApp. Esto transmite desconfianza, fomenta el regateo constante de precios y demora días enteros en que el cliente apruebe el trabajo.',
-    solution: 'Generador digital automatizado que calcula mano de obra calificada, insumos de materiales, IVA opcional (13% para factura electrónica), tiempos de entrega y garantía 100% contra entrega. Todo presentado en una elegante hoja membretada de 1 sola página lista para descargar o imprimir.',
-    impact: 'Proyecta la imagen de una empresa de primer nivel con seriedad jurídica y comercial. Elimina objeciones de costo y duplica la velocidad de cierre de trabajos grandes.',
+    problem: 'Ya no más cotizaciones informales en audios o mensajes de texto sueltos que transmiten desconfianza y fomentan el regateo constante de precios. Ahora tus propuestas transmiten prestigio corporativo inmediato con membrete, firma y validez formal.',
+    solution: 'Generador digital automatizado que calcula mano de obra, insumos, IVA opcional y garantía, emitiendo una elegante hoja membretada en segundos. Proyecta imagen de primer nivel, elimina objeciones de costo y duplica la velocidad de cierre de contratos grandes.',
+    impact: 'Cierre inmediato de contratos con máxima seriedad corporativa y validez formal.',
     actionText: 'Probar Cotizador',
     actionPath: '/cotizador'
   },
@@ -63,9 +63,9 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
     category: 'IMAGEN CORPORATIVA & MARKETING',
     badge: 'Tecnología Edge',
     title: 'Previsualización Enriquecida Automática en WhatsApp (Open Graph)',
-    problem: 'Al pegar un enlace web tradicional en WhatsApp, no aparece imagen, o sale una miniatura cortada y un texto genérico que parece spam, haciendo que el cliente dude antes de pulsar el enlace.',
-    solution: 'El servidor de la nube inyecta dinámicamente en tiempo real una tarjeta visual con el logotipo oficial de Royalty, el título exacto: "📋 Cotización Oficial: [Cliente] (COT-2026)" y el monto total cotizado, antes de que el cliente siquiera abra el documento.',
-    impact: 'Tasa de apertura superior al 95%. Tu propuesta resalta con una categoría visual insuperable frente a cualquier fontanero o empresa tradicional.',
+    problem: 'Ya no más enlaces cortados o textos genéricos que parecen spam en WhatsApp y hacen dudar al cliente. Al compartir tu propuesta, tus clientes ven al instante una tarjeta impecable con tu logotipo oficial y el valor exacto cotizado.',
+    solution: 'El servidor inyecta dinámicamente una tarjeta visual con el logo oficial de Royalty, título exacto "📋 Cotización Oficial: [Cliente]" y el monto cotizado. Logra una tasa de apertura superior al 95%, destacando tu empresa con una categoría visual insuperable frente a la competencia.',
+    impact: 'Más del 95% de apertura y distinción de marca inmediata en cada cliente.',
     actionText: 'Ver Ejemplo',
     actionPath: '/cotizador'
   },
@@ -75,9 +75,9 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
     category: 'INTELIGENCIA DE VENTAS EN VIVO',
     badge: 'Ventaja Táctica',
     title: 'Rastreo Silencioso de Lectura y Descarga de Documentos',
-    problem: 'Enviar una propuesta y quedar a ciegas sin saber si el cliente ya la abrió, si la leyó o si la descargó, obligando a David a llamar a ciegas o escribir con insistencia incómoda.',
-    solution: 'El sistema registra en segundo plano y en tiempo real el conteo de visitas del cliente y la fecha/hora exacta en que descargó el PDF oficial, mostrándole una alerta inmediata a David en su panel.',
-    impact: 'David sabe con precisión quirúrgica cuándo el cliente tiene la cotización en pantalla, permitiéndole dar seguimiento en el momento psicológico ideal para cerrar el trato.',
+    problem: 'Ya no más incertidumbre ni llamadas a ciegas sin saber si el cliente abrió o descargó la cotización. Ahora tienes control y visibilidad absoluta de cuándo tu cliente tiene la propuesta en sus manos para contactarlo en el momento exacto.',
+    solution: 'El sistema registra en segundo plano y en vivo las visitas y la fecha/hora exacta en que el cliente descargó el PDF oficial, emitiendo una notificación instantánea en el panel para dar seguimiento oportuno en el momento psicológico ideal de cierre.',
+    impact: 'Seguimiento con precisión quirúrgica en el momento exacto de mayor interés de compra.',
     actionText: 'Rastreo en Vivo',
     actionPath: '/cotizador'
   },
@@ -87,9 +87,9 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
     category: 'GESTIÓN OPERATIVA DIARIA',
     badge: 'Ahorro de Tiempo',
     title: 'Bandeja Inteligente de "Cotizaciones por Enviar"',
-    problem: 'Estar en la calle atendiendo una inspección técnica o destaqueo y olvidar cotizaciones pendientes, o perder apuntes en papeles que nunca se llegaron a enviar al cliente.',
-    solution: 'Botón de guardado a un solo clic que almacena cotizaciones en una bandeja de "Por Enviar" con contador visual de pendientes. Permite revisarlas, editarlas y despacharlas por WhatsApp con un solo toque.',
-    impact: 'Cero dinero perdido por olvidos administrativos. Organización impecable para cotizar en el taller o vehículo y enviar en segundos.',
+    problem: 'Ya no más papeles perdidos, notas en el celular ni cotizaciones olvidadas mientras trabajas en la calle o atiendes inspecciones. Todo queda organizado en un solo toque para cotizar desde el taller o vehículo y despachar en segundos.',
+    solution: 'Bandeja centralizada "Por Enviar" con guardado a un solo clic y contador visual de pendientes para despachar por WhatsApp de inmediato. Cero dinero perdido por olvidos administrativos y organización impecable para convertir cada consulta en dinero seguro.',
+    impact: 'Cero dinero perdido por olvidos administrativos y agilidad operativa inmediata.',
     actionText: 'Ver Bandeja',
     actionPath: '/cotizador'
   },
@@ -99,9 +99,9 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
     category: 'MÉTRICAS & MARKETING DIGITAL',
     badge: 'Retorno de Inversión',
     title: 'Rastreador de Tráfico y Embudo de Conversión (FB, IG, WA)',
-    problem: 'Gastar en publicidad o publicar en Facebook, Instagram y WhatsApp sin saber qué red social realmente trae clientes y cuál solo hace perder el tiempo.',
-    solution: 'Enlaces cortos de marketing (/fb, /ig, /wa) que rastrean en vivo el embudo completo: cuántos visitantes entraron, cuántos dieron clic para cotizar y cuántos agendaron cita técnica real, con filtros semanales, quincenales y mensuales.',
-    impact: 'Claridad matemática total sobre el retorno del negocio. David sabe con certeza dónde enfocar su esfuerzo comercial para generar más ingresos.',
+    problem: 'Ya no más adivinar qué red social te deja ganancias reales y cuál solo consume tu tiempo. Ahora sabes con precisión matemática de dónde provienen las visitas, quién hace clic para cotizar y cuántos clientes agendan cita técnica.',
+    solution: 'Enlaces inteligentes de marketing (/fb, /ig, /wa) con métricas en tiempo real que miden el embudo completo: visitas, cotizaciones generadas y citas concretadas. Claridad financiera total para enfocar esfuerzos y presupuesto en los canales que más dinero producen.',
+    impact: 'Decisiones comerciales basadas en números exactos para maximizar el retorno de inversión.',
     actionText: 'Ver Analítica',
     actionPath: '/detec/panel'
   },
@@ -111,9 +111,9 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
     category: 'EXPERIENCIA DE USUARIO',
     badge: 'Cero Fricción',
     title: 'Agenda Interactiva con Detección Visual de Campos Incompletos',
-    problem: 'Formularios difíciles de entender donde los clientes no saben qué casillas faltan por llenar, se frustran y cierran la página sin reservar.',
-    solution: 'Campos requeridos con sombreado anaranjado visual inteligente que se atenúa al escribir, validación interactiva que avisa qué dato falta antes de confirmar y envío automático de la cita al WhatsApp de David.',
-    impact: 'Aumento del 40% en reservas concretadas. Cada cliente que llega a la web completa su reserva sin llamar a preguntar cómo se usa.',
+    problem: 'Reservas fáciles, rápidas e inmediatas: tus clientes nunca se perderán en la web. La agenda guía al usuario de manera intuitiva y visual paso a paso, eliminando cualquier confusión, frustración o abandono antes de completar su reserva.',
+    solution: 'Campos interactivos con guía visual inteligente que asisten al cliente al escribir y despachan la cita técnica directamente al WhatsApp. Aumenta un 40% las reservas confirmadas, asegurando que cada visitante complete su solicitud sin complicaciones ni llamadas previas.',
+    impact: 'Aumento del 40% en reservas concretadas sin fricción para el usuario.',
     actionText: 'Abrir Agenda',
     actionPath: '/agenda'
   },
@@ -123,9 +123,9 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
     category: 'PRUEBA SOCIAL & CONFIANZA',
     badge: 'Reputación Blindada',
     title: 'Muro de Reseñas y Testimonios con Carrusel Dinámico',
-    problem: 'El cliente que nunca ha contratado a Royalty teme ser estafado o recibir un trabajo de mala calidad si no ve testimonios de otros clientes de Costa Rica.',
-    solution: 'Slider interactivo fluido con testimonios reales verificados en San José, Cartago y Heredia, con desglose de estrellas, fecha y tipo de trabajo realizado.',
-    impact: 'Destruye la desconfianza del cliente al primer instante. La reputación de David queda establecida antes de la primera llamada.',
+    problem: 'Cuando tus clientes vean tus testimonios reales y calificaciones de 5 estrellas, te contratarán de inmediato y sin dudar. La prueba social auténtica genera confianza absoluta desde el primer segundo que entran a tu sitio.',
+    solution: 'Muro dinámico interactivo con testimonios verificados de clientes en San José, Cartago y Heredia, con desglose de estrellas y fecha. Erradica cualquier desconfianza y blinda la reputación del negocio antes de la primera llamada técnica.',
+    impact: 'Confianza inmediata y reputación blindada que destruye las objeciones del cliente.',
     actionText: 'Ver Testimonios',
     actionPath: '/calificar'
   },
@@ -135,9 +135,9 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
     category: 'CENTRO DE MANDO DIRECTIVO',
     badge: 'Control Total',
     title: 'Panel Administrativo Todo-en-Uno (Modo Claro / Modo Pro)',
-    problem: 'Gestionar un negocio técnico con cuadernos viejos, notas en el celular y mensajes dispersos que impiden saber cuántas citas hay en la semana.',
-    solution: 'Panel privado protegido con autenticación por clave y token, con selector de modo visual, listado cronológico de citas, base de datos de clientes, cotizaciones y métricas operativas.',
-    impact: 'Control corporativo total del negocio desde cualquier computadora o desde el celular de David mientras viaja a una obra técnica.',
+    problem: 'Ya no más cuadernos viejos, notas en el celular ni mensajes dispersos que te hagan dudar de cuántas citas tienes en la semana. Toda la operación de tu empresa reunida en un centro de mando moderno, seguro y accesible desde cualquier lugar.',
+    solution: 'Panel privado con acceso seguro, selector de modo visual, calendario cronológico de citas, base de datos de clientes, cotizador y métricas operativas. Control directivo total del negocio desde la computadora o el móvil mientras viajas a atender obras técnicas.',
+    impact: 'Control corporativo total de la empresa en tiempo real desde la oficina o la calle.',
     actionText: 'Acceso Panel',
     actionPath: '/detec/panel'
   },
@@ -147,9 +147,9 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
     category: 'INFRAESTRUCTURA DE VANGUARDIA',
     badge: 'Grado Silicon Valley',
     title: 'Nube Serverless Edge Distribuida (Cloudflare Pages + Base de Datos en la Nube)',
-    problem: 'Sitios en WordPress lentos que demoran 6 segundos en cargar, sufren ataques constantes o cobran mensualidades excesivas en servidores convencionales.',
-    solution: 'Despliegue distribuido en más de 300 centros de datos globales con base de datos SQL distribuida de alta disponibilidad. Velocidad de carga en menos de 0.5 segundos y cifrado bancario HTTPS.',
-    impact: 'Cero costos mensuales fijos de hosting o licencias. Máxima velocidad de carga que posiciona a Royalty por encima de la competencia en Google.',
+    problem: 'Ya no más sitios lentos, caídas de servidor ni cobros mensuales excesivos por hosting convencional. Tu empresa opera sobre infraestructura global de última generación con máxima velocidad y seguridad bancaria.',
+    solution: 'Despliegue distribuido en más de 300 centros de datos globales con base de datos SQL distribuida de alta disponibilidad. Carga ultra rápida en menos de 0.5 segundos, cifrado bancario HTTPS y cero costos fijos mensuales de hosting tradicional.',
+    impact: 'Cero costos fijos mensuales y máxima velocidad para liderar en Google.',
     actionText: 'Ver Web',
     actionPath: '/'
   },
@@ -159,9 +159,9 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
     category: 'TECNOLOGÍA MÓVIL MODERNA',
     badge: 'Instalación en 1-Clic',
     title: 'Aplicación Web Progresiva (PWA Móvil Primero)',
-    problem: 'Pagar miles de dólares por desarrollar apps separadas para iPhone y Android que los clientes no quieren descargar por falta de espacio.',
-    solution: 'Tecnología PWA que permite instalar la plataforma con un ícono directo en la pantalla del celular de David y de sus clientes sin pasar por App Store ni Play Store.',
-    impact: 'Acceso inmediato desde el bolsillo, funcionamiento ligero y presencia permanente en el teléfono de los clientes recurrentes.',
+    problem: 'Ya no más costos exorbitantes en desarrollo de aplicaciones complejas que los clientes evitan descargar. Ahora cuentas con una app web moderna que tú y tus clientes instalan en 1 solo clic en la pantalla de inicio del teléfono.',
+    solution: 'Tecnología PWA ligera que se instala directamente sin pasar por tiendas de aplicaciones, brindando acceso instantáneo desde el bolsillo. Presencia permanente en el teléfono de clientes recurrentes y herramientas de trabajo siempre a mano.',
+    impact: 'Acceso instantáneo desde el celular y presencia directa en la pantalla del cliente.',
     actionText: 'Probar App',
     actionPath: '/'
   }
@@ -170,11 +170,11 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
 const INITIAL_DATA: ProjectPresentationData = {
   heroTagline: 'DOCUMENTO ESTRATÉGICO DE ARQUITECTURA & VALOR COMERCIAL',
   heroTitle: 'La Plataforma Tecnológica a Medida que Convierte a Royalty en el Líder Absoluto de Costa Rica',
-  heroSubtitle: 'Diseñada exclusivamente para David Rojas: automatiza la captación de clientes, erradica cotizaciones informales en mensajes de texto, rastrea cuándo tu cliente abre y descarga tus propuestas, y convierte visitas en citas técnicas pagadas.',
+  heroSubtitle: 'Diseñada exclusivamente para Royalty Detección de Fugas: automatiza la captación de clientes, erradica cotizaciones informales en mensajes de texto, rastrea cuándo tu cliente abre y descarga tus propuestas, y convierte visitas en citas técnicas pagadas.',
   metrics: DEFAULT_METRICS,
   features: DEFAULT_FEATURES,
   closingTitle: '¿Por qué este sistema no es un gasto, sino el activo más rentable de Royalty?',
-  closingText: 'Una página web genérica de $100 es solo un folleto digital que nadie lee. Esta plataforma es una máquina de operaciones y ventas construida a la medida de los procesos técnicos de David Rojas. Cada funcionalidad está programada para ahorrar horas de trabajo manual, proyectar máxima seriedad corporativa y asegurar que cada cliente que busque un destaqueo o detección en Costa Rica termine contratando a Royalty.',
+  closingText: 'Una página web genérica de $100 es solo un folleto digital que nadie lee. Esta plataforma es una máquina de operaciones y ventas construida a la medida de los procesos técnicos de Royalty. Cada funcionalidad está programada para ahorrar horas de trabajo manual, proyectar máxima seriedad corporativa y asegurar que cada cliente que busque un destaqueo o detección en Costa Rica termine contratando a Royalty.',
   closingQuote: 'En el sector técnico, la empresa que cotiza formalmente en segundos y demuestra transparencia tecnológica es la que gana el 90% de los contratos de alto valor.'
 };
 
@@ -594,39 +594,28 @@ export const ProjectPresentationPage: React.FC<ProjectPresentationPageProps> = (
                   </div>
                 </div>
 
-                {/* Grid Explicativo en 3 Pasos: Dolor -> Solución -> Impacto */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                {/* Grid Explicativo en 2 Pasos: Adiós al Método Tradicional -> Solución Implementada & Beneficio Directo */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                   
-                  {/* 1. El Problema Tradicional */}
-                  <div className="bg-red-950/20 border border-red-900/40 p-4 rounded-2xl space-y-1.5">
-                    <div className="text-[10px] font-black uppercase tracking-wider text-red-400 flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
-                      <span>El Dolor del Negocio Común</span>
+                  {/* 1. Adiós al Método Tradicional */}
+                  <div className="bg-amber-950/20 border border-amber-900/40 p-4 rounded-2xl space-y-1.5">
+                    <div className="text-[10px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                      <span>Adiós al Método Tradicional</span>
                     </div>
                     <p className="text-slate-300 leading-relaxed font-medium">
                       {feat.problem}
                     </p>
                   </div>
 
-                  {/* 2. La Solución en Este Sistema */}
+                  {/* 2. Solución Implementada & Beneficio Directo */}
                   <div className="bg-blue-950/20 border border-blue-900/40 p-4 rounded-2xl space-y-1.5">
                     <div className="text-[10px] font-black uppercase tracking-wider text-blue-400 flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                      <span>La Solución Implementada</span>
+                      <span>Solución Implementada & Beneficio Directo</span>
                     </div>
-                    <p className="text-slate-300 leading-relaxed font-medium">
+                    <p className="text-slate-200 leading-relaxed font-medium">
                       {feat.solution}
-                    </p>
-                  </div>
-
-                  {/* 3. El Impacto Financiero / Operativo */}
-                  <div className="bg-emerald-950/20 border border-emerald-900/40 p-4 rounded-2xl space-y-1.5">
-                    <div className="text-[10px] font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                      <span>El Impacto para David Rojas</span>
-                    </div>
-                    <p className="text-emerald-100/90 leading-relaxed font-semibold">
-                      {feat.impact}
                     </p>
                   </div>
 
@@ -798,8 +787,8 @@ export const ProjectPresentationPage: React.FC<ProjectPresentationPageProps> = (
               </div>
 
               <div>
-                <label className="block text-[10.5px] font-bold text-red-400 uppercase mb-1">
-                  El Dolor / Problema Tradicional
+                <label className="block text-[10.5px] font-bold text-amber-400 uppercase mb-1">
+                  Adiós al Método Tradicional (Enfoque Persuasivo)
                 </label>
                 <textarea
                   rows={3}
@@ -811,24 +800,12 @@ export const ProjectPresentationPage: React.FC<ProjectPresentationPageProps> = (
 
               <div>
                 <label className="block text-[10.5px] font-bold text-blue-400 uppercase mb-1">
-                  La Solución en Este Sistema
+                  Solución Implementada & Beneficio Directo
                 </label>
                 <textarea
-                  rows={3}
+                  rows={4}
                   value={editingFeature.solution}
-                  onChange={(e) => setEditingFeature({ ...editingFeature, solution: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white font-medium"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10.5px] font-bold text-emerald-400 uppercase mb-1">
-                  El Impacto para David Rojas
-                </label>
-                <textarea
-                  rows={3}
-                  value={editingFeature.impact}
-                  onChange={(e) => setEditingFeature({ ...editingFeature, impact: e.target.value })}
+                  onChange={(e) => setEditingFeature({ ...editingFeature, solution: e.target.value, impact: e.target.value })}
                   className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white font-medium"
                 />
               </div>

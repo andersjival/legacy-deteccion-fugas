@@ -15,6 +15,14 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.46.0] - 2026-10-29 - Enfoque Persuasivo y Unificación de Solución & Beneficio en /PROYECTO
+- **Erradicación de Términos de Dolor y Personalismo Excesivo (`ProjectPresentationPage.tsx`):**
+  - Eliminadas las etiquetas "El Dolor del Negocio Común" y "El Impacto para David Rojas".
+  - Reemplazado por un esquema de 2 columnas de alto impacto: `[Adiós al Método Tradicional]` (enfoque persuasivo y propositivo: "ya no más cuadernos viejos, reservas fáciles e inmediatas, cuando tus clientes vean tus testimonios te contratarán más") y `[Solución Implementada & Beneficio Directo]`.
+- **Unificación Cohesiva de Solución y Resultados (`ProjectPresentationPage.tsx`):**
+  - Fusionados la solución técnica y el beneficio económico/operativo en un solo bloque integrado ("cero dinero perdido por olvidos administrativos", duplicación de velocidad de cierre y máxima seriedad corporativa).
+  - Actualizada clave de almacenamiento local a `_v3` para refresco automático sin caché residual.
+
 ### [v2.45.0] - 2026-10-29 - Rediseño Compacto y Elegante de la Pastilla de Cita Ocupada
 - **Pastilla Compacta de Cita Ocupada (`AppointmentCard.tsx`):**
   - Sustituido el bloque sobrecargado con fecha y horas repetidas por una pastilla compacta, fina y discreta `[🔒 Ocupada]` (`text-[11px]`, `px-2.5 py-0.5 rounded-full`) con `whitespace-nowrap`.
