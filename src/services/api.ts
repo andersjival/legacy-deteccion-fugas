@@ -607,15 +607,36 @@ class ApiService {
           const current = this.getStored<Review[]>(STORAGE_KEYS.REVIEWS, []);
           this.setStored(STORAGE_KEYS.REVIEWS, [created, ...current]);
           return created;
+        } else {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.error || 'El número ingresado no corresponde a ningún cliente registrado en las citas de Royalty.');
         }
       }
-    } catch {
+    } catch (e: any) {
+      // Si el servidor devolvió un error explícito de validación (403, 400), propagarlo inmediatamente
+      if (e?.message && e.message !== 'Failed to fetch') {
+        throw e;
+      }
       this.useLocalFallback = true;
+    }
+
+    // Modo local / offline: validar contra las citas guardadas
+    const currentAppointments = this.getStored<Appointment[]>(STORAGE_KEYS.APPOINTMENTS, []);
+    const cleanInput = (dto.client_phone || '').replace(/\D/g, '').slice(-8);
+    const matchedApp = currentAppointments.find((a) => {
+      if (dto.appointment_id && a.id === dto.appointment_id) return true;
+      const aDigits = (a.client_phone || '').replace(/\D/g, '').slice(-8);
+      return aDigits === cleanInput && cleanInput.length >= 8;
+    });
+
+    if (!matchedApp) {
+      throw new Error('Acceso denegado: Este número de teléfono no coincide con ningún cliente registrado en las citas de Royalty. Solo los clientes con trabajos agendados pueden publicar testimonios verificados.');
     }
 
     const fallbackReview: Review = {
       id: 'rev_' + Date.now(),
       ...dto,
+      appointment_id: dto.appointment_id || matchedApp.id,
       created_at: new Date().toISOString(),
       is_verified: 1,
       is_published: 1

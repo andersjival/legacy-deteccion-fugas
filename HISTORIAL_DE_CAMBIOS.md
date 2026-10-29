@@ -15,6 +15,12 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.48.0] - 2026-10-29 - Validación Estricta Anti-Fraude de Teléfono en Testimonios
+- **Verificación Obligatoria de Cita Previa (`[[route]].ts` / `api.ts` / `ClientReviewPage.tsx`):**
+  - Implementada comprobación estricta en base de datos D1 y almacenamiento local de las citas agendadas: cualquier reseña enviada con un número de teléfono que no pertenezca a un cliente con citas registradas en Royalty es rechazada con código `403 Acceso Denegado`.
+  - Normalizada la coincidencia telefónica por los últimos 8 dígitos (formato estándar de Costa Rica), blindando el portal contra personas malintencionadas o testimonios falsos.
+  - Erradicado el guardado ciego en fallback local si el servidor devuelve un error de validación, mostrando mensaje explícito al usuario en pantalla.
+
 ### [v2.47.0] - 2026-10-29 - Sincronización y Purga de Caché de la PWA (v2.46)
 - **Sincronización Total Web y PWA (`sw.js`):**
   - Actualizado el identificador de caché a `legacy-pwa-v2.46`, forzando la purga inmediata de versiones anteriores en cualquier teléfono o computadora instalada.

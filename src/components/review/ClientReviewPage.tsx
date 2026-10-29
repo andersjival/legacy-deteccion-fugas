@@ -72,8 +72,8 @@ export const ClientReviewPage: React.FC<ClientReviewPageProps> = ({ onBackToHome
         appointment_id: appointmentId || undefined
       });
       setIsSubmitted(true);
-    } catch {
-      setErrorMessage('Ocurrió un error al enviar su comentario. Intente nuevamente.');
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'El número ingresado no coincide con ningún cliente registrado en las citas de Royalty.');
     } finally {
       setIsSubmitting(false);
     }
@@ -204,10 +204,15 @@ export const ClientReviewPage: React.FC<ClientReviewPageProps> = ({ onBackToHome
                 </div>
               ) : (
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-black text-brand-dark flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-brand-blue" />
-                    <span>Su Teléfono Celular (Para validación oficial):</span>
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-black text-brand-dark flex items-center gap-1.5">
+                      <Phone className="w-3.5 h-3.5 text-brand-blue" />
+                      <span>Su Teléfono Celular (Validación de Cliente):</span>
+                    </label>
+                    <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                      Solo Clientes Registrados
+                    </span>
+                  </div>
                   <input
                     type="tel"
                     required
@@ -216,8 +221,8 @@ export const ClientReviewPage: React.FC<ClientReviewPageProps> = ({ onBackToHome
                     placeholder="Ej: 8888-8888"
                     className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-blue/30 focus:border-brand-blue transition-all font-mono"
                   />
-                  <span className="text-[11px] text-slate-400">
-                    Se utiliza para registrar la autenticidad del servicio y evitar comentarios falsos.
+                  <span className="text-[11px] text-slate-500 font-medium block">
+                    🔒 El sistema valida que este celular coincida con una cita técnica agendada en Royalty para evitar reseñas falsas.
                   </span>
                 </div>
               )}

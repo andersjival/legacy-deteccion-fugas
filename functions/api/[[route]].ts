@@ -676,11 +676,57 @@ app.post('/reviews', async (c) => {
   const rawRating = Number(body.rating || 5);
   const rating = Math.min(5, Math.max(1, isNaN(rawRating) ? 5 : Math.round(rawRating)));
   const serviceType = (body.service_type || 'Detección Especializada de Fugas').trim();
-  const appointmentId = body.appointment_id || null;
-  const clientPhone = body.client_phone || null;
+  let appointmentId = body.appointment_id || null;
+  const clientPhone = (body.client_phone || '').trim();
 
   if (!clientName || !comment) {
-    return c.json({ error: 'El nombre y el comentario son requeridos' }, 400);
+    return c.json({ error: 'El nombre y el comentario son requeridos.' }, 400);
+  }
+
+  if (!clientPhone) {
+    return c.json({ error: 'El número de teléfono es obligatorio para verificar la autenticidad de la reseña.' }, 400);
+  }
+
+  // Normalizar los últimos 8 dígitos del número telefónico (estándar en Costa Rica)
+  const phoneDigits = clientPhone.replace(/\D/g, '');
+  const last8Digits = phoneDigits.length >= 8 ? phoneDigits.slice(-8) : phoneDigits;
+
+  if (last8Digits.length < 8) {
+    return c.json({ error: 'Por favor ingrese un número telefónico válido de al menos 8 dígitos.' }, 400);
+  }
+
+  let matchedAppointment: any = null;
+
+  if (c.env.DB) {
+    try {
+      // Buscar en todas las citas agendadas si existe este número de teléfono o ID de cita
+      const { results } = await c.env.DB.prepare(
+        'SELECT id, client_name, client_phone, service_type FROM appointments'
+      ).all();
+
+      if (results && results.length > 0) {
+        matchedAppointment = results.find((a: any) => {
+          if (appointmentId && a.id === appointmentId) return true;
+          const aDigits = (a.client_phone || '').replace(/\D/g, '');
+          const aLast8 = aDigits.length >= 8 ? aDigits.slice(-8) : aDigits;
+          return aLast8 === last8Digits;
+        });
+      }
+    } catch (e) {
+      console.warn('D1 appointment lookup error:', e);
+    }
+  }
+
+  // VALIDACIÓN ESTRICTA: Si el teléfono no coincide con ninguna cita agendada, denegar acceso
+  if (!matchedAppointment) {
+    return c.json({
+      error: 'Acceso denegado: Este número de teléfono no coincide con ningún cliente registrado en las citas de Royalty. Solo los clientes con trabajos agendados pueden publicar testimonios verificados.'
+    }, 403);
+  }
+
+  // Vincular la cita real confirmada
+  if (!appointmentId && matchedAppointment) {
+    appointmentId = matchedAppointment.id;
   }
 
   const id = 'rev_' + crypto.randomUUID().substring(0, 10);
