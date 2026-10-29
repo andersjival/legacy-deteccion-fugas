@@ -1,6 +1,7 @@
 import React from 'react';
 import { Phone, MapPin, Clock, Lock, ShieldCheck } from 'lucide-react';
 import { AnimatedEagleLogo } from '../common/AnimatedEagleLogo';
+import { SocialLinks } from '../common/SocialLinks';
 
 interface FooterProps {
   onOpenAdmin: () => void;
@@ -38,6 +39,14 @@ export const Footer: React.FC<FooterProps> = ({
             <div className="flex items-center gap-2 text-xs text-slate-300">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
               <span>Garantía de Cero Destrucción</span>
+            </div>
+
+            {/* Redes Sociales Oficiales */}
+            <div className="pt-2 space-y-1.5">
+              <span className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                Redes Sociales Oficiales:
+              </span>
+              <SocialLinks size="sm" showLabels={true} />
             </div>
           </div>
 
@@ -105,9 +114,13 @@ export const Footer: React.FC<FooterProps> = ({
 
         </div>
 
-        {/* Copyright */}
+        {/* Copyright y Redes Rápidas */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
           <p>© {new Date().getFullYear()} Royality Detección de Fugas. Todos los derechos reservados.</p>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-slate-400 font-semibold hidden md:inline">Síguenos:</span>
+            <SocialLinks size="sm" />
+          </div>
           <p className="text-[11px]">Diseño y Arquitectura de Alta Precisión.</p>
         </div>
 

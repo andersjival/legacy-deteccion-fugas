@@ -15,6 +15,21 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.15.0] - 2026-10-28 - Integración de Redes Sociales Oficiales (Facebook, Instagram y WhatsApp)
+- **Componente Centralizado de Redes Sociales (`SocialLinks.tsx`):**
+  - Creado componente reutilizable con SVGs vectoriales nativos para Facebook (`#1877F2`), Instagram (gradiente magenta-naranja característico) y WhatsApp (`#25D366`).
+  - Enlaces oficiales configurados:
+    - Facebook: `https://www.facebook.com/profile.php?id=61588596020935`
+    - Instagram: `https://www.instagram.com/legacy.deteccion`
+    - WhatsApp: `https://wa.me/50664080124`
+  - Micro-interacciones de elevación suave (*hover translate* y sombras dinámicas) con apertura segura en pestaña externa (`target="_blank" rel="noopener noreferrer"`).
+- **Integración en Encabezado y Menú Móvil (`Navbar.tsx`):**
+  - Acceso directo visible en barra de navegación de escritorio.
+  - Sección integrada "Síguenos en redes" en el cajón desplegable móvil para pantallas pequeñas.
+- **Integración en Pie de Página (`Footer.tsx`):**
+  - Columna principal con botones etiquetados bajo la sección de garantía.
+  - Fila inferior de copyright con accesos compactos para redes sociales.
+
 ### [v2.14.0] - 2026-10-28 - Rediseño del Logo en Blanco con Aura Celeste Posterior y Luz en Detección de Fugas
 - **Rediseño del Logo del Águila (`AnimatedEagleLogo.tsx`):**
   - Eliminado el recuadro celeste con círculo; el contenedor ahora es 100% blanco puro con esquinas redondeadas.

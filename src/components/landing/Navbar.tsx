@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Phone, Calendar, Lock, Menu, X } from 'lucide-react';
 import { AnimatedEagleLogo } from '../common/AnimatedEagleLogo';
+import { SocialLinks } from '../common/SocialLinks';
 
 interface NavbarProps {
   onOpenAdmin: () => void;
@@ -48,6 +49,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda })
 
           {/* Acciones Derecha */}
           <div className="hidden sm:flex items-center gap-2">
+            <SocialLinks size="sm" className="hidden xl:flex mr-1" />
+
             <a
               href="tel:+50664080124"
               className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-brand-dark bg-brand-ice hover:bg-brand-iceBorder border border-brand-iceBorder transition-all"
@@ -161,6 +164,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, onNavigateAgenda })
               <Calendar className="w-4 h-4" />
               <span>Agendar Inspección Ahora</span>
             </a>
+
+            {/* Redes Sociales en Menú Móvil */}
+            <div className="pt-3 mt-1 flex items-center justify-between border-t border-slate-100">
+              <span className="text-xs font-semibold text-slate-500">Síguenos en redes:</span>
+              <SocialLinks size="sm" />
+            </div>
           </div>
         </div>
       )}
