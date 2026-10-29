@@ -133,7 +133,13 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black bg-blue-50 text-blue-900 border border-blue-200 shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0" />
+            <span>🔒 HORARIO OCUPADO:</span>
+            <span className="capitalize">{formatDateToSpanish(appointment.appointment_date)}</span>
+            <span className="text-blue-700 font-bold">({rango_hora})</span>
+          </span>
           <span className={`px-2.5 py-1 rounded-lg text-xs font-extrabold border ${statusConfig[appointment.status].color}`}>
             {statusConfig[appointment.status].label}
           </span>
@@ -142,14 +148,14 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
 
       {/* Info de Fecha, Horario, Dirección y Enlaces de Navegación Waze */}
       <div className="space-y-2.5 text-xs text-brand-slate font-medium">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50/80 p-2.5 rounded-xl border border-slate-100">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-brand-blue shrink-0" />
-            <span className="capitalize">{formatDateToSpanish(appointment.appointment_date)}</span>
+            <span className="capitalize font-bold text-brand-dark">{formatDateToSpanish(appointment.appointment_date)}</span>
           </div>
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-brand-orange shrink-0" />
-            <span className="font-bold text-brand-dark">{rango_hora}</span>
+            <span className="font-extrabold text-brand-dark">{rango_hora}</span>
           </div>
         </div>
 

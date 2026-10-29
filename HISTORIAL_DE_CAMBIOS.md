@@ -15,6 +15,19 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.40.0] - 2026-10-29 - Eliminación de Término D1, Día y Fecha en Rutas de Hoy y Visualización de Citas Ocupadas en Todas las Citas
+- **Eliminación Total de la Palabra D1 en Interfaces de Usuario (`AdminView.tsx` / `TrafficAnalytics.tsx` / `ProjectPresentationPage.tsx`):**
+  - Removida la palabra "D1" de todas las etiquetas visibles para el usuario:
+    - Encabezado de panel administrativo: de `En Vivo D1` a `En Vivo`.
+    - Rastreador de tráfico y métricas: de `En Vivo D1` a `En Tiempo Real`, y de `Últimos Eventos de Tráfico en Vivo (D1)` a `Últimos Eventos de Tráfico en Vivo`.
+    - Página de presentación de proyecto: sustituido por terminología formal de nube de alta disponibilidad.
+- **Día de la Semana y Fecha en Tarjetas de Rutas de Hoy (`TodayRouteCard.tsx`):**
+  - En cada tarjeta de la ruta diaria, junto al rango de horario (ej. `10:00 a. m. - 12:00 m.`), se incorporó la pastilla con el día de la semana y fecha correspondiente (ej. `📅 Jueves, 29 de octubre`).
+- **Visualización Explícita de Horarios Ocupados en Todas las Citas (`AppointmentCard.tsx` / `AdminView.tsx`):**
+  - En cada tarjeta de cita se añadió el distintivo oficial `🔒 HORARIO OCUPADO: [Día de la semana, Fecha] ([Rango de Horas])`.
+  - En los bloques de horario ocupados en la cuadrícula de disponibilidad se incluyó el día y fecha respectiva.
+  - Al seleccionar el filtro *"Todas"*, se habilitó la cuadrícula general de citas con horarios ocupados indicando `🔒 OCUPADA` con su día, fecha y botón directo para ver la cita.
+
 ### [v2.39.0] - 2026-10-29 - Erradicación Total del Movimiento y Salto en el Menú Superior al Actualizar
 - **Fijación de Geometría Estricta del Menú Superior (`AdminView.tsx`):**
   - Fijada la altura estricta del encabezado superior a `h-16 min-h-[64px]` con `shrink-0` en todos sus contenedores principales (logo, barra de navegación central y botones de acción derecha).

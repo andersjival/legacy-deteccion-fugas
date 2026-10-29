@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navigation, Phone, MessageSquare, CheckCircle, MapPin, ChevronDown, ChevronUp, Image as ImageIcon, Clock, Edit3, FastForward, DollarSign, Star } from 'lucide-react';
+import { Navigation, Phone, MessageSquare, CheckCircle, MapPin, ChevronDown, ChevronUp, Image as ImageIcon, Clock, Edit3, FastForward, DollarSign, Star, Calendar } from 'lucide-react';
 import { Appointment, AppointmentStatus, PaymentMethod } from '../../types/appointment';
 import { formatTime12h, formatDateToSpanish } from '../../utils/dateFormatter';
 import { ServiceEditorModal } from './ServiceEditorModal';
@@ -74,19 +74,23 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
       }`}
     >
       
-      {/* Turno y Número de Parada */}
-      <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-        <div className="flex items-center gap-2">
-          <span className="w-7 h-7 rounded-full bg-brand-dark text-white flex items-center justify-center text-xs font-black">
+      {/* Turno, Horario, Día de la Semana y Fecha */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="w-7 h-7 rounded-full bg-brand-dark text-white flex items-center justify-center text-xs font-black shrink-0">
             #{index + 1}
           </span>
-          <div className="flex items-center gap-1.5 text-xs font-black text-brand-dark bg-brand-ice px-2.5 py-1 rounded-xl border border-brand-iceBorder">
+          <div className="flex items-center gap-1.5 text-xs font-black text-brand-dark bg-brand-ice px-2.5 py-1 rounded-xl border border-brand-iceBorder shrink-0">
             <Clock className="w-3.5 h-3.5 text-brand-orange" />
             <span>{rangoHora}</span>
           </div>
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-50 px-2.5 py-1 rounded-xl border border-slate-200 capitalize">
+            <Calendar className="w-3.5 h-3.5 text-brand-blue" />
+            <span>{formatDateToSpanish(appointment.appointment_date)}</span>
+          </div>
         </div>
 
-        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
+        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase self-start sm:self-auto shrink-0 ${
           isCompleted ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
         }`}>
           {isCompleted ? 'Finalizada' : 'En Ruta'}

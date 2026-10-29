@@ -146,9 +146,9 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
     order: 9,
     category: 'INFRAESTRUCTURA DE VANGUARDIA',
     badge: 'Grado Silicon Valley',
-    title: 'Nube Serverless Edge Distribuida (Cloudflare Pages + D1)',
+    title: 'Nube Serverless Edge Distribuida (Cloudflare Pages + Base de Datos en la Nube)',
     problem: 'Sitios en WordPress lentos que demoran 6 segundos en cargar, sufren ataques constantes o cobran mensualidades excesivas en servidores convencionales.',
-    solution: 'Despliegue distribuido en más de 300 centros de datos globales con base de datos SQL distribuida Cloudflare D1. Velocidad de carga en menos de 0.5 segundos y cifrado bancario HTTPS.',
+    solution: 'Despliegue distribuido en más de 300 centros de datos globales con base de datos SQL distribuida de alta disponibilidad. Velocidad de carga en menos de 0.5 segundos y cifrado bancario HTTPS.',
     impact: 'Cero costos mensuales fijos de hosting o licencias. Máxima velocidad de carga que posiciona a Royalty por encima de la competencia en Google.',
     actionText: 'Ver Web',
     actionPath: '/'

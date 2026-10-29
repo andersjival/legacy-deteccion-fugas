@@ -236,7 +236,7 @@ export const TrafficAnalytics: React.FC = () => {
               </h2>
               <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>En Vivo D1</span>
+                <span>En Tiempo Real</span>
               </span>
             </div>
             <p className="text-xs text-slate-500 font-medium">
@@ -720,7 +720,7 @@ export const TrafficAnalytics: React.FC = () => {
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-brand-blue" />
             <h4 className="text-xs font-black text-brand-dark uppercase tracking-wider">
-              Últimos Eventos de Tráfico en Vivo (D1)
+              Últimos Eventos de Tráfico en Vivo
             </h4>
           </div>
           <span className="text-[10px] text-slate-400">Actualización en tiempo real</span>
