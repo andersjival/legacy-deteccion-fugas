@@ -15,6 +15,11 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.21.0] - 2026-10-29 - Eliminación de la Etiqueta "Cotización Formal" en Hoja de Cotizaciones
+- **Ajuste de Cabecera en Cotizaciones (`JobQuoteManager.tsx`):**
+  - Removida la pastilla decorativa *"COTIZACIÓN FORMAL"* tanto de la hoja imprimible interactiva como de la exportación en archivo HTML autónomo.
+  - La esquina superior derecha ahora muestra directamente el consecutivo en tipografía nítida (`COT-2026-XXX`), la fecha y el período de validez sin sobrecarga textual.
+
 ### [v2.20.0] - 2026-10-29 - Aislamiento Quirúrgico de Impresión Oficial y Descarga con Nombre Personalizado
 - **Aislamiento Absoluto de Impresión (`src/index.css` / `JobQuoteManager.tsx`):**
   - Implementada regla de aislamiento `@media print` universal que oculta todo elemento del sitio web (`body * { visibility: hidden !important }`) y visibiliza única y exclusivamente la hoja membretada oficial (`#printable-quote-sheet`).

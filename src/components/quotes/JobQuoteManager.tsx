@@ -377,9 +377,8 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
         <p style="margin: 0; font-size: 12px; color: #64748b;">Costa Rica • Tel. ${quote.responsiblePhone}</p>
       </div>
       <div style="text-align: right;">
-        <span class="badge">COTIZACIÓN FORMAL</span>
-        <div style="font-weight: 900; font-family: monospace; margin-top: 4px;">${quote.quoteNumber}</div>
-        <div style="font-size: 12px; color: #64748b;">Fecha: <strong>${quote.date}</strong></div>
+        <div style="font-weight: 900; font-family: monospace; font-size: 14px; color: #0f172a;">${quote.quoteNumber}</div>
+        <div style="font-size: 12px; color: #64748b; margin-top: 2px;">Fecha: <strong>${quote.date}</strong></div>
       </div>
     </div>
 
@@ -1194,13 +1193,10 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
 
               {/* Consecutivo y Fecha */}
               <div className="bg-slate-50 sm:bg-transparent p-3 sm:p-0 rounded-2xl sm:rounded-none w-full sm:w-auto text-left sm:text-right border sm:border-0 border-slate-100">
-                <span className="inline-block px-3 py-1 rounded-xl bg-[#67141d] text-white text-[11px] font-black uppercase tracking-wider mb-1 shadow-xs">
-                  COTIZACIÓN FORMAL
-                </span>
-                <div className="text-xs font-mono font-black text-brand-dark">
+                <div className="text-sm font-mono font-black text-brand-dark">
                   {quote.quoteNumber}
                 </div>
-                <div className="text-xs font-bold text-slate-500">
+                <div className="text-xs font-bold text-slate-500 mt-0.5">
                   Fecha: <span className="text-brand-dark font-extrabold">{quote.date}</span>
                 </div>
                 <div className="text-[10px] text-slate-400 font-semibold">
