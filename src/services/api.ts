@@ -600,6 +600,81 @@ class ApiService {
     this.setStored(STORAGE_KEYS.REVIEWS, current.filter(r => r.id !== id));
     return true;
   }
+
+  // ----------------------------------------------------
+  // COTIZACIONES DINÁMICAS (QUOTES)
+  // ----------------------------------------------------
+  async getQuotes(): Promise<any[]> {
+    try {
+      if (!this.useLocalFallback) {
+        const res = await fetch('/api/quotes');
+        if (res.ok) {
+          return await res.json();
+        }
+      }
+    } catch {
+      this.useLocalFallback = true;
+    }
+    return this.getStored<any[]>('royalty_saved_quotes_history', []);
+  }
+
+  async getQuoteById(id: string): Promise<any | null> {
+    try {
+      if (!this.useLocalFallback) {
+        const res = await fetch(`/api/quotes/${id}`);
+        if (res.ok) {
+          return await res.json();
+        }
+      }
+    } catch {
+      this.useLocalFallback = true;
+    }
+    const local = this.getStored<any[]>('royalty_saved_quotes_history', []);
+    const found = local.find((q: any) => q.id === id || q.quoteData?.id === id);
+    return found ? (found.quoteData || found) : null;
+  }
+
+  async saveQuote(quote: any): Promise<any> {
+    try {
+      if (!this.useLocalFallback) {
+        const res = await fetch('/api/quotes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(quote)
+        });
+        if (res.ok) {
+          return await res.json();
+        }
+      }
+    } catch {
+      this.useLocalFallback = true;
+    }
+    return { id: quote.id, share_url: `/cotizacion/${quote.id}` };
+  }
+
+  async markQuoteDownloaded(id: string): Promise<boolean> {
+    try {
+      const res = await fetch(`/api/quotes/${id}/downloaded`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }
+
+  async deleteQuote(id: string): Promise<boolean> {
+    try {
+      if (!this.useLocalFallback) {
+        const res = await fetch(`/api/quotes/${id}`, { method: 'DELETE' });
+        if (res.ok) return true;
+      }
+    } catch {
+      this.useLocalFallback = true;
+    }
+    return true;
+  }
 }
 
 export const api = new ApiService();

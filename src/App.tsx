@@ -10,6 +10,7 @@ import { ClientReviewPage } from './components/review/ClientReviewPage';
 import { AdminLogin } from './components/admin/AdminLogin';
 import { AdminView } from './components/admin/AdminView';
 import { JobQuoteManager } from './components/quotes/JobQuoteManager';
+import { ClientQuoteView } from './components/quotes/ClientQuoteView';
 import { useAdminAuth } from './hooks/useAdminAuth';
 import { usePWA } from './hooks/usePWA';
 import { ServiceType } from './types/appointment';
@@ -73,6 +74,17 @@ export function App() {
   const isAdminRoute = currentPath === '/detec/panel' || currentPath === '/detec' || currentPath === '/panel' || currentPath === '/admin';
   const isReviewRoute = currentPath === '/calificar' || currentPath === '/review' || currentPath === '/resena' || currentPath === '/valorar';
   const isQuoteRoute = currentPath === '/cotizador' || currentPath === '/cotizar' || currentPath === '/presupuesto';
+  const isClientQuoteRoute = currentPath.startsWith('/cotizacion');
+
+  const clientQuoteId = (() => {
+    if (!isClientQuoteRoute) return '';
+    const parts = currentPath.split('/');
+    if (parts.length >= 3 && parts[1] === 'cotizacion') {
+      return decodeURIComponent(parts[2]);
+    }
+    const params = new URLSearchParams(window.location.search);
+    return params.get('id') || '';
+  })();
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-brand-dark selection:bg-brand-blue selection:text-white">
@@ -108,6 +120,12 @@ export function App() {
       ) : isReviewRoute ? (
         /* Vista Exclusiva para Calificación de Clientes: /calificar */
         <ClientReviewPage onBackToHome={() => navigateTo('/')} />
+      ) : isClientQuoteRoute ? (
+        /* Vista Oficial Dinámica de Cotización para el Cliente: /cotizacion/:id */
+        <ClientQuoteView
+          quoteId={clientQuoteId}
+          onBackToHome={() => navigateTo('/')}
+        />
       ) : isQuoteRoute ? (
         /* Vista Directa para Cotizaciones de Trabajos: /cotizador */
         <div className="min-h-screen bg-[#F1F5F9] p-4 sm:p-6 md:p-8">

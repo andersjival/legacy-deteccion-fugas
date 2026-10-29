@@ -15,6 +15,19 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.22.0] - 2026-10-29 - Cotizador Dinámico con Enlace Compartible, Visualizador para Clientes y Rastreo de Descarga en Vivo
+- **Persistencia en la Nube y Base de Datos D1 (`functions/api/[[route]].ts` / `src/services/api.ts`):**
+  - Creada tabla `quotes` en Cloudflare D1 (`legacy-fugas-db`) con columnas de metadatos, alcance, montos, métricas de apertura (`view_count`), estado de descarga (`is_downloaded`) y fecha/hora (`downloaded_at`).
+  - Implementados endpoints REST: `GET /api/quotes`, `GET /api/quotes/:id` (con auto-incremento de visualizaciones), `POST /api/quotes` (guardado/actualización en la nube) y `POST /api/quotes/:id/downloaded` (registro de descarga).
+- **Vista Oficial Dinámica para Clientes (`ClientQuoteView.tsx` / `src/App.tsx`):**
+  - Creada ruta pública responsive `/cotizacion/:id` donde el cliente puede consultar la cotización formal con diseño membretado oficial, desglose y botón de aceptación por WhatsApp.
+  - Al pulsar "Descargar Cotización (PDF)", la vista cliente ejecuta el registro silencioso en el backend D1 marcando la cotización como descargada con timestamp y lanza la descarga/impresión limpia del documento PDF con su nombre formal.
+- **Rastreo de Descargas y Notificaciones en Vivo para David (`JobQuoteManager.tsx`):**
+  - **Botón "Compartir Enlace":** Guarda automáticamente en la nube y copia al portapapeles el enlace único del cliente (`https://legacydetec.pages.dev/cotizacion/:id`).
+  - **Notificaciones en Tiempo Real:** Si el cliente ya descargó la cotización, aparece una alerta visible indicando la fecha y hora de descarga para advertir antes de modificar costos o alcances.
+  - **Etiquetas de Estado Dinámicas:** Muestra insignias en vivo: `✅ Descargada por el cliente`, `👁️ Vista por el cliente (X visitas - Sin descargar)` o `⏳ Enlace listo / Pendiente`.
+  - **Integración con WhatsApp:** El mensaje autogenerado incluye el enlace dinámico oficial para consulta y descarga inmediata por parte del cliente.
+
 ### [v2.21.0] - 2026-10-29 - Eliminación de la Etiqueta "Cotización Formal" en Hoja de Cotizaciones
 - **Ajuste de Cabecera en Cotizaciones (`JobQuoteManager.tsx`):**
   - Removida la pastilla decorativa *"COTIZACIÓN FORMAL"* tanto de la hoja imprimible interactiva como de la exportación en archivo HTML autónomo.

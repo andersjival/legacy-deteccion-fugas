@@ -46,4 +46,8 @@ export interface SavedQuoteEntry {
   clientName: string;
   workReference: string;
   quoteData: JobQuote;
+  viewCount?: number;
+  isDownloaded?: boolean;
+  downloadedAt?: string | null;
+  shareUrl?: string;
 }

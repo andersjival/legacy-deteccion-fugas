@@ -662,4 +662,140 @@ app.delete('/reviews/:id', async (c) => {
   return c.json({ success: true, id });
 });
 
+// ----------------------------------------------------
+// RUTAS DE COTIZACIONES DINÁMICAS (QUOTES)
+// ----------------------------------------------------
+app.get('/quotes', async (c) => {
+  if (c.env.DB) {
+    try {
+      const { results } = await c.env.DB.prepare(
+        'SELECT * FROM quotes ORDER BY created_at DESC'
+      ).all();
+      return c.json(results || []);
+    } catch (e) {
+      console.warn('D1 get quotes error:', e);
+    }
+  }
+  return c.json([]);
+});
+
+app.get('/quotes/:id', async (c) => {
+  const id = c.req.param('id');
+  if (c.env.DB) {
+    try {
+      // Incrementar contador de vistas al abrir la cotización
+      await c.env.DB.prepare('UPDATE quotes SET view_count = view_count + 1 WHERE id = ?').bind(id).run();
+      const quote = await c.env.DB.prepare('SELECT * FROM quotes WHERE id = ?').bind(id).first();
+      if (quote) {
+        return c.json(quote);
+      }
+    } catch (e) {
+      console.warn('D1 get quote by id error:', e);
+    }
+  }
+  return c.json({ error: 'Cotización no encontrada' }, 404);
+});
+
+app.post('/quotes', async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  const id = body.id || 'cot_' + crypto.randomUUID().substring(0, 10);
+  const quoteNumber = body.quote_number || body.quoteNumber || 'COT-2026';
+  const date = body.date || new Date().toISOString().split('T')[0];
+  const companyName = body.company_name || body.companyName || 'Royalty Destaqueos y Tuberías';
+  const clientName = (body.client_name || body.clientName || '').trim();
+  const clientLocation = (body.client_location || body.clientLocation || '').trim();
+  const clientPhone = (body.client_phone || body.clientPhone || '').trim();
+  const workReference = (body.work_reference || body.workReference || '').trim();
+  const scopeItems = typeof body.scope_items === 'string' 
+    ? body.scope_items 
+    : JSON.stringify(body.scopeItems || body.scope_items || []);
+  const laborCost = Number(body.labor_cost ?? body.laborCost ?? 0);
+  const materialsCost = Number(body.materials_cost ?? body.materialsCost ?? 0);
+  const materialsDetail = body.materials_detail || body.materialsDetail || '';
+  const applyIva = (body.apply_iva || body.applyIVA) ? 1 : 0;
+  const deliveryTime = body.delivery_time || body.deliveryTime || '1 día hábil';
+  const totalAmount = Number(body.total_amount ?? body.totalAmount ?? (laborCost + materialsCost + (applyIva ? Math.round((laborCost + materialsCost) * 0.13) : 0)));
+  const fileName = body.file_name || body.fileName || `Cotizacion-${quoteNumber}`;
+  const responsibleName = body.responsible_name || body.responsibleName || 'David Rojas';
+  const responsiblePhone = body.responsible_phone || body.responsiblePhone || '6408-0124';
+
+  if (c.env.DB) {
+    try {
+      await c.env.DB.prepare(`
+        INSERT INTO quotes (
+          id, quote_number, date, company_name, client_name, client_location, client_phone,
+          work_reference, scope_items, labor_cost, materials_cost, materials_detail,
+          apply_iva, delivery_time, total_amount, file_name, responsible_name, responsible_phone
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          quote_number = excluded.quote_number,
+          date = excluded.date,
+          company_name = excluded.company_name,
+          client_name = excluded.client_name,
+          client_location = excluded.client_location,
+          client_phone = excluded.client_phone,
+          work_reference = excluded.work_reference,
+          scope_items = excluded.scope_items,
+          labor_cost = excluded.labor_cost,
+          materials_cost = excluded.materials_cost,
+          materials_detail = excluded.materials_detail,
+          apply_iva = excluded.apply_iva,
+          delivery_time = excluded.delivery_time,
+          total_amount = excluded.total_amount,
+          file_name = excluded.file_name,
+          responsible_name = excluded.responsible_name,
+          responsible_phone = excluded.responsible_phone,
+          updated_at = CURRENT_TIMESTAMP
+      `).bind(
+        id, quoteNumber, date, companyName, clientName, clientLocation, clientPhone,
+        workReference, scopeItems, laborCost, materialsCost, materialsDetail,
+        applyIva, deliveryTime, totalAmount, fileName, responsibleName, responsiblePhone
+      ).run();
+    } catch (e) {
+      console.warn('D1 insert/update quote error:', e);
+    }
+  }
+
+  return c.json({
+    id,
+    quote_number: quoteNumber,
+    client_name: clientName,
+    total_amount: totalAmount,
+    file_name: fileName,
+    share_url: `/cotizacion/${id}`
+  }, 201);
+});
+
+// Registrar evento de descarga por parte del cliente
+app.post('/quotes/:id/downloaded', async (c) => {
+  const id = c.req.param('id');
+  const now = new Date().toISOString();
+  if (c.env.DB) {
+    try {
+      await c.env.DB.prepare(`
+        UPDATE quotes 
+        SET is_downloaded = 1, downloaded_at = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).bind(now, id).run();
+      return c.json({ success: true, downloaded_at: now });
+    } catch (e) {
+      console.warn('D1 mark quote downloaded error:', e);
+    }
+  }
+  return c.json({ success: true, downloaded_at: now });
+});
+
+app.delete('/quotes/:id', async (c) => {
+  const id = c.req.param('id');
+  if (c.env.DB) {
+    try {
+      await c.env.DB.prepare('DELETE FROM quotes WHERE id = ?').bind(id).run();
+    } catch (e) {
+      console.warn('D1 delete quote error:', e);
+    }
+  }
+  return c.json({ success: true, id });
+});
+
 export const onRequest = handle(app);
