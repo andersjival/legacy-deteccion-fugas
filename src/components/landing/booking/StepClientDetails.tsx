@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { User, Phone, MapPin, Wrench, FileText, ArrowLeft, ArrowRight, CheckCircle2, CheckCircle, Camera, Loader2 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { User, Phone, MapPin, Wrench, FileText, ArrowLeft, ArrowRight, CheckCircle2, CheckCircle, Camera, Loader2, AlertCircle } from 'lucide-react';
 import { ServiceType, ServiceItem, DEFAULT_SERVICES } from '../../../types/appointment';
 import { api } from '../../../services/api';
 import { LocationPickerMap } from '../../common/LocationPickerMap';
@@ -32,6 +32,13 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
   isSubmitting = false
 }) => {
   const [services, setServices] = useState<ServiceItem[]>(DEFAULT_SERVICES);
+  const [activeFocus, setActiveFocus] = useState<string | null>(null);
+  const [showValidationAlert, setShowValidationAlert] = useState(false);
+
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const phoneInputRef = useRef<HTMLInputElement>(null);
+  const problemInputRef = useRef<HTMLTextAreaElement>(null);
+  const addressInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     api.getServices().then((srvs) => {
@@ -48,13 +55,64 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
   const isAddressValid = isAddressWritten || isLocationPinned;
   const isProblemValid = formData.problem_description.trim().length >= 3;
 
-  const isFormValid = isNameValid && isPhoneValid && isAddressValid;
+  const isFormValid = isNameValid && isPhoneValid && isAddressValid && isProblemValid;
+
+  // Si el formulario ya se vuelve válido, limpiar la alerta
+  useEffect(() => {
+    if (isFormValid) {
+      setShowValidationAlert(false);
+    }
+  }, [isFormValid]);
 
   const handleLocationPicked = (lat: number, lng: number) => {
     onChangeLocation(lat, lng);
     if (!formData.client_address || formData.client_address.trim().length < 5) {
       onChange('client_address', `Ubicación fijada en mapa GPS (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
     }
+  };
+
+  const getMissingFieldsText = () => {
+    const list: string[] = [];
+    if (!isNameValid) list.push('Nombre y Apellidos');
+    if (!isPhoneValid) list.push('Teléfono Móvil (8 dígitos)');
+    if (!isProblemValid) list.push('Descripción del Problema');
+    if (!isAddressValid) list.push('Dirección o Punto GPS');
+    return list.join(', ');
+  };
+
+  const focusFirstInvalidField = () => {
+    setShowValidationAlert(true);
+    if (!isNameValid && nameInputRef.current) {
+      nameInputRef.current.focus();
+      nameInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else if (!isPhoneValid && phoneInputRef.current) {
+      phoneInputRef.current.focus();
+      phoneInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else if (!isProblemValid && problemInputRef.current) {
+      problemInputRef.current.focus();
+      problemInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else if (!isAddressValid && addressInputRef.current) {
+      addressInputRef.current.focus();
+      addressInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
+  const handleAttemptSubmitDirectly = () => {
+    if (!isFormValid) {
+      focusFirstInvalidField();
+      return;
+    }
+    if (onSubmitDirectly) {
+      onSubmitDirectly();
+    }
+  };
+
+  const handleAttemptNext = () => {
+    if (!isFormValid) {
+      focusFirstInvalidField();
+      return;
+    }
+    onNext();
   };
 
   return (
@@ -68,25 +126,45 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
             <label className="text-xs font-bold text-brand-dark uppercase tracking-wider">
               Nombre y Apellidos *
             </label>
-            {isNameValid && (
+            {isNameValid ? (
               <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                 Listo
               </span>
+            ) : activeFocus === 'name' ? (
+              <span className="text-[10px] font-bold text-brand-blue bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                Escribiendo...
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
+                Falta rellenar
+              </span>
             )}
           </div>
           <div className="relative">
-            <User className={`w-4 h-4 absolute left-3.5 top-3.5 transition-colors ${isNameValid ? 'text-emerald-500' : 'text-slate-400'}`} />
+            <User 
+              className={`w-4 h-4 absolute left-3.5 top-3.5 transition-colors ${
+                isNameValid ? 'text-emerald-500' : activeFocus === 'name' ? 'text-brand-blue' : 'text-amber-500'
+              }`} 
+            />
             <input
+              ref={nameInputRef}
               type="text"
               required
               placeholder="Ej. Carlos Montero"
               value={formData.client_name}
+              onFocus={() => {
+                setActiveFocus('name');
+                setShowValidationAlert(false);
+              }}
+              onBlur={() => setActiveFocus(null)}
               onChange={(e) => onChange('client_name', e.target.value)}
               className={`w-full pl-10 pr-9 py-2.5 sm:py-3 rounded-xl border text-sm font-medium outline-none transition-all ${
                 isNameValid
                   ? 'border-emerald-500 bg-emerald-50/20 text-brand-dark focus:ring-2 focus:ring-emerald-500/20'
-                  : 'border-slate-200 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20'
+                  : activeFocus === 'name'
+                  ? 'border-brand-blue bg-white text-brand-dark ring-2 ring-brand-blue/20'
+                  : 'border-amber-400 bg-amber-50/40 text-brand-dark ring-2 ring-amber-300/50 shadow-xs'
               }`}
             />
             {isNameValid && (
@@ -101,25 +179,45 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
             <label className="text-xs font-bold text-brand-dark uppercase tracking-wider">
               Teléfono Móvil (WhatsApp) *
             </label>
-            {isPhoneValid && (
+            {isPhoneValid ? (
               <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                 Listo
               </span>
+            ) : activeFocus === 'phone' ? (
+              <span className="text-[10px] font-bold text-brand-blue bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                Escribiendo...
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
+                Falta rellenar
+              </span>
             )}
           </div>
           <div className="relative">
-            <Phone className={`w-4 h-4 absolute left-3.5 top-3.5 transition-colors ${isPhoneValid ? 'text-emerald-500' : 'text-slate-400'}`} />
+            <Phone 
+              className={`w-4 h-4 absolute left-3.5 top-3.5 transition-colors ${
+                isPhoneValid ? 'text-emerald-500' : activeFocus === 'phone' ? 'text-brand-blue' : 'text-amber-500'
+              }`} 
+            />
             <input
+              ref={phoneInputRef}
               type="tel"
               required
               placeholder="Ej. 6408-0124 o 8888-8888"
               value={formData.client_phone}
+              onFocus={() => {
+                setActiveFocus('phone');
+                setShowValidationAlert(false);
+              }}
+              onBlur={() => setActiveFocus(null)}
               onChange={(e) => onChange('client_phone', e.target.value)}
               className={`w-full pl-10 pr-9 py-2.5 sm:py-3 rounded-xl border text-sm font-medium outline-none transition-all ${
                 isPhoneValid
                   ? 'border-emerald-500 bg-emerald-50/20 text-brand-dark focus:ring-2 focus:ring-emerald-500/20'
-                  : 'border-slate-200 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20'
+                  : activeFocus === 'phone'
+                  ? 'border-brand-blue bg-white text-brand-dark ring-2 ring-brand-blue/20'
+                  : 'border-amber-400 bg-amber-50/40 text-brand-dark ring-2 ring-amber-300/50 shadow-xs'
               }`}
             />
             {isPhoneValid && (
@@ -162,31 +260,47 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
         </div>
       </div>
 
-      {/* 3. Descripción Detallada del Problema o Síntomas (Ubicado aquí para ser 100% visible en móvil antes del mapa) */}
+      {/* 3. Descripción Detallada del Problema o Síntomas */}
       <div className="bg-slate-50/70 p-3 sm:p-4 rounded-2xl border border-slate-200/80">
         <div className="flex items-center justify-between mb-1">
           <label className="text-xs font-bold text-brand-dark uppercase tracking-wider flex items-center gap-1.5">
-            <FileText className="w-3.5 h-3.5 text-brand-blue" />
+            <FileText className={`w-3.5 h-3.5 ${isProblemValid ? 'text-emerald-500' : 'text-brand-blue'}`} />
             <span>Descripción del Problema o Síntomas *</span>
           </label>
-          {isProblemValid && (
+          {isProblemValid ? (
             <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
               Listo
+            </span>
+          ) : activeFocus === 'problem' ? (
+            <span className="text-[10px] font-bold text-brand-blue bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+              Escribiendo...
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
+              Falta rellenar
             </span>
           )}
         </div>
         <div className="relative">
           <textarea
+            ref={problemInputRef}
             required
             rows={2}
             placeholder="Ej. El recibo del agua se duplicó, se escucha agua corriendo en el baño o pared húmeda..."
             value={formData.problem_description}
+            onFocus={() => {
+              setActiveFocus('problem');
+              setShowValidationAlert(false);
+            }}
+            onBlur={() => setActiveFocus(null)}
             onChange={(e) => onChange('problem_description', e.target.value)}
             className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-medium outline-none transition-all ${
               isProblemValid
                 ? 'border-emerald-500 bg-white text-brand-dark focus:ring-2 focus:ring-emerald-500/20'
-                : 'border-slate-200 bg-white focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20'
+                : activeFocus === 'problem'
+                ? 'border-brand-blue bg-white text-brand-dark ring-2 ring-brand-blue/20'
+                : 'border-amber-400 bg-amber-50/40 text-brand-dark ring-2 ring-amber-300/50 shadow-xs'
             }`}
           />
         </div>
@@ -200,28 +314,48 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
             <label className="text-xs font-bold text-brand-dark uppercase tracking-wider">
               Dirección Exacta o Cantón *
             </label>
-            {isAddressWritten && (
+            {isAddressValid ? (
               <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                 Listo
               </span>
+            ) : activeFocus === 'address' ? (
+              <span className="text-[10px] font-bold text-brand-blue bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                Escribiendo...
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
+                Falta rellenar
+              </span>
             )}
           </div>
           <div className="relative">
-            <MapPin className={`w-4 h-4 absolute left-3.5 top-3.5 transition-colors ${isAddressWritten ? 'text-emerald-500' : 'text-slate-400'}`} />
+            <MapPin 
+              className={`w-4 h-4 absolute left-3.5 top-3.5 transition-colors ${
+                isAddressValid ? 'text-emerald-500' : activeFocus === 'address' ? 'text-brand-blue' : 'text-amber-500'
+              }`} 
+            />
             <input
+              ref={addressInputRef}
               type="text"
               required
               placeholder="Ej. San José, Escazú, 200m este del parque o Condominio Los Reyes"
               value={formData.client_address}
+              onFocus={() => {
+                setActiveFocus('address');
+                setShowValidationAlert(false);
+              }}
+              onBlur={() => setActiveFocus(null)}
               onChange={(e) => onChange('client_address', e.target.value)}
               className={`w-full pl-10 pr-9 py-2.5 sm:py-3 rounded-xl border text-sm font-medium outline-none transition-all ${
-                isAddressWritten
+                isAddressValid
                   ? 'border-emerald-500 bg-emerald-50/20 text-brand-dark focus:ring-2 focus:ring-emerald-500/20'
-                  : 'border-slate-200 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20'
+                  : activeFocus === 'address'
+                  ? 'border-brand-blue bg-white text-brand-dark ring-2 ring-brand-blue/20'
+                  : 'border-amber-400 bg-amber-50/40 text-brand-dark ring-2 ring-amber-300/50 shadow-xs'
               }`}
             />
-            {isAddressWritten && (
+            {isAddressValid && (
               <CheckCircle2 className="w-4 h-4 text-emerald-500 absolute right-3.5 top-3.5" />
             )}
           </div>
@@ -248,13 +382,28 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
         </div>
       </div>
 
+      {/* Alerta Visual de Campos Faltantes al Intentar Confirmar */}
+      {showValidationAlert && !isFormValid && (
+        <div className="bg-amber-50 border-2 border-amber-400 p-3.5 rounded-2xl text-amber-900 shadow-md flex items-start gap-3 transition-all animate-pulse">
+          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="space-y-0.5">
+            <h5 className="text-xs font-black text-amber-950 uppercase tracking-wide">
+              ⚠️ Por favor completa los campos requeridos arriba
+            </h5>
+            <p className="text-xs font-semibold text-amber-900 leading-relaxed">
+              Falta completar: <span className="font-extrabold underline">{getMissingFieldsText()}</span>. Haz clic en cualquiera de los campos resaltados en anaranjado para llenarlos.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* 5. Botones de Navegación con Opción Directa sin fotos */}
       <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
         <button
           type="button"
           onClick={onBack}
           disabled={isSubmitting}
-          className="order-3 sm:order-1 px-4 py-2.5 rounded-xl font-bold text-brand-slate hover:bg-slate-100 transition-all flex items-center justify-center gap-1.5 text-xs sm:text-sm"
+          className="order-3 sm:order-1 px-4 py-2.5 rounded-xl font-bold text-brand-slate hover:bg-slate-100 transition-all flex items-center justify-center gap-1.5 text-xs sm:text-sm cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Atrás</span>
@@ -265,10 +414,14 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
           {onSubmitDirectly && (
             <button
               type="button"
-              disabled={!isFormValid || isSubmitting}
-              onClick={onSubmitDirectly}
-              className="px-5 py-3 rounded-xl font-extrabold text-white bg-brand-orange hover:bg-brand-orangeHover shadow-glow-orange disabled:bg-slate-300 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 text-xs sm:text-sm"
-              title="Confirmar cita sin adjuntar fotos"
+              disabled={isSubmitting}
+              onClick={handleAttemptSubmitDirectly}
+              className={`px-5 py-3 rounded-xl font-extrabold text-white transition-all flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer shadow-md active:scale-95 ${
+                isFormValid
+                  ? 'bg-brand-orange hover:bg-brand-orangeHover shadow-glow-orange'
+                  : 'bg-amber-500 hover:bg-amber-600'
+              }`}
+              title={isFormValid ? 'Confirmar cita sin adjuntar fotos' : 'Haz clic para revisar qué campos faltan completar'}
             >
               {isSubmitting ? (
                 <>
@@ -287,9 +440,13 @@ export const StepClientDetails: React.FC<StepClientDetailsProps> = ({
           {/* Opción 2: Subir fotos (opcional) */}
           <button
             type="button"
-            disabled={!isFormValid || isSubmitting}
-            onClick={onNext}
-            className="px-5 py-3 rounded-xl font-bold text-brand-blue bg-brand-ice hover:bg-brand-iceBorder border border-brand-iceBorder disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-1.5 text-xs sm:text-sm"
+            disabled={isSubmitting}
+            onClick={handleAttemptNext}
+            className={`px-5 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 text-xs sm:text-sm cursor-pointer active:scale-95 ${
+              isFormValid
+                ? 'text-brand-blue bg-brand-ice hover:bg-brand-iceBorder border border-brand-iceBorder'
+                : 'text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-200'
+            }`}
           >
             <Camera className="w-4 h-4" />
             <span>Subir Fotos (Opcional)</span>

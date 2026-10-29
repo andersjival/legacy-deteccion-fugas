@@ -15,6 +15,15 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.19.0] - 2026-10-29 - Resaltado Visual Anaranjado de Campos Faltantes y Botones Activos con Guía en Agenda
+- **Resaltado Inteligente de Campos Pendientes (`StepClientDetails.tsx`):**
+  - Todo campo obligatorio incompleto (Nombre, Teléfono, Descripción y Dirección) se resalta con borde y sombra suave anaranjada (`border-amber-400 bg-amber-50/40 ring-2 ring-amber-300/50`) y la pastilla *"Falta rellenar"*.
+  - Al hacer clic o enfocar el campo, la advertencia anaranjada se retira de inmediato (`border-brand-blue ring-2 ring-brand-blue/20`) y pasa a *"Escribiendo..."* para permitir el llenado limpio.
+  - Al completar los caracteres mínimos requeridos, cambia instantáneamente al verde con checkmark *"Listo"*.
+- **Interacción Reactiva en Botones y Auto-Focus con Scroll Suave (`StepClientDetails.tsx`):**
+  - Eliminado el bloqueo ciego e inerte en "Confirmar Cita (Sin Fotos)" y "Subir Fotos (Opcional)".
+  - Al hacer clic sobre los botones con campos faltantes, el sistema muestra una alerta clara e informativa indicando los campos pendientes y realiza un auto-enfoque con desplazamiento suave (*smooth scroll*) directamente al primer campo que falta completar.
+
 ### [v2.18.0] - 2026-10-29 - Cotizador de Trabajos en Línea con Desglose, Logo Oficial, IVA y Exportación WhatsApp / PDF
 - **Cotizador de Trabajos Automático (`JobQuoteManager.tsx` / `types/quote.ts`):**
   - Implementado sistema completo de cotizaciones automáticas en línea accesible desde el panel administrativo (`activeTab === 'quotes'`) y por ruta directa (`/cotizador`).
