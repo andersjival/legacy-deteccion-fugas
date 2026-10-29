@@ -14,6 +14,7 @@ import { ClientQuoteView } from './components/quotes/ClientQuoteView';
 import { useAdminAuth } from './hooks/useAdminAuth';
 import { usePWA } from './hooks/usePWA';
 import { ServiceType } from './types/appointment';
+import { api } from './services/api';
 
 export function App() {
   const [currentPath, setCurrentPath] = useState(() => {
@@ -59,7 +60,37 @@ export function App() {
     }
   }, []);
 
+  // Detección y rastreo de enlaces cortos de redes sociales (/fb, /ig, /wa o ?ref=...)
+  useEffect(() => {
+    const raw = window.location.pathname.replace(/\/+$/, '').toLowerCase();
+    const params = new URLSearchParams(window.location.search);
+    const refParam = (params.get('ref') || params.get('source') || params.get('utm_source') || '').toLowerCase();
+
+    let detectedSource = '';
+    if (raw === '/fb' || refParam === 'fb' || refParam === 'facebook') {
+      detectedSource = 'fb';
+    } else if (raw === '/ig' || refParam === 'ig' || refParam === 'instagram') {
+      detectedSource = 'ig';
+    } else if (raw === '/wa' || refParam === 'wa' || refParam === 'whatsapp') {
+      detectedSource = 'wa';
+    }
+
+    if (detectedSource) {
+      sessionStorage.setItem('royalty_traffic_source', detectedSource);
+      api.trackTrafficEvent(detectedSource, 'visit', raw || '/');
+      window.history.replaceState({}, '', '/');
+      setCurrentPath('/');
+    } else if (!sessionStorage.getItem('royalty_traffic_source') && !raw.startsWith('/detec') && !raw.startsWith('/cotizacion')) {
+      sessionStorage.setItem('royalty_traffic_source', 'direct');
+      api.trackTrafficEvent('direct', 'visit', raw || '/');
+    }
+  }, []);
+
   const navigateTo = (path: string) => {
+    if (path === '/agenda' || path.startsWith('/agenda')) {
+      const source = typeof window !== 'undefined' ? (sessionStorage.getItem('royalty_traffic_source') || 'direct') : 'direct';
+      api.trackTrafficEvent(source, 'agenda_click', path);
+    }
     window.history.pushState({}, '', path);
     setCurrentPath(path.replace(/\/+$/, '') || '/');
     window.scrollTo(0, 0);

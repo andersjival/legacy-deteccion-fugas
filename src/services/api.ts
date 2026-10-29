@@ -304,6 +304,12 @@ class ApiService {
   }
 
   async createAppointment(dto: CreateAppointmentDto): Promise<Appointment> {
+    // Registrar conversión de tráfico atribuido
+    try {
+      const trafficSource = typeof window !== 'undefined' ? (sessionStorage.getItem('royalty_traffic_source') || 'direct') : 'direct';
+      this.trackTrafficEvent(trafficSource, 'booking', '/agenda').catch(() => {});
+    } catch {}
+
     try {
       if (!this.useLocalFallback) {
         const res = await fetch('/api/appointments', {
@@ -674,6 +680,81 @@ class ApiService {
       this.useLocalFallback = true;
     }
     return true;
+  }
+
+  // ----------------------------------------------------
+  // RASTREADOR DE TRÁFICO (FB, IG, WA, DIRECT)
+  // ----------------------------------------------------
+  async trackTrafficEvent(source: string, event_type: 'visit' | 'agenda_click' | 'booking', path?: string): Promise<boolean> {
+    try {
+      if (!this.useLocalFallback) {
+        const res = await fetch('/api/traffic/event', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ source, event_type, path: path || window.location.pathname })
+        });
+        if (res.ok) return true;
+      }
+    } catch {
+      // Fallback local
+    }
+    const localEvents = this.getStored<any[]>('royalty_local_traffic_events', []);
+    localEvents.push({
+      id: `trf_loc_${Date.now()}`,
+      source: source || 'direct',
+      event_type,
+      path: path || window.location.pathname,
+      created_at: new Date().toISOString()
+    });
+    this.setStored('royalty_local_traffic_events', localEvents.slice(-200));
+    return true;
+  }
+
+  async getTrafficStats(period: 'week' | 'biweek' | 'month' | 'all' = 'month'): Promise<any> {
+    try {
+      if (!this.useLocalFallback) {
+        const res = await fetch(`/api/traffic/stats?period=${period}`);
+        if (res.ok) {
+          return await res.json();
+        }
+      }
+    } catch {
+      this.useLocalFallback = true;
+    }
+
+    // Fallback de métricas locales
+    const localEvents = this.getStored<any[]>('royalty_local_traffic_events', []);
+    const sources = ['fb', 'ig', 'wa', 'direct'];
+    const bySource: Record<string, any> = {};
+    let totalVisits = 0;
+    let totalClicks = 0;
+    let totalBookings = 0;
+
+    sources.forEach((s) => {
+      const srcEvents = localEvents.filter((e) => e.source === s);
+      const visits = srcEvents.filter((e) => e.event_type === 'visit').length;
+      const clicks = srcEvents.filter((e) => e.event_type === 'agenda_click').length;
+      const bookings = srcEvents.filter((e) => e.event_type === 'booking').length;
+      const clickRate = visits > 0 ? Number(((clicks / visits) * 100).toFixed(1)) : 0;
+      const conversionRate = visits > 0 ? Number(((bookings / visits) * 100).toFixed(1)) : 0;
+      bySource[s] = { visits, clicks, bookings, clickRate, conversionRate };
+      totalVisits += visits;
+      totalClicks += clicks;
+      totalBookings += bookings;
+    });
+
+    return {
+      period,
+      bySource,
+      totals: {
+        visits: totalVisits,
+        clicks: totalClicks,
+        bookings: totalBookings,
+        clickRate: totalVisits > 0 ? Number(((totalClicks / totalVisits) * 100).toFixed(1)) : 0,
+        conversionRate: totalVisits > 0 ? Number(((totalBookings / totalVisits) * 100).toFixed(1)) : 0
+      },
+      recentEvents: localEvents.slice(-20).reverse()
+    };
   }
 }
 

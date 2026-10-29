@@ -15,6 +15,29 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.24.0] - 2026-10-29 - Rastreador de Tráfico, Enlaces Cortos (FB, IG, WA) y Embudo de Conversión
+- **Enlaces Cortos Profesionales con Atribución Automática (`src/App.tsx` / `TrafficAnalytics.tsx`):**
+  - Creadas rutas cortas oficiales directas para marketing:
+    - `/fb` (Facebook): `https://legacydetec.pages.dev/fb`
+    - `/ig` (Instagram): `https://legacydetec.pages.dev/ig`
+    - `/wa` (WhatsApp): `https://legacydetec.pages.dev/wa`
+  - Captura y persistencia de canal en `sessionStorage` (`royalty_traffic_source`) soportando tanto rutas cortas como parámetros de campaña (`?ref=fb`, `?utm_source=...`).
+  - Tarjetas de copiado rápido a un solo clic y botones de prueba en el panel de administración.
+- **Embudo Completo de Conversión (Funnel) por Red y General (`src/components/admin/TrafficAnalytics.tsx`):**
+  - Métrica 1 (**Entraron / Visitas**): Usuarios que aterrizaron en la plataforma desde cada enlace.
+  - Métrica 2 (**Dieron Clic / Interés**): Usuarios que interactuaron y abrieron la agenda interactiva.
+  - Métrica 3 (**Agendaron / Conversiones**): Usuarios que completaron y confirmaron exitosamente su cita técnica.
+  - Tasas calculadas en tiempo real: Tasa de Clic (% que pasó a agenda) y Tasa de Conversión (% que agendó).
+  - Barra visual de retención y tabla comparativa por red social con totales y porcentajes.
+- **Filtros Temporales e Individuales (`TrafficAnalytics.tsx` / `functions/api/[[route]].ts`):**
+  - Filtro por período: **Semanal** (últimos 7 días), **Quincenal** (últimos 15 días), **Mensual** (últimos 30 días) y **Todo el Histórico**.
+  - Filtro por red: visualización global consolidada o desglose individual por Facebook, Instagram, WhatsApp y Tráfico Directo.
+  - Stream de eventos en vivo con badges, procedencia y marca de tiempo relativa en tiempo real.
+- **Persistencia en Base de Datos D1 (`functions/api/[[route]].ts` / `src/services/api.ts`):**
+  - Tabla `traffic_events` en Cloudflare D1 (`legacy-fugas-db`) con índices optimizados por fuente y fecha.
+  - Endpoints REST `POST /api/traffic/event` y `GET /api/traffic/stats` con cálculo y agregación en el borde (Edge).
+  - Atribución automática enlazada en `api.createAppointment` para registrar conversiones de cita con la fuente original de la sesión.
+
 ### [v2.23.0] - 2026-10-29 - Redes Oficiales con Logos, WhatsApp Directo, Escudo León en Pie de Página y Cotización en 1 Sola Hoja
 - **Sustitución de Banner por Canales Oficiales y WhatsApp Directo (`JobQuoteManager.tsx` / `ClientQuoteView.tsx`):**
   - Removido el banner de imagen estático de las cotizaciones.

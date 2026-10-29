@@ -798,4 +798,113 @@ app.delete('/quotes/:id', async (c) => {
   return c.json({ success: true, id });
 });
 
+// 12. RASTREADOR DE TRÁFICO Y EMBUDO DE CONVERSIÓN (FB, IG, WA, DIRECT)
+app.post('/traffic/event', async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  let source = String(body.source || 'direct').toLowerCase().trim();
+  if (source.includes('face') || source === 'facebook') source = 'fb';
+  if (source.includes('insta') || source === 'instagram') source = 'ig';
+  if (source.includes('what') || source === 'whatsapp') source = 'wa';
+  if (!['fb', 'ig', 'wa', 'direct'].includes(source)) {
+    source = 'direct';
+  }
+
+  const eventType = body.event_type || 'visit'; // 'visit' | 'agenda_click' | 'booking'
+  const path = body.path || '/';
+  const id = `trf_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+  if (c.env.DB) {
+    try {
+      await c.env.DB.prepare(`
+        INSERT INTO traffic_events (id, source, event_type, path)
+        VALUES (?, ?, ?, ?)
+      `).bind(id, source, eventType, path).run();
+    } catch (e) {
+      console.warn('D1 traffic event insert error:', e);
+    }
+  }
+
+  return c.json({ success: true, id, source, eventType }, 201);
+});
+
+app.get('/traffic/stats', async (c) => {
+  const period = c.req.query('period') || 'month'; // 'week' | 'biweek' | 'month' | 'all'
+  let dateFilter = "";
+  if (period === 'week') {
+    dateFilter = "WHERE created_at >= datetime('now', '-7 days')";
+  } else if (period === 'biweek') {
+    dateFilter = "WHERE created_at >= datetime('now', '-15 days')";
+  } else if (period === 'month') {
+    dateFilter = "WHERE created_at >= datetime('now', '-30 days')";
+  }
+
+  let rows: any[] = [];
+  let recentEvents: any[] = [];
+
+  if (c.env.DB) {
+    try {
+      const statsQuery = `
+        SELECT 
+          source,
+          SUM(CASE WHEN event_type = 'visit' THEN 1 ELSE 0 END) as visits,
+          SUM(CASE WHEN event_type = 'agenda_click' THEN 1 ELSE 0 END) as clicks,
+          SUM(CASE WHEN event_type = 'booking' THEN 1 ELSE 0 END) as bookings
+        FROM traffic_events
+        ${dateFilter}
+        GROUP BY source
+      `;
+      const { results } = await c.env.DB.prepare(statsQuery).all();
+      rows = results || [];
+
+      const recentQuery = `
+        SELECT id, source, event_type, path, created_at 
+        FROM traffic_events 
+        ORDER BY created_at DESC 
+        LIMIT 20
+      `;
+      const recentRes = await c.env.DB.prepare(recentQuery).all();
+      recentEvents = recentRes.results || [];
+    } catch (e) {
+      console.warn('D1 traffic stats error:', e);
+    }
+  }
+
+  const sources = ['fb', 'ig', 'wa', 'direct'];
+  const bySource: Record<string, { visits: number; clicks: number; bookings: number; clickRate: number; conversionRate: number }> = {};
+  
+  let totalVisits = 0;
+  let totalClicks = 0;
+  let totalBookings = 0;
+
+  sources.forEach((s) => {
+    const found = rows.find((r) => r.source === s) || { visits: 0, clicks: 0, bookings: 0 };
+    const visits = Number(found.visits) || 0;
+    const clicks = Number(found.clicks) || 0;
+    const bookings = Number(found.bookings) || 0;
+    const clickRate = visits > 0 ? Number(((clicks / visits) * 100).toFixed(1)) : 0;
+    const conversionRate = visits > 0 ? Number(((bookings / visits) * 100).toFixed(1)) : 0;
+
+    bySource[s] = { visits, clicks, bookings, clickRate, conversionRate };
+    totalVisits += visits;
+    totalClicks += clicks;
+    totalBookings += bookings;
+  });
+
+  const overallClickRate = totalVisits > 0 ? Number(((totalClicks / totalVisits) * 100).toFixed(1)) : 0;
+  const overallConversionRate = totalVisits > 0 ? Number(((totalBookings / totalVisits) * 100).toFixed(1)) : 0;
+
+  return c.json({
+    period,
+    bySource,
+    totals: {
+      visits: totalVisits,
+      clicks: totalClicks,
+      bookings: totalBookings,
+      clickRate: overallClickRate,
+      conversionRate: overallConversionRate
+    },
+    recentEvents
+  });
+});
+
 export const onRequest = handle(app);
