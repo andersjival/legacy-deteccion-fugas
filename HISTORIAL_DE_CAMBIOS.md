@@ -15,6 +15,13 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.59.0] - 2026-10-30 - Erradicación de Sobreescritura de Cotizaciones al Enviar Múltiples
+- **Generación Única Obligatoria por Cotización (`JobQuoteManager.tsx`):**
+  - Identificada la causa raíz: al presionar "Guardar y enviar", el sistema reutilizaba el mismo ID de la cotización anterior, provocando que la base de datos D1 actualizara el mismo registro (`ON CONFLICT(id) DO UPDATE`) en lugar de insertar uno nuevo, manteniendo el contador estático.
+  - Implementada asignación forzada de nuevo ID (`quote_${Date.now()}_...`) y nuevo número de control (`generateQuoteNumber()`) cada vez que se envía una cotización para un cliente nuevo o modificado.
+  - Al completar el envío, el editor renueva de inmediato su identificador y consecutivo, preparando los campos para la siguiente cotización sin riesgo de sobreescribir las anteriores.
+
+
 ### [v2.58.0] - 2026-10-30 - Feedback de "Guardado Correctamente" y Redirección en 3 Segundos al Enviar
 - **Flujo de Envío con Temporizador y Notificación Inmediata (`JobQuoteManager.tsx`):**
   - Al presionar **"Guardar y enviar"**, el sistema almacena de inmediato la cotización en Cloudflare D1 y despliega en tiempo real el mensaje de confirmación: *"✅ Cotización guardada correctamente. Redirigiendo a WhatsApp en 3 segundos..."*.

@@ -724,46 +724,54 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
   };
 
   // Generar texto para WhatsApp con enlace dinámico
-  const generateWhatsAppMessage = () => {
-    const itemsList = quote.scopeItems
+  const generateWhatsAppMessage = (quoteOverride?: JobQuote, customId?: string) => {
+    const q = quoteOverride || quote;
+    const targetId = customId || q.id;
+    const itemsList = q.scopeItems
       .filter((i) => i.text.trim())
       .map((i, idx) => `  ${idx + 1}. ${i.text}`)
       .join('\n');
 
-    const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://legacydetec.pages.dev'}/cotizacion/${quote.id}`;
+    const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://legacydetec.pages.dev'}/cotizacion/${targetId}`;
 
-    const msg = `Hola *${quote.clientName || 'Cliente'}*, le saluda el técnico de *Legacy Detección de Fugas* 💧.
+    const laborVal = Number(q.laborCost) || 0;
+    const matVal = Number(q.materialsCost) || 0;
+    const sub = laborVal + matVal;
+    const iva = q.applyIVA ? Math.round(sub * (q.ivaRate || 0.13)) : 0;
+    const tot = sub + iva;
 
-Ya realicé su cotización oficial para *${quote.workReference || 'el servicio solicitado'}*.
+    const msg = `Hola *${q.clientName || 'Cliente'}*, le saluda el técnico de *Legacy Detección de Fugas* 💧.
 
-📋 *COTIZACIÓN OFICIAL — ${quote.companyName.toUpperCase()}*
-*N° de Control:* ${quote.quoteNumber}
-*Fecha de Emisión:* ${quote.date}
-*Cliente / Lugar:* ${quote.clientName || 'Cliente Particular'} ${quote.clientLocation ? `(${quote.clientLocation})` : ''}
+Ya realicé su cotización oficial para *${q.workReference || 'el servicio solicitado'}*.
+
+📋 *COTIZACIÓN OFICIAL — ${q.companyName.toUpperCase()}*
+*N° de Control:* ${q.quoteNumber}
+*Fecha de Emisión:* ${q.date}
+*Cliente / Lugar:* ${q.clientName || 'Cliente Particular'} ${q.clientLocation ? `(${q.clientLocation})` : ''}
 
 🛠️ *Referencia del Trabajo:*
-${quote.workReference || 'Trabajo Técnico Especializado'}
+${q.workReference || 'Trabajo Técnico Especializado'}
 
 📝 *Alcance de Trabajos a Realizar:*
 ${itemsList || '  • Trabajos técnicos especializados de acuerdo a inspección.'}
 
 💰 *Desglose Económico:*
-• Mano de Obra: ₡${labor.toLocaleString('es-CR')}
-• Estimado de Materiales: ₡${materials.toLocaleString('es-CR')}
-• Subtotal: ₡${subtotal.toLocaleString('es-CR')}
-${quote.applyIVA ? `• IVA (13% Factura Electrónica): ₡${ivaAmount.toLocaleString('es-CR')}\n` : ''}*TOTAL GENERAL:* ₡${totalGeneral.toLocaleString('es-CR')}
+• Mano de Obra: ₡${laborVal.toLocaleString('es-CR')}
+• Estimado de Materiales: ₡${matVal.toLocaleString('es-CR')}
+• Subtotal: ₡${sub.toLocaleString('es-CR')}
+${q.applyIVA ? `• IVA (13% Factura Electrónica): ₡${iva.toLocaleString('es-CR')}\n` : ''}*TOTAL GENERAL:* ₡${tot.toLocaleString('es-CR')}
 
-⏱️ *Tiempo Estimado de Entrega:* ${quote.deliveryTime}
-✅ *Condiciones:* ${quote.paymentTerms}
+⏱️ *Tiempo Estimado de Entrega:* ${q.deliveryTime}
+✅ *Condiciones:* ${q.paymentTerms}
 🛡️ *Garantía:* 100% satisfacción y materiales certificados.
 
 🌐 *Ver y Descargar Cotización Oficial en Línea:*
 👉 ${shareUrl}
 
-👤 *Atendido por:* ${quote.responsibleName} (${quote.responsibleTitle})
-📞 *Teléfono:* ${quote.responsiblePhone}
+👤 *Atendido por:* ${q.responsibleName} (${q.responsibleTitle})
+📞 *Teléfono:* ${q.responsiblePhone}
 📸 *Instagram:* https://www.instagram.com/legacy.deteccion
-🌐 *Web:* ${quote.websiteUrl}
+🌐 *Web:* ${q.websiteUrl}
 
 _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
 
@@ -773,30 +781,74 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
   const handleSaveAndSend = async () => {
     setIsSavingAndSending(true);
     try {
-      await saveToCloud(undefined, 'enviada');
-      setSavedHistory((prev) => 
-        prev.map((item) => item.id === quote.id ? { ...item, status: 'enviada', sentAt: new Date().toISOString() } : item)
-      );
+      // 1. Determinar ID y consecutivo único para NUNCA sobreescribir cotizaciones previas
+      let targetId = quote.id;
+      let targetQuoteNumber = quote.quoteNumber;
 
-      const clientDisplay = quote.clientName ? quote.clientName.trim() : 'Cliente';
+      const existingIndex = savedHistory.findIndex((item) => item.id === targetId);
+      const isExplicitlyEditing = editingQuoteId === targetId;
+      const clientNameTrimmed = quote.clientName.trim();
+      const existingClientName = existingIndex !== -1 ? (savedHistory[existingIndex].clientName || '').trim() : '';
+      const clientChanged = existingIndex !== -1 && clientNameTrimmed !== existingClientName;
 
-      // 1. Mostrar de inmediato el mensaje de guardado correcto y activar cuenta regresiva de 3 segundos
-      setSaveSuccessMessage(`✅ Cotización guardada correctamente. Redirigiendo a WhatsApp en 3 segundos...`);
+      // Si ya existe en el historial y no la cargamos expresamente para editarla, o si el cliente cambió:
+      // Se genera un nuevo registro independiente garantizando que cada cotización sea una nueva fila en el sistema
+      if (existingIndex !== -1 && (!isExplicitlyEditing || clientChanged)) {
+        targetId = `quote_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+        targetQuoteNumber = generateQuoteNumber();
+      }
+
+      const clientClean = (clientNameTrimmed || 'Cliente').replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g, '-');
+      const finalName = `Cotizacion-${clientClean}-${targetQuoteNumber}`;
+
+      const quoteToSend: JobQuote = {
+        ...quote,
+        id: targetId,
+        quoteNumber: targetQuoteNumber,
+        status: 'enviada'
+      };
+
+      // 2. Guardar en Cloudflare D1 como 'enviada'
+      await saveToCloud(finalName, 'enviada', quoteToSend);
+
+      // 3. Actualizar estado local inmediatamente
+      setSavedHistory((prev) => {
+        const filtered = prev.filter((item) => item.id !== targetId);
+        const newEntry: SavedQuoteEntry = {
+          id: targetId,
+          fileName: finalName,
+          savedAt: new Date().toISOString(),
+          quoteData: quoteToSend,
+          clientName: quoteToSend.clientName || 'Cliente Particular',
+          workReference: quoteToSend.workReference || 'Trabajo Técnico Especializado',
+          totalAmount: (Number(quoteToSend.laborCost) || 0) + (Number(quoteToSend.materialsCost) || 0),
+          status: 'enviada',
+          sentAt: new Date().toISOString(),
+          viewCount: 0,
+          isDownloaded: false
+        };
+        return [newEntry, ...filtered];
+      });
+
+      const clientDisplay = quoteToSend.clientName ? quoteToSend.clientName.trim() : 'Cliente';
+
+      // 4. Mostrar feedback de guardado correcto y cuenta regresiva de 3 segundos
+      setSaveSuccessMessage(`✅ Cotización de ${clientDisplay} guardada correctamente. Redirigiendo a WhatsApp en 3 segundos...`);
       setSendCountdown(3);
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setSendCountdown(2);
-      setSaveSuccessMessage(`✅ Cotización guardada correctamente. Redirigiendo a WhatsApp en 2 segundos...`);
+      setSaveSuccessMessage(`✅ Cotización de ${clientDisplay} guardada correctamente. Redirigiendo a WhatsApp en 2 segundos...`);
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setSendCountdown(1);
-      setSaveSuccessMessage(`✅ Cotización guardada correctamente. Redirigiendo a WhatsApp en 1 segundo...`);
+      setSaveSuccessMessage(`✅ Cotización de ${clientDisplay} guardada correctamente. Redirigiendo a WhatsApp en 1 segundo...`);
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // 2. Transcurridos los 3 segundos exactos, redirigir a WhatsApp
-      const text = encodeURIComponent(generateWhatsAppMessage());
-      const phone = quote.clientPhone ? quote.clientPhone.replace(/\D/g, '') : '';
+      // 5. Redirigir a WhatsApp con el enlace exacto del targetId
+      const text = encodeURIComponent(generateWhatsAppMessage(quoteToSend, targetId));
+      const phone = quoteToSend.clientPhone ? quoteToSend.clientPhone.replace(/\D/g, '') : '';
       const url = phone.length >= 8 
         ? `https://wa.me/506${phone.slice(-8)}?text=${text}`
         : `https://wa.me/?text=${text}`;
@@ -809,6 +861,24 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
       setSaveSuccessMessage(`✅ Cotización guardada correctamente y enviada a ${clientDisplay} por WhatsApp.`);
       if (saveSuccessTimerRef.current) clearTimeout(saveSuccessTimerRef.current);
       saveSuccessTimerRef.current = setTimeout(() => setSaveSuccessMessage(null), 8000);
+
+      // 6. Preparar de inmediato el editor con un nuevo ID fresco y consecutivo nuevo para que la siguiente cotización no sobreescriba esta
+      const nextFreshQuote: JobQuote = {
+        ...quoteToSend,
+        id: `quote_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        quoteNumber: generateQuoteNumber(),
+        clientName: '',
+        clientLocation: '',
+        clientPhone: '',
+        status: 'por_enviar',
+        createdAt: new Date().toISOString()
+      };
+      setQuote(nextFreshQuote);
+      setEditingQuoteId(null);
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {}
+
       await syncCloudQuotes();
     } catch (err) {
       console.warn('Error al guardar y enviar cotización:', err);
