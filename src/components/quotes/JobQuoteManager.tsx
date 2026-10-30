@@ -1151,17 +1151,6 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
             </span>
           </button>
 
-          {/* Botón: Compartir Enlace Dinámico con Cliente */}
-          <button
-            type="button"
-            onClick={handleOpenShareModal}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/80 shadow-xs transition-all active:scale-95 cursor-pointer"
-            title="Compartir link dinámico con el cliente y rastrear descarga en vivo"
-          >
-            <Share2 className="w-4 h-4 text-indigo-600" />
-            <span className="hidden sm:inline">Compartir Enlace</span>
-          </button>
-
           {/* Botón: Descargar PDF */}
           <button
             type="button"

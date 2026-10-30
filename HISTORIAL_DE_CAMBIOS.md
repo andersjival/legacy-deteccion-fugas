@@ -15,6 +15,12 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.56.0] - 2026-10-30 - Eliminación del Botón "Compartir Enlace" en Barra de Cotizador
+- **Depuración de Barra de Acciones (`JobQuoteManager.tsx`):**
+  - Eliminado el botón redundante "Compartir Enlace" de la barra superior del gestor de cotizaciones.
+  - La interfaz queda optimizada y simplificada, manteniendo las acciones principales directas: "Guardar y enviar" (WhatsApp con enlace dinámico integrado), "Solo guardar", "Descargar PDF", "Imprimir", "Copiar" y "Nueva Cotización".
+
+
 ### [v2.55.0] - 2026-10-29 - Botón "Crear Cotización" en Citas y Enlace Inteligente a Cotizador Personalizado
 - **Aislamiento Estricto de "Compartir Cotización Oficial" (`AppointmentCard.tsx` / `TodayRouteCard.tsx`):**
   - El botón "Compartir Cotización Oficial por WhatsApp" ahora aparece **únicamente** cuando el administrador ya ha creado una cotización formal para ese cliente en el sistema.
