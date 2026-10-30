@@ -41,11 +41,13 @@ import {
   Receipt,
   Banknote,
   CreditCard,
-  ArrowLeftRight
+  ArrowLeftRight,
+  Globe,
+  Gift
 } from 'lucide-react';
 import { ProjectFeature, ProjectMetric, ProjectPresentationData } from '../../types/project';
 
-const STORAGE_KEY = 'royalty_project_presentation_data_v5';
+const STORAGE_KEY = 'royalty_project_presentation_data_v6';
 const SHIELD_LOGO = '/images/logo-royalty-shield.png';
 const LOGO_DESTAQUEO = '/images/logo-royalty-destaqueo.png';
 
@@ -651,6 +653,16 @@ export const ProjectPresentationPage: React.FC<ProjectPresentationPageProps> = (
           <div className="flex items-center gap-2">
             <button
               type="button"
+              onClick={() => {
+                document.getElementById('planes-inversion')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="px-3 py-1.5 rounded-xl text-xs font-black text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all cursor-pointer"
+            >
+              Planes de Pago
+            </button>
+
+            <button
+              type="button"
               onClick={onNavigateAgenda}
               className="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700/60 transition-all cursor-pointer"
             >
@@ -754,11 +766,22 @@ export const ProjectPresentationPage: React.FC<ProjectPresentationPageProps> = (
             <button
               type="button"
               onClick={() => {
+                document.getElementById('planes-inversion')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:opacity-95 text-amber-950 text-xs sm:text-sm font-black shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+            >
+              <Sparkles className="w-4 h-4 fill-amber-950" />
+              <span>Ver Planes de Inversión y Ahorro</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
                 document.getElementById('lista-funcionalidades')?.scrollIntoView({ behavior: 'smooth' });
               }}
               className="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#67141d] to-[#8B1826] hover:opacity-95 text-white text-xs sm:text-sm font-black shadow-lg shadow-[#67141d]/30 transition-all flex items-center gap-2 cursor-pointer active:scale-95"
             >
-              <span>Explorar Capacidades del Sistema ({data.features.length})</span>
+              <span>Capacidades ({data.features.length})</span>
               <ChevronRight className="w-4 h-4" />
             </button>
 
@@ -1346,6 +1369,338 @@ export const ProjectPresentationPage: React.FC<ProjectPresentationPageProps> = (
         </section>
 
         {/* ========================================================
+            SECCIÓN DE PLANES DE INVERSIÓN Y AHORRO REAL DE INFRAESTRUCTURA
+           ======================================================== */}
+        <section id="planes-inversion" className="scroll-mt-20 space-y-10">
+          
+          <div className="text-center space-y-3 max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/30 text-xs font-black uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>Modalidades de Inversión & Facilidades de Pago</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight">
+              Elige el Plan que Mejor se Adapte a tu Flujo de Caja
+            </h2>
+            <p className="text-xs sm:text-sm md:text-base text-slate-300 font-medium max-w-2xl mx-auto">
+              Todos los planes incluyen la plataforma completa llave en mano: Cotizador Dinámico en 5 min, Agenda 24/7, Control de Ingresos y Egresos, Panel de Administración y soporte técnico continuo.
+            </p>
+          </div>
+
+          {/* GRID DE LOS 3 PLANES */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
+            
+            {/* PLAN 1 */}
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-slate-700 transition-all shadow-xl relative">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-[11px] font-black uppercase tracking-wider text-slate-300">
+                    Plan 1
+                  </span>
+                  <span className="text-[11px] font-bold text-slate-400">Mensualidad Mínima</span>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-black text-white">Inversión Base Reducida</h3>
+                  <p className="text-xs text-slate-400 mt-1">Para quienes prefieren la cuota mensual fija más baja del mercado.</p>
+                </div>
+
+                <div className="pt-2 pb-4 border-b border-slate-800/80 space-y-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl sm:text-4xl font-black text-white font-mono">₡155.000</span>
+                    <span className="text-xs font-bold text-slate-400">Pago Inicial</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-sm font-bold text-amber-400">
+                    <span>+</span>
+                    <span className="text-lg font-black font-mono">₡25.000</span>
+                    <span className="text-xs text-slate-400 font-medium">por mes</span>
+                  </div>
+                </div>
+
+                <ul className="space-y-2.5 text-xs text-slate-300 pt-2">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>Cotizador Dinámico en 5 min</strong> con membrete y envío WhatsApp.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>Control de Ingresos y Gastos</strong> (diarios, semanales, mensuales).</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>Agenda 24/7</strong> para clientes y panel de administración.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span>Soporte técnico, actualizaciones y mantenimiento incluido.</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="pt-6">
+                <a
+                  href="https://wa.me/50664080124?text=Hola%20David%2C%20deseo%20elegir%20el%20Plan%201%20de%20la%20propuesta%20Royalty%20(Pago%20inicial%20%E2%82%A1155.000%20%2B%20%E2%82%A125.000%20al%20mes)."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3.5 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-white font-black text-xs text-center transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                >
+                  <span>Elegir Plan 1</span>
+                  <ChevronRight className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+
+            {/* PLAN 2 (RECOMENDADO / MÁS POPULAR) */}
+            <div className="bg-gradient-to-b from-[#67141d]/40 via-slate-900 to-[#121c2e] border-2 border-amber-400 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-amber-300 transition-all shadow-2xl relative scale-100 lg:scale-105 z-10">
+              {/* Badge superior recomendado */}
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-amber-950 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg flex items-center gap-1.5 whitespace-nowrap">
+                <Sparkles className="w-3 h-3 fill-amber-950" />
+                <span>Recomendado • 2 Años Gratis</span>
+              </div>
+
+              <div className="space-y-4 pt-1">
+                <div className="flex items-center justify-between">
+                  <span className="px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/40 text-[11px] font-black uppercase tracking-wider text-amber-300">
+                    Plan 2
+                  </span>
+                  <span className="text-[11px] font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-md border border-emerald-500/30">
+                    2 AÑOS GRATIS
+                  </span>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-black text-white">Plan Flexible + Bonificación</h3>
+                  <p className="text-xs text-slate-300 mt-1">Baja inversión inicial con el doble de tiempo en hosting y dominio bonificado.</p>
+                </div>
+
+                <div className="pt-2 pb-4 border-b border-amber-400/20 space-y-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl sm:text-4xl font-black text-amber-400 font-mono">₡45.000</span>
+                    <span className="text-xs font-bold text-slate-300">Primer Pago</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-sm font-bold text-slate-200">
+                    <span>luego</span>
+                    <span className="text-lg font-black font-mono text-white">₡35.000</span>
+                    <span className="text-xs text-slate-400 font-medium">mensuales</span>
+                  </div>
+                </div>
+
+                {/* Gran Beneficio Destacado */}
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-emerald-500/15 to-transparent border border-amber-400/30 space-y-1">
+                  <div className="flex items-center gap-2 text-amber-300 text-xs font-black uppercase tracking-wide">
+                    <Award className="w-4 h-4 text-amber-400" />
+                    <span>Beneficio Exclusivo Plan 2:</span>
+                  </div>
+                  <p className="text-xs font-extrabold text-white leading-snug">
+                    🎁 Hosting Serverless de Alta Velocidad + Dominio Oficial GRATIS POR 2 AÑOS COMPLETOS
+                  </p>
+                </div>
+
+                <ul className="space-y-2.5 text-xs text-slate-300 pt-1">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>Acceso total inmediato:</strong> Cotizador 5 min, agenda 24/7 y reportes.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>Desglose de pagos múltiples</strong> (Efectivo, SINPE, Transferencia).</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>Ahorro acumulado de $530 USD</strong> en infraestructura absorbida por nosotros.</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="pt-6">
+                <a
+                  href="https://wa.me/50664080124?text=Hola%20David%2C%20deseo%20elegir%20el%20Plan%202%20(Recomendado)%20de%20la%20propuesta%20Royalty%20(Primer%20pago%20%E2%82%A145.000%20%2B%20%E2%82%A135.000%20mensuales%20con%202%20a%C3%B1os%20de%20Hosting%20y%20Dominio%20GRATIS)."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:opacity-95 text-amber-950 font-black text-xs text-center shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                >
+                  <span>Elegir Plan 2 (Recomendado)</span>
+                  <ChevronRight className="w-4 h-4 stroke-[3]" />
+                </a>
+              </div>
+            </div>
+
+            {/* PLAN 3 */}
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-slate-700 transition-all shadow-xl relative">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-[11px] font-black uppercase tracking-wider text-slate-300">
+                    Plan 3
+                  </span>
+                  <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-md border border-emerald-500/30">
+                    1 AÑO GRATIS
+                  </span>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-black text-white">Suscripción Mensual Directa</h3>
+                  <p className="text-xs text-slate-400 mt-1">Sin desembolso inicial fuerte. Pagas mes a mes con soporte y alojamiento.</p>
+                </div>
+
+                <div className="pt-2 pb-4 border-b border-slate-800/80 space-y-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl sm:text-4xl font-black text-white font-mono">₡40.000</span>
+                    <span className="text-xs font-bold text-slate-400">por mes</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
+                    <span>✓</span>
+                    <span>Sin prima inicial alta de enganche</span>
+                  </div>
+                </div>
+
+                {/* Gran Beneficio Destacado */}
+                <div className="p-3.5 rounded-2xl bg-slate-800/90 border border-slate-700/80 space-y-1">
+                  <div className="flex items-center gap-2 text-amber-300 text-xs font-black uppercase tracking-wide">
+                    <Gift className="w-4 h-4 text-amber-400" />
+                    <span>Beneficio Especial Plan 3:</span>
+                  </div>
+                  <p className="text-xs font-bold text-white leading-snug">
+                    Hosting Serverless + Dominio Oficial GRATIS POR 1 AÑO COMPLETO
+                  </p>
+                </div>
+
+                <ul className="space-y-2.5 text-xs text-slate-300 pt-1">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>Plataforma 100% activa</strong> desde el primer día de trabajo.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>Cotizador 5 min, agenda y reportes</strong> financieros incluidos.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>Ahorro de $265 USD</strong> en hosting y dominio anual garantizado.</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="pt-6">
+                <a
+                  href="https://wa.me/50664080124?text=Hola%20David%2C%20deseo%20elegir%20el%20Plan%203%20de%20la%20propuesta%20Royalty%20(%E2%82%A140.000%20mensuales%20con%201%20a%C3%B1o%20de%20Hosting%20y%20Dominio%20GRATIS)."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3.5 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-white font-black text-xs text-center transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                >
+                  <span>Elegir Plan 3</span>
+                  <ChevronRight className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+          {/* ========================================================
+              BLOQUE DE AHORRO REAL TANGIBLE: COSTOS TACHADOS DE HOSTING Y DOMINIO
+             ======================================================== */}
+          <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border-2 border-emerald-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none -z-10" />
+
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6 pb-6 border-b border-slate-800">
+              <div className="space-y-2 text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[11px] font-black uppercase tracking-wider">
+                  <BadgeCheck className="w-3.5 h-3.5" />
+                  <span>Costos de Infraestructura Absorbidos al 100%</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-white">
+                  ¿Cuánto Te Ahorras Realmente en Infraestructura Web?
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 max-w-2xl font-medium">
+                  Cualquier otra agencia te cobraría la infraestructura técnica y mantenimiento por separado. En Royalty Destaqueo estos costos vienen <strong className="text-emerald-400 font-black">100% BONIFICADOS Y GRATIS</strong> en tu plan.
+                </p>
+              </div>
+
+              <div className="shrink-0 text-center lg:text-right bg-emerald-950/30 border border-emerald-500/30 px-6 py-4 rounded-2xl">
+                <div className="text-[11px] font-black text-emerald-400 uppercase tracking-wider">Ahorro Tangible Absorbido</div>
+                <div className="text-2xl sm:text-3xl font-black text-white font-mono mt-0.5">
+                  $265 a $530 USD
+                </div>
+                <div className="text-[11px] font-bold text-slate-400">
+                  ≈ ₡140.000 a ₡280.000 colones gratis
+                </div>
+              </div>
+            </div>
+
+            {/* TABLA / TARJETAS COMPARATIVAS DE COSTOS TACHADOS */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pt-6">
+              
+              {/* ITEM 1: HOSTING */}
+              <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-white font-black text-sm">
+                      <Server className="w-4 h-4 text-emerald-400" />
+                      <span>Hosting Cloud Serverless de Alta Velocidad</span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase">
+                      Incluido Gratis
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Servidores edge mundiales Cloudflare con tiempo de carga inferior a 100ms, certificado de seguridad SSL bancario, copias de respaldo continuas y soporte 24/7 sin caídas.
+                  </p>
+                </div>
+
+                <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] text-slate-400 block font-medium">Precio Regular en el Mercado:</span>
+                    <span className="text-base sm:text-lg font-bold text-red-400 line-through font-mono">
+                      $20.00 / mes ($240 USD / año)
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[11px] text-emerald-400 block font-black uppercase">En tu Plan Royalty:</span>
+                    <span className="text-lg sm:text-xl font-black text-emerald-400 font-mono">
+                      GRATIS ($0)
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* ITEM 2: DOMINIO */}
+              <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-white font-black text-sm">
+                      <Globe className="w-4 h-4 text-blue-400" />
+                      <span>Dominio Web Oficial Personalizado (.COM / .CR)</span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase">
+                      Incluido Gratis
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Registro de marca, enlace corporativo oficial para WhatsApp y redes, gestión DNS profesional y blindaje contra robos de dominio para máxima seriedad ante tus clientes.
+                  </p>
+                </div>
+
+                <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] text-slate-400 block font-medium">Precio Regular en el Mercado:</span>
+                    <span className="text-base sm:text-lg font-bold text-red-400 line-through font-mono">
+                      $25.00 USD / año
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[11px] text-emerald-400 block font-black uppercase">En tu Plan Royalty:</span>
+                    <span className="text-lg sm:text-xl font-black text-emerald-400 font-mono">
+                      GRATIS ($0)
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* ========================================================
             CIERRE PERSUASIVO FINAL Y LLAMADO A LA ACCIÓN COMERCIAL
            ======================================================== */}
         <section className="bg-gradient-to-br from-[#67141d]/40 via-slate-900 to-[#0A192F] border-2 border-amber-400/50 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8 relative overflow-hidden">
@@ -1382,7 +1737,15 @@ export const ProjectPresentationPage: React.FC<ProjectPresentationPageProps> = (
                 <ChevronRight className="w-4 h-4 stroke-[3]" />
               </a>
 
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
+              <div className="flex flex-wrap items-center justify-center gap-2 text-xs font-bold text-slate-400">
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('planes-inversion')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="hover:text-amber-400 transition-colors underline cursor-pointer text-amber-300"
+                >
+                  Ver 3 Planes de Pago
+                </button>
+                <span>•</span>
                 <a href="/cotizador" className="hover:text-amber-400 transition-colors underline">Probar Cotizador</a>
                 <span>•</span>
                 <a href="/agenda" className="hover:text-amber-400 transition-colors underline">Ver Agenda 24/7</a>

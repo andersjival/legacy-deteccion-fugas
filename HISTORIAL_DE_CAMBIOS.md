@@ -15,6 +15,21 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.65.0] - 2026-10-30 - Modalidades de Inversión (3 Planes) y Desglose de Ahorro de Hosting y Dominio
+- **Sección de Planes Comerciales en Propuesta (`ProjectPresentationPage.tsx`):**
+  - **Plan 1 (Inversión Base Reducida):** Pago inicial de ₡155.000 colones + ₡25.000 por mes (la cuota de mantenimiento mensual más baja).
+  - **Plan 2 (Recomendado / Máximo Ahorro):** Primer pago de ₡45.000 colones + ₡35.000 mensuales con **GRATIS Hosting Cloud y Dominio Oficial por 2 AÑOS COMPLETOS**.
+  - **Plan 3 (Suscripción Mensual Directa):** Pago de ₡40.000 mensuales sin prima inicial alta + **GRATIS Hosting Cloud y Dominio Oficial por 1 AÑO COMPLETO**.
+- **Bloque de Ahorro Real Tangible en Infraestructura Web:**
+  - Costos de mercado tachados con precio real para evidenciar el beneficio tangible:
+    - Hosting Cloud Serverless: ~~$20.00/mes ($240 USD/año)~~ -> **GRATIS ($0)**.
+    - Dominio Oficial Web: ~~$25.00 USD/año~~ -> **GRATIS ($0)**.
+    - Ahorro directo total absorbido por la plataforma: de **$265 a $530 USD** (~₡140.000 a ₡280.000 colones) bonificados para el cliente.
+- **Navegación y Acceso Directo:**
+  - Botón de acceso rápido `Planes de Pago` en la barra superior y en el hero de la propuesta comercial (`/PROYECTO`).
+  - Botones de acción directa a WhatsApp con mensajes preconfigurados para formalizar la elección de cada plan con un solo toque.
+
+
 ### [v2.64.0] - 2026-10-30 - Color Naranja para el Botón "Marcar Trabajo como Finalizado"
 - **Actualización de Color e Impacto Visual (`AppointmentCard.tsx`, `TodayRouteCard.tsx`):**
   - Cambiado el color del botón `Marcar Trabajo como Finalizado` de esmeralda a naranja vibrante (`bg-gradient-to-r from-orange-500 via-brand-orange to-amber-500 text-white`).
