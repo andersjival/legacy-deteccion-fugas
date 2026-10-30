@@ -73,7 +73,7 @@ export const JobQuoteManager: React.FC<JobQuoteManagerProps> = ({
   const [copiedWithTitle, setCopiedWithTitle] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [historyFilter, setHistoryFilter] = useState<'por_enviar' | 'todas'>('por_enviar');
+  const [historyFilter, setHistoryFilter] = useState<'por_enviar' | 'enviadas' | 'todas'>('por_enviar');
   const [customFileName, setCustomFileName] = useState('');
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
   const [isSavingLater, setIsSavingLater] = useState(false);
@@ -1047,8 +1047,12 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
   const currentLogo = quote.customLogoUrl || quote.companyLogoUrl || DEFAULT_LOGO;
 
   const pendingQuotes = savedHistory.filter((item) => (item.status || 'por_enviar') === 'por_enviar');
-  const sentQuotes = savedHistory.filter((item) => item.status === 'enviada');
-  const itemsToDisplay = historyFilter === 'por_enviar' ? pendingQuotes : savedHistory;
+  const sentQuotes = savedHistory.filter((item) => item.status === 'enviada' || item.status === 'aceptada');
+  const itemsToDisplay = historyFilter === 'por_enviar' 
+    ? pendingQuotes 
+    : historyFilter === 'enviadas'
+    ? sentQuotes
+    : savedHistory;
 
   return (
     <div className="space-y-6">
@@ -1132,8 +1136,12 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
           <button
             type="button"
             onClick={() => {
-              setIsHistoryOpen(!isHistoryOpen);
-              setHistoryFilter('por_enviar');
+              if (isHistoryOpen && historyFilter === 'por_enviar') {
+                setIsHistoryOpen(false);
+              } else {
+                setIsHistoryOpen(true);
+                setHistoryFilter('por_enviar');
+              }
             }}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
               pendingQuotes.length > 0
@@ -1148,6 +1156,33 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
               pendingQuotes.length > 0 ? 'bg-amber-500 text-white' : 'bg-slate-300 text-slate-700'
             }`}>
               {pendingQuotes.length}
+            </span>
+          </button>
+
+          {/* BOTÓN: Cotizaciones Enviadas (con contador de enviadas) */}
+          <button
+            type="button"
+            onClick={() => {
+              if (isHistoryOpen && historyFilter === 'enviadas') {
+                setIsHistoryOpen(false);
+              } else {
+                setIsHistoryOpen(true);
+                setHistoryFilter('enviadas');
+              }
+            }}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+              sentQuotes.length > 0
+                ? 'text-emerald-950 bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 shadow-xs'
+                : 'text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200'
+            }`}
+            title="Ver cotizaciones oficiales enviadas a los clientes"
+          >
+            <Send className="w-4 h-4 text-emerald-600" />
+            <span>Cotizaciones Enviadas</span>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+              sentQuotes.length > 0 ? 'bg-emerald-600 text-white' : 'bg-slate-300 text-slate-700'
+            }`}>
+              {sentQuotes.length}
             </span>
           </button>
 
@@ -1340,6 +1375,18 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
                 </button>
                 <button
                   type="button"
+                  onClick={() => setHistoryFilter('enviadas')}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                    historyFilter === 'enviadas'
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-brand-dark'
+                  }`}
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Enviadas ({sentQuotes.length})</span>
+                </button>
+                <button
+                  type="button"
                   onClick={() => setHistoryFilter('todas')}
                   className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
                     historyFilter === 'todas'
@@ -1382,17 +1429,21 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
           {itemsToDisplay.length === 0 ? (
             <div className="text-center py-10 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-2">
               <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 mx-auto flex items-center justify-center">
-                <Clock className="w-6 h-6" />
+                {historyFilter === 'enviadas' ? <Send className="w-6 h-6 text-emerald-600" /> : <Clock className="w-6 h-6" />}
               </div>
               <h4 className="text-xs font-black text-brand-dark uppercase tracking-wider">
                 {historyFilter === 'por_enviar' 
                   ? 'No tienes cotizaciones pendientes por enviar' 
+                  : historyFilter === 'enviadas'
+                  ? 'Aún no hay cotizaciones enviadas registradas'
                   : 'Aún no hay cotizaciones guardadas'}
               </h4>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
                 {historyFilter === 'por_enviar'
-                  ? 'Todas las cotizaciones han sido enviadas o puedes crear una nueva y presionar "Guardar Cotización" para almacenarla aquí.'
-                  : 'Empieza rellenando el formulario y pulsa "Guardar Cotización" para conservarla.'}
+                  ? 'Todas las cotizaciones han sido enviadas o puedes crear una nueva y presionar "Solo guardar" para almacenarla aquí.'
+                  : historyFilter === 'enviadas'
+                  ? 'Presiona "Guardar y enviar" en cualquier cotización para despacharla a tus clientes por WhatsApp.'
+                  : 'Empieza rellenando el formulario y pulsa "Solo guardar" o "Guardar y enviar" para conservarla.'}
               </p>
             </div>
           ) : (

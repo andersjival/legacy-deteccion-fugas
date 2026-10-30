@@ -15,6 +15,14 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.57.0] - 2026-10-30 - Botón y Pestaña de "Cotizaciones Enviadas" en Gestor de Cotizaciones
+- **Botón "Cotizaciones Enviadas" en Barra de Acciones (`JobQuoteManager.tsx`):**
+  - Incorporado botón directo `Cotizaciones Enviadas` con icono `Send`, color esmeralda y contador en tiempo real (`sentQuotes.length`).
+  - Al hacer clic, abre y enfoca la bandeja filtrando de inmediato únicamente las cotizaciones con estado `enviada` o `aceptada`.
+- **Pestaña Filtrada en Bandeja de Historial:**
+  - Añadida la pestaña `Enviadas (X)` junto a `Por Enviar (X)` y `Todas (X)` en el panel de historial, con vista vacía informativa personalizada.
+
+
 ### [v2.56.0] - 2026-10-30 - Eliminación del Botón "Compartir Enlace" en Barra de Cotizador
 - **Depuración de Barra de Acciones (`JobQuoteManager.tsx`):**
   - Eliminado el botón redundante "Compartir Enlace" de la barra superior del gestor de cotizaciones.
