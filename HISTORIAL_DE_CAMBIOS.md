@@ -15,6 +15,16 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.60.0] - 2026-10-30 - Etiqueta Destacada de Trabajo Finalizado y Solicitud Automática de Monto de Ingreso
+- **Etiqueta Destacada de Trabajo Finalizado (`TodayRouteCard.tsx`, `AppointmentCard.tsx`):**
+  - Incorporada etiqueta / insignia prominente `Trabajo Finalizado` con check esmeralda (`CheckCircle2`) en la cabecera y en el cuerpo de cada tarjeta completada.
+  - El badge superior pasa a estado `✅ Trabajo Finalizado` con fondo esmeralda sólido (`bg-emerald-600 text-white`).
+  - Muestra el monto total cobrado (`Cobrado: ₡...`) o botón pulsante `+ Ingresar Monto` en caso de estar pendiente de registro.
+- **Flujo Automático de Ingreso al Finalizar Trabajo:**
+  - Al pulsar el botón `Marcar Trabajo como Finalizado` (o `Finalizar`), el sistema actualiza de inmediato el estado de la cita a `completed` en Cloudflare D1 y abre automáticamente el modal de ingreso (`PaymentModal`).
+  - El modal enfoca de forma inmediata el campo de monto (`autoFocus`), solicita el monto cobrado y el método de pago (Sinpe Móvil, Tarjeta o Efectivo).
+  - Al guardar, el monto se suma automáticamente a los reportes financieros en tiempo real (`FinancialReportCard`) y queda visible permanentemente en la tarjeta del cliente.
+
 ### [v2.59.0] - 2026-10-30 - Erradicación de Sobreescritura de Cotizaciones al Enviar Múltiples
 - **Generación Única Obligatoria por Cotización (`JobQuoteManager.tsx`):**
   - Identificada la causa raíz: al presionar "Guardar y enviar", el sistema reutilizaba el mismo ID de la cotización anterior, provocando que la base de datos D1 actualizara el mismo registro (`ON CONFLICT(id) DO UPDATE`) en lugar de insertar uno nuevo, manteniendo el contador estático.

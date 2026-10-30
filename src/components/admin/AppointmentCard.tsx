@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Phone, MessageSquare, MapPin, Calendar, Clock, Image as ImageIcon, Navigation, ExternalLink, Edit3, FastForward, Star, FileText, FilePlus } from 'lucide-react';
+import { Phone, MessageSquare, MapPin, Calendar, Clock, Image as ImageIcon, Navigation, ExternalLink, Edit3, FastForward, Star, FileText, FilePlus, CheckCircle2 } from 'lucide-react';
 import { Appointment, AppointmentStatus, PaymentMethod } from '../../types/appointment';
 import { formatDateToSpanish, formatTime12h } from '../../utils/dateFormatter';
 import { ServiceEditorModal } from './ServiceEditorModal';
@@ -49,8 +49,13 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
   const statusConfig = {
     pending: { label: 'Pendiente', color: 'bg-amber-100 text-amber-800 border-amber-300' },
     confirmed: { label: 'Confirmada', color: 'bg-blue-100 text-blue-800 border-blue-300' },
-    completed: { label: 'Completada', color: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+    completed: { label: '✅ Trabajo Finalizado', color: 'bg-emerald-600 text-white border-emerald-700 shadow-2xs' },
     cancelled: { label: 'Cancelada', color: 'bg-slate-100 text-slate-500 border-slate-300' }
+  };
+
+  const handleMarkAsCompleted = () => {
+    onUpdateStatus(appointment.id, 'completed');
+    setIsPaymentOpen(true);
   };
 
   const handleQuickConfirmWhatsApp = () => {
@@ -169,6 +174,32 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
         </div>
       </div>
 
+      {/* Etiqueta Destacada de Trabajo Finalizado con Monto / Registro de Ingresos */}
+      {appointment.status === 'completed' && (
+        <div className="bg-emerald-50/90 border border-emerald-300 p-2.5 rounded-2xl flex items-center justify-between gap-2 shadow-2xs animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span className="text-xs font-black text-emerald-950 uppercase tracking-wide">
+              Trabajo Finalizado
+            </span>
+          </div>
+          {Number(appointment.amount_collected || 0) > 0 ? (
+            <span className="text-[11px] font-black text-emerald-800 bg-white px-2.5 py-0.5 rounded-xl border border-emerald-200">
+              Cobrado: ₡{Number(appointment.amount_collected).toLocaleString('es-CR')}
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsPaymentOpen(true)}
+              className="text-[11px] font-black text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1 rounded-xl shadow-xs cursor-pointer animate-pulse"
+              title="Ingresar monto para registrar en ingresos"
+            >
+              + Ingresar Monto
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Info de Fecha, Horario, Dirección y Enlaces de Navegación Waze */}
       <div className="space-y-2.5 text-xs text-brand-slate font-medium">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50/80 p-2.5 rounded-xl border border-slate-100">
@@ -279,6 +310,18 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
           </button>
         )}
 
+        {/* Botón Destacado: Marcar Trabajo como Finalizado (abre modal de cobro) */}
+        {appointment.status !== 'completed' && appointment.status !== 'cancelled' && (
+          <button
+            type="button"
+            onClick={handleMarkAsCompleted}
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 shadow-xs hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
+          >
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span>Marcar Trabajo como Finalizado</span>
+          </button>
+        )}
+
         {/* Si existe cotización creada por el admin para este cliente */}
         {existingQuote ? (
           <div className="space-y-1">
@@ -358,8 +401,8 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
 
         <div className="flex items-center gap-1 w-full sm:w-auto justify-end">
           <button
-            onClick={() => onUpdateStatus(appointment.id, 'completed')}
-            title="Marca la cita como completada y purga fotos de R2"
+            onClick={handleMarkAsCompleted}
+            title="Marca la cita como completada y solicita el monto cobrado"
             className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors ${
               appointment.status === 'completed' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-emerald-50'
             }`}

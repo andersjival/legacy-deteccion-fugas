@@ -60,6 +60,11 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
+  const handleMarkAsCompleted = () => {
+    onUpdateStatus(appointment.id, 'completed');
+    setIsPaymentOpen(true);
+  };
+
   const handleShareOfficialQuoteWhatsApp = () => {
     if (!existingQuote) return;
     const origin = window.location.origin;
@@ -119,11 +124,37 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
         </div>
 
         <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase self-start sm:self-auto shrink-0 ${
-          isCompleted ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+          isCompleted ? 'bg-emerald-600 text-white shadow-2xs' : 'bg-amber-100 text-amber-800'
         }`}>
-          {isCompleted ? 'Finalizada' : 'En Ruta'}
+          {isCompleted ? '✅ Trabajo Finalizado' : 'En Ruta'}
         </span>
       </div>
+
+      {/* Etiqueta Destacada de Trabajo Finalizado con Monto / Registro de Ingresos */}
+      {isCompleted && (
+        <div className="bg-emerald-50/90 border border-emerald-300 p-2.5 rounded-2xl flex items-center justify-between gap-2 shadow-2xs animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span className="text-xs font-black text-emerald-950 uppercase tracking-wide">
+              Trabajo Finalizado
+            </span>
+          </div>
+          {Number(appointment.amount_collected || 0) > 0 ? (
+            <span className="text-[11px] font-black text-emerald-800 bg-white px-2.5 py-0.5 rounded-xl border border-emerald-200">
+              Cobrado: ₡{Number(appointment.amount_collected).toLocaleString('es-CR')}
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsPaymentOpen(true)}
+              className="text-[11px] font-black text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1 rounded-xl shadow-xs cursor-pointer animate-pulse"
+              title="Ingresar monto para registrar en ingresos"
+            >
+              + Ingresar Monto
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Info Principal Cliente */}
       <div className="py-3 space-y-1.5">
@@ -232,7 +263,7 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
         {!isCompleted && (
           <button
             type="button"
-            onClick={() => onUpdateStatus(appointment.id, 'completed')}
+            onClick={handleMarkAsCompleted}
             className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all cursor-pointer"
           >
             <CheckCircle className="w-4 h-4 text-emerald-600" />

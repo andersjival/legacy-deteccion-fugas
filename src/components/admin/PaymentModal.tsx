@@ -57,9 +57,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             </div>
             <div>
               <h3 className="text-base font-black text-brand-dark leading-tight">
-                Registrar Cobro
+                Registrar Ingreso de Trabajo Finalizado
               </h3>
-              <p className="text-xs text-slate-500 font-medium truncate max-w-[220px]">
+              <p className="text-xs text-slate-500 font-medium truncate max-w-[240px]">
                 {clientName} • {serviceType}
               </p>
             </div>
@@ -77,7 +77,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           {/* Campo de Monto */}
           <div>
             <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5">
-              Monto Cobrado (₡ Colones)
+              Monto del Trabajo Realizado (₡ Colones)
             </label>
             <div className="relative">
               <span className="absolute left-3.5 top-3.5 text-slate-400 font-black text-sm">
@@ -88,6 +88,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 min={0}
                 step={500}
                 required
+                autoFocus
                 value={amount || ''}
                 onChange={(e) => setAmount(Number(e.target.value))}
                 placeholder="45000"
@@ -175,8 +176,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               )}
               <span>
                 {amount > 0
-                  ? `Guardar Cobro de ₡${amount.toLocaleString('es-CR')}`
-                  : 'Guardar Cobro'}
+                  ? `Guardar Ingreso de ₡${amount.toLocaleString('es-CR')}`
+                  : 'Guardar en Registro de Ingresos'}
               </span>
             </button>
           </div>
