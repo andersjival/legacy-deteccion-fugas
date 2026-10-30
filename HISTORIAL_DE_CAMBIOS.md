@@ -15,6 +15,13 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.58.0] - 2026-10-30 - Feedback de "Guardado Correctamente" y Redirección en 3 Segundos al Enviar
+- **Flujo de Envío con Temporizador y Notificación Inmediata (`JobQuoteManager.tsx`):**
+  - Al presionar **"Guardar y enviar"**, el sistema almacena de inmediato la cotización en Cloudflare D1 y despliega en tiempo real el mensaje de confirmación: *"✅ Cotización guardada correctamente. Redirigiendo a WhatsApp en 3 segundos..."*.
+  - Incorporada cuenta regresiva interactiva (3s -> 2s -> 1s) visible tanto en el banner de notificación superior como en el propio botón de acción.
+  - Al completar los 3 segundos, se ejecuta la redirección automática a WhatsApp con el formato y enlace oficial `/cotizacion/:id`.
+
+
 ### [v2.57.0] - 2026-10-30 - Botón y Pestaña de "Cotizaciones Enviadas" en Gestor de Cotizaciones
 - **Botón "Cotizaciones Enviadas" en Barra de Acciones (`JobQuoteManager.tsx`):**
   - Incorporado botón directo `Cotizaciones Enviadas` con icono `Send`, color esmeralda y contador en tiempo real (`sentQuotes.length`).

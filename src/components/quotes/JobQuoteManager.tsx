@@ -78,6 +78,7 @@ export const JobQuoteManager: React.FC<JobQuoteManagerProps> = ({
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
   const [isSavingLater, setIsSavingLater] = useState(false);
   const [isSavingAndSending, setIsSavingAndSending] = useState(false);
+  const [sendCountdown, setSendCountdown] = useState<number | null>(null);
   const [savedLaterFeedback, setSavedLaterFeedback] = useState(false);
   const [editingQuoteId, setEditingQuoteId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -776,21 +777,45 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
       setSavedHistory((prev) => 
         prev.map((item) => item.id === quote.id ? { ...item, status: 'enviada', sentAt: new Date().toISOString() } : item)
       );
+
+      const clientDisplay = quote.clientName ? quote.clientName.trim() : 'Cliente';
+
+      // 1. Mostrar de inmediato el mensaje de guardado correcto y activar cuenta regresiva de 3 segundos
+      setSaveSuccessMessage(`✅ Cotización guardada correctamente. Redirigiendo a WhatsApp en 3 segundos...`);
+      setSendCountdown(3);
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setSendCountdown(2);
+      setSaveSuccessMessage(`✅ Cotización guardada correctamente. Redirigiendo a WhatsApp en 2 segundos...`);
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setSendCountdown(1);
+      setSaveSuccessMessage(`✅ Cotización guardada correctamente. Redirigiendo a WhatsApp en 1 segundo...`);
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // 2. Transcurridos los 3 segundos exactos, redirigir a WhatsApp
       const text = encodeURIComponent(generateWhatsAppMessage());
       const phone = quote.clientPhone ? quote.clientPhone.replace(/\D/g, '') : '';
       const url = phone.length >= 8 
         ? `https://wa.me/506${phone.slice(-8)}?text=${text}`
         : `https://wa.me/?text=${text}`;
-      window.open(url, '_blank');
 
-      setSaveSuccessMessage(`✅ Cotización guardada y enviada a ${quote.clientName || 'Cliente'} por WhatsApp.`);
+      const win = window.open(url, '_blank');
+      if (!win || win.closed || typeof win.closed === 'undefined') {
+        window.location.href = url;
+      }
+
+      setSaveSuccessMessage(`✅ Cotización guardada correctamente y enviada a ${clientDisplay} por WhatsApp.`);
       if (saveSuccessTimerRef.current) clearTimeout(saveSuccessTimerRef.current);
       saveSuccessTimerRef.current = setTimeout(() => setSaveSuccessMessage(null), 8000);
       await syncCloudQuotes();
     } catch (err) {
       console.warn('Error al guardar y enviar cotización:', err);
+      setSaveSuccessMessage('⚠️ Error al guardar la cotización. Inténtalo de nuevo.');
     } finally {
       setIsSavingAndSending(false);
+      setSendCountdown(null);
     }
   };
 
@@ -1108,12 +1133,22 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-all active:scale-95 cursor-pointer"
             title="Guardar cotización en la nube y enviarla inmediatamente por WhatsApp"
           >
-            {isSavingAndSending ? (
-              <RefreshCw className="w-4 h-4 animate-spin" />
+            {sendCountdown !== null ? (
+              <>
+                <CheckCircle2 className="w-4 h-4 text-emerald-200" />
+                <span>¡Guardado! Enviando ({sendCountdown}s)...</span>
+              </>
+            ) : isSavingAndSending ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                <span>Guardando...</span>
+              </>
             ) : (
-              <Send className="w-4 h-4" />
+              <>
+                <Send className="w-4 h-4" />
+                <span>Guardar y enviar</span>
+              </>
             )}
-            <span>{isSavingAndSending ? 'Enviando...' : 'Guardar y enviar'}</span>
           </button>
 
           {/* BOTÓN 2: Solo Guardar */}
@@ -2383,10 +2418,15 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
                 className="w-full py-3 px-4 rounded-2xl text-xs font-black shadow-sm flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white transition-all cursor-pointer"
                 title="Guardar cotización en la nube y enviarla inmediatamente por WhatsApp"
               >
-                {isSavingAndSending ? (
+                {sendCountdown !== null ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-200" />
+                    <span>¡Guardado correctamente! Redirigiendo en {sendCountdown}s...</span>
+                  </>
+                ) : isSavingAndSending ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Enviando...</span>
+                    <span>Guardando cotización...</span>
                   </>
                 ) : (
                   <>
