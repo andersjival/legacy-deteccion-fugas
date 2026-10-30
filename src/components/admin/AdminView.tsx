@@ -8,7 +8,7 @@ import { AdminSettingsTab } from './AdminSettingsTab';
 import { KPICards } from './KPICards';
 import { FinancialReportCard } from './FinancialReportCard';
 import { AdminReviewsCard } from './AdminReviewsCard';
-import { JobQuoteManager } from '../quotes/JobQuoteManager';
+import { JobQuoteManager, QuotePrefillData } from '../quotes/JobQuoteManager';
 import { TrafficAnalytics } from './TrafficAnalytics';
 import { AnimatedEagleLogo } from '../common/AnimatedEagleLogo';
 import { useAppointments } from '../../hooks/useAppointments';
@@ -121,6 +121,68 @@ export const AdminView: React.FC<AdminViewProps> = ({
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, [activeTab]);
+
+  const [quotePrefill, setQuotePrefill] = useState<QuotePrefillData | null>(null);
+  const [quotesList, setQuotesList] = useState<any[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('royalty_saved_quotes_history');
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+    }
+    return [];
+  });
+
+  const refreshQuotes = React.useCallback(async () => {
+    try {
+      const q = await api.getQuotes();
+      if (Array.isArray(q)) {
+        setQuotesList(q);
+      }
+    } catch (e) {}
+  }, []);
+
+  React.useEffect(() => {
+    refreshQuotes();
+  }, [refreshQuotes]);
+
+  const findQuoteForAppointment = (app: any) => {
+    const rawAppPhone = (app.client_phone || '').replace(/\D/g, '').slice(-8);
+    const cleanAppName = (app.client_name || '').trim().toLowerCase();
+    if (!rawAppPhone && !cleanAppName) return null;
+
+    return quotesList.find((q: any) => {
+      const qData = q.quoteData || q;
+      const qPhone = (qData.client_phone || qData.clientPhone || '').replace(/\D/g, '').slice(-8);
+      const qName = (qData.client_name || qData.clientName || '').trim().toLowerCase();
+
+      if (rawAppPhone && qPhone && rawAppPhone === qPhone) return true;
+      if (cleanAppName && qName && (cleanAppName.includes(qName) || qName.includes(cleanAppName))) return true;
+      return false;
+    });
+  };
+
+  const handleCreateQuoteForAppointment = (app: any) => {
+    setQuotePrefill({
+      clientName: app.client_name,
+      clientPhone: app.client_phone,
+      clientLocation: app.client_address,
+      workReference: app.service_type,
+      problemDescription: app.problem_description,
+      appointmentDate: app.appointment_date,
+      amount: Number(app.amount_collected || 0),
+      appointmentId: app.id
+    });
+    setActiveTab('quotes');
+  };
+
+  const handleEditQuote = (quoteId: string) => {
+    setQuotePrefill({
+      quoteIdToLoad: quoteId
+    });
+    setActiveTab('quotes');
+  };
+
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'confirmed' | 'tomorrow'>('all');
   const [lightboxState, setLightboxState] = useState<{ photos: string[]; index: number } | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
@@ -449,6 +511,9 @@ export const AdminView: React.FC<AdminViewProps> = ({
                     onUpdateService={updateService}
                     onUpdatePayment={updatePayment}
                     onOpenLightbox={(photos, index) => setLightboxState({ photos, index })}
+                    onCreateQuote={handleCreateQuoteForAppointment}
+                    onEditQuote={handleEditQuote}
+                    existingQuote={findQuoteForAppointment(app)}
                     isHighlighted={highlightedId === app.id}
                   />
                 ))}
@@ -803,6 +868,9 @@ export const AdminView: React.FC<AdminViewProps> = ({
                     onUpdateService={updateService}
                     onUpdatePayment={updatePayment}
                     onOpenLightbox={(photos, index) => setLightboxState({ photos, index })}
+                    onCreateQuote={handleCreateQuoteForAppointment}
+                    onEditQuote={handleEditQuote}
+                    existingQuote={findQuoteForAppointment(app)}
                     isHighlighted={highlightedId === app.id}
                   />
                 ))}
@@ -814,7 +882,10 @@ export const AdminView: React.FC<AdminViewProps> = ({
         {/* TAB 3: COTIZADOR DE TRABAJOS EN LÍNEA */}
         {activeTab === 'quotes' && (
           <div className="w-full">
-            <JobQuoteManager />
+            <JobQuoteManager 
+              initialClientData={quotePrefill}
+              onClearPrefill={() => setQuotePrefill(null)}
+            />
           </div>
         )}
 

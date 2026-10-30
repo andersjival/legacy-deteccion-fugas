@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navigation, Phone, MessageSquare, CheckCircle, MapPin, ChevronDown, ChevronUp, Image as ImageIcon, Clock, Edit3, FastForward, DollarSign, Star, Calendar, FileText } from 'lucide-react';
+import { Navigation, Phone, MessageSquare, CheckCircle, MapPin, ChevronDown, ChevronUp, Image as ImageIcon, Clock, Edit3, FastForward, DollarSign, Star, Calendar, FileText, FilePlus } from 'lucide-react';
 import { Appointment, AppointmentStatus, PaymentMethod } from '../../types/appointment';
 import { formatTime12h, formatDateToSpanish } from '../../utils/dateFormatter';
 import { ServiceEditorModal } from './ServiceEditorModal';
@@ -13,6 +13,9 @@ interface TodayRouteCardProps {
   onOpenLightbox: (photos: string[], index: number) => void;
   onUpdateService?: (id: string, newServiceType: string) => Promise<void>;
   onUpdatePayment?: (id: string, amount: number, method: PaymentMethod) => Promise<void>;
+  onCreateQuote?: (appointment: Appointment) => void;
+  onEditQuote?: (quoteId: string) => void;
+  existingQuote?: any;
   isHighlighted?: boolean;
 }
 
@@ -23,6 +26,9 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
   onOpenLightbox,
   onUpdateService,
   onUpdatePayment,
+  onCreateQuote,
+  onEditQuote,
+  existingQuote,
   isHighlighted = false
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -54,45 +60,17 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  const handleSendQuoteWhatsApp = async () => {
+  const handleShareOfficialQuoteWhatsApp = () => {
+    if (!existingQuote) return;
     const origin = window.location.origin;
-    const cleanId = appointment.id.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10);
-    const quoteId = `cot_${cleanId || 'cli'}`;
-    const fecha = formatDateToSpanish(appointment.appointment_date);
-    const quoteNumber = `COT-${appointment.appointment_date ? appointment.appointment_date.replace(/-/g, '').slice(2) : '2026'}-${appointment.id.slice(0, 4).toUpperCase()}`;
+    const qData = existingQuote.quoteData || existingQuote;
+    const quoteId = existingQuote.id || qData.id;
     const quoteUrl = `${origin}/cotizacion/${quoteId}`;
-    const amount = Number(appointment.amount_collected || 0);
+    const quoteNumber = qData.quote_number || qData.quoteNumber || 'COT-2026';
+    const amount = Number(qData.total_amount || qData.totalAmount || (Number(qData.labor_cost || qData.laborCost || 0) + Number(qData.materials_cost || qData.materialsCost || 0)));
+    const fecha = formatDateToSpanish(qData.date || appointment.appointment_date);
 
-    try {
-      await api.saveQuote({
-        id: quoteId,
-        quote_number: quoteNumber,
-        date: appointment.appointment_date,
-        company_name: 'Royalty Detección de Fugas & Destaqueos',
-        client_name: appointment.client_name,
-        client_location: appointment.client_address,
-        client_phone: appointment.client_phone,
-        work_reference: appointment.service_type,
-        scope_items: JSON.stringify([
-          { id: '1', text: `Inspección técnica especializada para: ${appointment.service_type}` },
-          { id: '2', text: appointment.problem_description || 'Diagnóstico y reparación no invasiva según solicitud del cliente.' }
-        ]),
-        labor_cost: amount > 0 ? amount : 45000,
-        materials_cost: 0,
-        materials_detail: 'Insumos profesionales y sellos de alta calidad incluidos',
-        apply_iva: 0,
-        delivery_time: 'Atención técnica según agenda programada',
-        total_amount: amount > 0 ? amount : 45000,
-        file_name: `Cotizacion-${appointment.client_name.replace(/\s+/g, '-')}`,
-        responsible_name: 'David Rojas',
-        responsible_phone: '6408-0124',
-        status: 'enviada'
-      });
-    } catch (e) {
-      console.warn('Error guardando cotizacion antes de compartir:', e);
-    }
-
-    const montoStr = amount > 0 ? `• *Inversión Estimada:* ₡${amount.toLocaleString('es-CR')}\n` : '';
+    const montoStr = amount > 0 ? `• *Inversión Total:* ₡${amount.toLocaleString('es-CR')}\n` : '';
 
     const mensaje = `Hola *${appointment.client_name}*, le saluda el técnico de *Legacy Detección de Fugas* 💧.\n\nYa realicé su cotización oficial para el servicio de *${appointment.service_type}*.\n\n📋 *Resumen de la Cotización:*\n• *N° de Control:* ${quoteNumber}\n• *Trabajo:* ${appointment.service_type}\n• *Ubicación:* ${appointment.client_address}\n• *Fecha estimada:* ${fecha} (${rangoHora})\n${montoStr}• *Garantía:* 100% satisfacción y reporte técnico digital.\n\n🌐 *Puede consultar y descargar su cotización formal en línea aquí:*\n👉 ${quoteUrl}\n\nQuedamos a su disposición para coordinar o atender cualquier consulta. ¡Muchas gracias por su preferencia!`;
 
@@ -262,15 +240,59 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
           </button>
         )}
 
-        {/* Botón Compartir Cotización Oficial por WhatsApp (mensaje programado con link y desglose) */}
-        <button
-          type="button"
-          onClick={handleSendQuoteWhatsApp}
-          className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl text-xs font-black text-blue-950 bg-blue-50 hover:bg-blue-100 border border-blue-300 shadow-xs active:scale-98 transition-all cursor-pointer"
-        >
-          <FileText className="w-4 h-4 text-brand-blue" />
-          <span>Compartir Cotización Oficial por WhatsApp</span>
-        </button>
+        {/* Si existe cotización creada por el admin para este cliente */}
+        {existingQuote ? (
+          <div className="space-y-1">
+            <button
+              type="button"
+              onClick={handleShareOfficialQuoteWhatsApp}
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl text-xs font-black text-emerald-950 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 shadow-xs active:scale-98 transition-all cursor-pointer"
+              title="Compartir cotización oficial creada para este cliente"
+            >
+              <FileText className="w-4 h-4 text-emerald-600" />
+              <span>Compartir Cotización Oficial por WhatsApp</span>
+            </button>
+            <div className="flex items-center justify-between px-2 text-[10.5px] font-bold text-slate-500">
+              <span className="truncate">N° {existingQuote.quote_number || existingQuote.quoteData?.quoteNumber || 'Oficial'} • ₡{Number(existingQuote.total_amount || existingQuote.quoteData?.laborCost || 0).toLocaleString('es-CR')}</span>
+              <button
+                type="button"
+                onClick={() => onEditQuote ? onEditQuote(existingQuote.id || existingQuote.quoteData?.id) : (onCreateQuote && onCreateQuote(appointment))}
+                className="text-brand-blue hover:underline cursor-pointer ml-1 shrink-0"
+              >
+                Ver / Modificar
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* Si el admin aún no le ha creado cotización: botón Crear Cotización */
+          <button
+            type="button"
+            onClick={() => {
+              if (onCreateQuote) {
+                onCreateQuote(appointment);
+              } else {
+                try {
+                  localStorage.setItem('royalty_quote_prefill', JSON.stringify({
+                    clientName: appointment.client_name,
+                    clientPhone: appointment.client_phone,
+                    clientLocation: appointment.client_address,
+                    workReference: appointment.service_type,
+                    problemDescription: appointment.problem_description,
+                    appointmentDate: appointment.appointment_date,
+                    amount: Number(appointment.amount_collected || 0),
+                    appointmentId: appointment.id
+                  }));
+                } catch (e) {}
+                window.location.href = '/detec/panel?tab=quotes';
+              }
+            }}
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl text-xs font-black text-blue-950 bg-blue-50 hover:bg-blue-100 border border-blue-300 shadow-xs active:scale-98 transition-all cursor-pointer"
+            title="Crear cotización personalizada para este cliente en el cotizador"
+          >
+            <FilePlus className="w-4 h-4 text-brand-blue" />
+            <span>Crear Cotización</span>
+          </button>
+        )}
 
         {/* Botón Solicitar Reseña / Calificación por WhatsApp (SOLO citas completadas) */}
         {isCompleted && (

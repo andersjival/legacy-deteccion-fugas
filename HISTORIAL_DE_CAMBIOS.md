@@ -15,6 +15,16 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.55.0] - 2026-10-29 - Botón "Crear Cotización" en Citas y Enlace Inteligente a Cotizador Personalizado
+- **Aislamiento Estricto de "Compartir Cotización Oficial" (`AppointmentCard.tsx` / `TodayRouteCard.tsx`):**
+  - El botón "Compartir Cotización Oficial por WhatsApp" ahora aparece **únicamente** cuando el administrador ya ha creado una cotización formal para ese cliente en el sistema.
+  - Al compartirla, utiliza los datos reales de la cotización creada (N° de control oficial, desglose verídico, montos personalizados y enlace `/cotizacion/:id`), eliminando la generación ciega de cotizaciones genéricas.
+- **Botón "Crear Cotización" con Prellenado Automático (`AdminView.tsx` / `JobQuoteManager.tsx`):**
+  - Cuando una cita no tiene cotización creada, el botón muestra **"Crear Cotización"** con icono `FilePlus`.
+  - Al hacer clic, navega de inmediato a la pestaña `Cotizador`, abriendo el formulario prellenado con los datos específicos de ese cliente: nombre, teléfono, dirección, tipo de servicio solicitado, fecha y descripción del problema.
+  - Notificación visual inmediata en el cotizador indicando que el formulario está listo para personalizar montos y alcances antes de guardar o enviar.
+
+
 ### [v2.54.0] - 2026-10-29 - Depuración Comercial en /PROYECTO y Confirmación de Rastreo de Clics
 - **Depuración de Textos Técnicos en Propuesta Comercial (`ProjectPresentationPage.tsx`):**
   - Removidos de forma quirúrgica los ítems técnicos del acta de entrega ejecutiva: *"Infraestructura Global en Cloudflare Pages con Base de Datos SQL D1 distribuida, carga en <0.5s y cero costos mensuales de hosting"* y *"Propiedad Total del Código Fuente en React, TypeScript y Tailwind CSS, sin suscripciones a WordPress ni plugins de terceros"*.

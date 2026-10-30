@@ -44,7 +44,27 @@ const HISTORY_STORAGE_KEY = 'royalty_saved_quotes_history';
 const DEFAULT_LOGO = '/images/logo-royalty-destaqueo.png';
 const SHIELD_LOGO = '/images/logo-royalty-shield.png';
 
-export const JobQuoteManager: React.FC = () => {
+export interface QuotePrefillData {
+  clientName?: string;
+  clientPhone?: string;
+  clientLocation?: string;
+  workReference?: string;
+  problemDescription?: string;
+  appointmentDate?: string;
+  amount?: number;
+  appointmentId?: string;
+  quoteIdToLoad?: string;
+}
+
+interface JobQuoteManagerProps {
+  initialClientData?: QuotePrefillData | null;
+  onClearPrefill?: () => void;
+}
+
+export const JobQuoteManager: React.FC<JobQuoteManagerProps> = ({
+  initialClientData,
+  onClearPrefill
+}) => {
   const [activeMobileView, setActiveMobileView] = useState<'editor' | 'preview'>('editor');
   const [copied, setCopied] = useState(false);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
@@ -190,6 +210,96 @@ export const JobQuoteManager: React.FC = () => {
 
   // Cotización activa guardada o con estado en el sistema
   const activeSavedEntry = savedHistory.find((entry) => entry.id === quote.id);
+
+  // Cargar datos predefinidos de cliente para cotización personalizada o edición directa
+  useEffect(() => {
+    let prefill = initialClientData;
+    if (!prefill && typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('royalty_quote_prefill');
+        if (stored) {
+          prefill = JSON.parse(stored);
+          localStorage.removeItem('royalty_quote_prefill');
+        }
+      } catch (e) {}
+    }
+
+    if (!prefill) return;
+
+    if (prefill.quoteIdToLoad) {
+      const targetId = prefill.quoteIdToLoad;
+      const found = savedHistory.find((item) => item.id === targetId || item.quoteData?.id === targetId);
+      if (found) {
+        setEditingQuoteId(found.id);
+        setQuote(found.quoteData);
+        setIsHistoryOpen(false);
+        setActiveMobileView('editor');
+        setSaveSuccessMessage(`📝 Editando cotización oficial: ${found.fileName}`);
+        if (saveSuccessTimerRef.current) clearTimeout(saveSuccessTimerRef.current);
+        saveSuccessTimerRef.current = setTimeout(() => setSaveSuccessMessage(null), 8000);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (onClearPrefill) onClearPrefill();
+        return;
+      }
+    }
+
+    // Prefill para nueva cotización personalizada del cliente
+    if (prefill.clientName || prefill.clientPhone || prefill.workReference) {
+      const baseItems = [
+        { 
+          id: '1', 
+          text: `Inspección técnica preliminar y diagnóstico de ${prefill.workReference || 'Destaqueo de tubería'}.` 
+        },
+        { 
+          id: '2', 
+          text: prefill.problemDescription?.trim() 
+            ? prefill.problemDescription.trim() 
+            : 'Destaqueo, sondeo y reparación no invasiva según solicitud del cliente.' 
+        },
+        { 
+          id: '3', 
+          text: 'Pruebas de evacuación y verificación de flujo continuo.' 
+        }
+      ];
+
+      const newQuoteId = `quote_${Date.now()}`;
+      const newQuoteNum = generateQuoteNumber();
+
+      setQuote((prev) => ({
+        ...prev,
+        id: newQuoteId,
+        quoteNumber: newQuoteNum,
+        date: prefill.appointmentDate || getTodayDateString(),
+        clientName: prefill.clientName || '',
+        clientPhone: prefill.clientPhone || '',
+        clientLocation: prefill.clientLocation || '',
+        workReference: prefill.workReference || 'Destaqueo de tubería e inspección técnica',
+        scopeItems: baseItems,
+        laborCost: prefill.amount && prefill.amount > 0 ? prefill.amount : 45000,
+        materialsCost: 0,
+        materialsDetail: 'Insumos profesionales y sellos de alta calidad incluidos.',
+        applyIVA: false,
+        deliveryTime: 'Atención técnica según agenda programada',
+        paymentTerms: '100% contra entrega y satisfacción al cliente',
+        createdAt: new Date().toISOString()
+      }));
+
+      setEditingQuoteId(null);
+      setActiveMobileView('editor');
+      setSaveSuccessMessage(`📝 Creando cotización personalizada para ${prefill.clientName || 'Cliente'}. Ajusta montos y alcances.`);
+      if (saveSuccessTimerRef.current) clearTimeout(saveSuccessTimerRef.current);
+      saveSuccessTimerRef.current = setTimeout(() => setSaveSuccessMessage(null), 8000);
+
+      setTimeout(() => {
+        const editorEl = document.getElementById('quote-editor-form');
+        if (editorEl) {
+          editorEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 150);
+
+      if (onClearPrefill) onClearPrefill();
+    }
+  }, [initialClientData, savedHistory]);
 
   // Sincronización en tiempo real con Cloudflare D1
   const syncCloudQuotes = async () => {
@@ -1742,7 +1852,7 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
         {/* ========================================================
             COLUMNA IZQUIERDA: FORMULARIO DE EDICIÓN ÁGIL
            ======================================================== */}
-        <div className={`no-print lg:col-span-5 space-y-5 ${
+        <div id="quote-editor-form" className={`no-print lg:col-span-5 space-y-5 ${
           activeMobileView === 'preview' ? 'hidden lg:block' : 'block'
         }`}>
           
