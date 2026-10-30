@@ -15,6 +15,17 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.61.0] - 2026-10-30 - Cotizaciones en 5 Minutos y Módulo de Control de Ingresos y Gastos con Comprobantes
+- **Cotizador Dinámico en Solo 5 Minutos (`ProjectPresentationPage.tsx`):**
+  - Incorporada sección destacada y textos persuasivos orientados al cierre en caliente en menos de 5 minutos desde el vehículo.
+  - Enfatiza la eliminación del regateo con membrete corporativo, cálculo automático de insumos, garantía escrita y despacho a WhatsApp con radar en vivo.
+- **Control Integral de Ingresos Diarios, Semanales y Mensuales (`ProjectPresentationPage.tsx`, `FinancialReportCard.tsx`):**
+  - Añadida sección interactiva para monitorear ingresos en vivo (Hoy, Esta Semana, Este Mes) desglosados por Sinpe Móvil, Tarjeta y Efectivo.
+  - Incorporado en la aplicación el selector de período `Hoy | Esta Semana | Este Mes` y el cálculo de balance contable en tiempo real.
+- **Registro de Gastos Operativos y Subida de Comprobantes de Ruta:**
+  - Sistema de registro de gastos en la aplicación (Gasolina / Combustible, Alimentación, Peajes, Materiales) con subida directa de fotos de facturas y tiquetes desde el celular.
+  - Cálculo automático de ganancia neta real (`Ingresos Cobrados - Gastos de Operación = Utilidad Líquida`).
+
 ### [v2.60.0] - 2026-10-30 - Etiqueta Destacada de Trabajo Finalizado y Solicitud Automática de Monto de Ingreso
 - **Etiqueta Destacada de Trabajo Finalizado (`TodayRouteCard.tsx`, `AppointmentCard.tsx`):**
   - Incorporada etiqueta / insignia prominente `Trabajo Finalizado` con check esmeralda (`CheckCircle2`) en la cabecera y en el cuerpo de cada tarjeta completada.

@@ -35,11 +35,16 @@ import {
   CheckSquare,
   BadgeCheck,
   Server,
-  Boxes
+  Boxes,
+  Fuel,
+  Utensils,
+  Receipt,
+  Banknote,
+  CreditCard
 } from 'lucide-react';
 import { ProjectFeature, ProjectMetric, ProjectPresentationData } from '../../types/project';
 
-const STORAGE_KEY = 'royalty_project_presentation_data_v4';
+const STORAGE_KEY = 'royalty_project_presentation_data_v5';
 const SHIELD_LOGO = '/images/logo-royalty-shield.png';
 const LOGO_DESTAQUEO = '/images/logo-royalty-destaqueo.png';
 
@@ -59,14 +64,14 @@ export const DELIVERABLES_SUMMARY: DeliverableSummaryItem[] = [
   {
     id: 'del_1',
     pillar: '1. MOTOR COMERCIAL & CIERRE',
-    title: 'Cotizador Formal Dinámico con Membrete y Firma Oficial',
-    tag: 'Facturación Inmediata',
+    title: 'Genera Cotizaciones en Solo 5 Minutos con el Cotizador Dinámico',
+    tag: 'Cierre en Caliente',
     tagColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-    summary: 'Generador de propuestas digitales en PDF con membrete corporativo, cálculo automático de materiales, mano de obra, IVA opcional y garantía por escrito.',
+    summary: 'Genera propuestas técnicas altamente persuasivas y con membrete formal en solo 5 minutos desde tu celular. Diseñado para cerrar contratos en caliente durante la visita técnica antes de que el cliente busque a otros competidores.',
     bullets: [
-      'Emisión formal de cotización en menos de 30 segundos',
-      'Descarga directa en formato PDF listo para imprimir o enviar',
-      'Erradica el regateo de precios proyectando máxima seriedad'
+      'Emisión formal de cotización completa en solo 5 minutos desde el vehículo',
+      'Desglose automático de mano de obra, materiales, garantía por escrito y membrete oficial',
+      'Erradica el regateo de precios y proyecta la máxima categoría corporativa'
     ],
     actionPath: '/cotizador',
     actionText: 'Probar Cotizador'
@@ -134,17 +139,17 @@ export const DELIVERABLES_SUMMARY: DeliverableSummaryItem[] = [
   {
     id: 'del_6',
     pillar: '2. OPERACIÓN DIARIA & CONTROL',
-    title: 'Registro Contable de Cobros (Sinpe Móvil, Efectivo, Tarjeta)',
-    tag: 'Finanzas Claras',
+    title: 'Control de Ingresos (Diario, Semanal, Mensual) y Gastos de Ruta con Comprobantes',
+    tag: 'Control Financiero Total',
     tagColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-    summary: 'Módulo contable integrado en cada cita para asentar el cobro exacto realizado, método de pago y estado de liquidación.',
+    summary: 'Panel financiero centralizado para monitorear ingresos diarios, semanales y mensuales (Sinpe Móvil, Tarjeta, Efectivo) y registrar gastos de operación (gasolina, alimentación y peajes) subiendo la foto del comprobante directamente en la app.',
     bullets: [
-      'Control de ingresos diarios sin necesidad de cuadernos manuales',
-      'Historial auditable de cobros por cada servicio realizado',
-      'Desglose financiero transparente accesible desde el teléfono'
+      'Registro contable exacto de ingresos diarios, semanales y mensuales en tiempo real',
+      'Subida de fotos de facturas y tiquetes de gasolina y comida desde la cámara del celular',
+      'Cálculo automático de ganancia neta líquida para saber exactamente cómo va el negocio'
     ],
     actionPath: '/detec/panel',
-    actionText: 'Ver Cobros'
+    actionText: 'Ver Control de Ingresos'
   },
   {
     id: 'del_7',
@@ -224,7 +229,8 @@ export const DELIVERABLES_SUMMARY: DeliverableSummaryItem[] = [
 ];
 
 export const EXECUTIVE_CHECKLIST = [
-  'Generador de Cotizaciones PDF Formales con membrete corporativo, cálculo automático de insumos, desglose de IVA y cláusulas de garantía.',
+  'Generador de Cotizaciones en Solo 5 Minutos con Cotizador Dinámico: propuestas comerciales persuasivas con membrete corporativo, cálculo automático de insumos, desglose de IVA y cláusulas de garantía para cerrar contratos en caliente.',
+  'Control Total de Ingresos (Diario, Semanal y Mensual) y Registro de Gastos de Ruta: balance contable en tiempo real por Sinpe Móvil, tarjeta y efectivo, con subida de fotos de comprobantes de gasolina y alimentación.',
   'Tarjetas Open Graph Dinámicas para que cada cotización compartida en WhatsApp muestre el logotipo oficial y monto cotizado antes de abrirse.',
   'Radar de Visitas y Descargas que te notifica en vivo cuándo el cliente está leyendo la propuesta para llamarlo en el momento ideal.',
   'Bandeja de Cotizaciones Pendientes para guardar borradores en la calle y despacharlos en segundos sin perder clientes.',
@@ -244,8 +250,13 @@ export const COMPARISON_ROWS = [
   },
   {
     feature: 'Presentación de Cotizaciones',
-    traditional: 'Audios informales o textos sueltos en WhatsApp que invitan al regateo',
-    royalty: 'PDF formal con membrete corporativo, firma oficial y garantía en 30s',
+    traditional: 'Audios informales, textos sueltos o demoras de horas/días que enfrían la venta',
+    royalty: 'Cotización persuasiva en 5 min con membrete, firma, cálculo de insumos y garantía',
+  },
+  {
+    feature: 'Control de Ingresos y Gastos',
+    traditional: 'Cuadernos arrugados, notas dispersas y facturas de gasolina perdidas',
+    royalty: 'Balance diario, semanal y mensual con subida de fotos de comprobantes en la app',
   },
   {
     feature: 'Seguimiento del Cliente',
@@ -275,8 +286,8 @@ export const COMPARISON_ROWS = [
 ];
 
 const DEFAULT_METRICS: ProjectMetric[] = [
-  { value: '30 seg', label: 'Emisión de Cotización', sublabel: 'PDF membretado formal' },
-  { value: '100%', label: 'Cero Fugas de Tráfico', sublabel: 'Atribución FB, IG y WhatsApp' },
+  { value: '5 min', label: 'Cotización en Mano', sublabel: 'Propuesta Persuasiva en Caliente' },
+  { value: '100% Control', label: 'Ingresos y Gastos', sublabel: 'Diario, Semanal y Mensual' },
   { value: '1-Clic', label: 'Conexión Directa', sublabel: 'WhatsApp enrutado inmediato' },
   { value: '<0.5s', label: 'Carga Ultra Rápida', sublabel: 'Infraestructura de Alta Velocidad' },
 ];
@@ -286,17 +297,29 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
     id: 'feat_1',
     order: 1,
     category: 'COMERCIAL & CIERRE DE VENTAS',
-    badge: 'Herramienta de Cierre',
-    title: 'Cotizador Formal Dinámico con Membrete y Firma Oficial',
-    problem: 'Ya no más cotizaciones informales en audios o mensajes de texto sueltos que transmiten desconfianza y fomentan el regateo constante de precios. Ahora tus propuestas transmiten prestigio corporativo inmediato con membrete, firma y validez formal.',
-    solution: 'Generador digital automatizado que calcula mano de obra, insumos, IVA opcional y garantía, emitiendo una elegante hoja membretada en segundos. Proyecta imagen de primer nivel, elimina objeciones de costo y duplica la velocidad de cierre de contratos grandes.',
-    impact: 'Cierre inmediato de contratos con máxima seriedad corporativa y validez formal.',
+    badge: 'Cierre en Caliente en 5 Min',
+    title: 'Genera Cotizaciones en Solo 5 Minutos con el Cotizador Dinámico',
+    problem: 'Ya no más perder ventas por tardar horas o días redactando una cotización en una computadora, ni enviar mensajes informales por WhatsApp o notas de voz que transmiten desconfianza e invitan al regateo constante. En el sector técnico, el 80% de los clientes contratan al primer profesional que les entrega una propuesta clara, formal y convincente.',
+    solution: 'Cotizador dinámico inteligente que te permite armar propuestas comerciales altamente persuasivas y con membrete corporativo en solo 5 minutos desde tu celular, justo al terminar la inspección técnica. Calcula automáticamente mano de obra, materiales, garantía por escrito y emite una presentación impecable que convence al cliente al instante y asegura el adelanto o la contratación.',
+    impact: 'Multiplica la velocidad de cierre, proyecta máxima autoridad técnica y asegura los contratos más rentables antes de que el cliente busque segundas opciones.',
     actionText: 'Probar Cotizador',
     actionPath: '/cotizador'
   },
   {
-    id: 'feat_2',
+    id: 'feat_control_ingresos',
     order: 2,
+    category: 'FINANZAS & CONTROL DE RENTABILIDAD',
+    badge: 'Control Diario, Semanal y Mensual',
+    title: 'Control de Ingresos y Registro de Gastos con Subida de Comprobantes (Gasolina y Alimentación)',
+    problem: 'Ya no más incertidumbre de cuánto dinero real ganaste en la semana o el mes, ni facturas de combustible arrugadas o tickets de comida perdidos en la guantera del vehículo. Sin un registro diario, los gastos operativos invisibles se comen tus utilidades sin darte cuenta.',
+    solution: 'Módulo financiero integral en la aplicación que desglosa en tiempo real los ingresos diarios, semanales y mensuales recibidos por Sinpe Móvil, efectivo o tarjeta. Permite además registrar los gastos de la jornada (gasolina, alimentación de ruta, peajes, materiales) subiendo la foto del comprobante o factura directamente desde la cámara del celular para conocer tu ganancia neta líquida en todo momento.',
+    impact: 'Claridad financiera absoluta, control riguroso de cada colón que entra y sale, y respaldo fotográfico de todos tus gastos operativos en el bolsillo.',
+    actionText: 'Ver Control de Ingresos',
+    actionPath: '/detec/panel'
+  },
+  {
+    id: 'feat_2',
+    order: 3,
     category: 'IMAGEN CORPORATIVA & MARKETING',
     badge: 'Tecnología Edge',
     title: 'Previsualización Enriquecida Automática en WhatsApp (Open Graph)',
@@ -308,7 +331,7 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
   },
   {
     id: 'feat_3',
-    order: 3,
+    order: 4,
     category: 'INTELIGENCIA DE VENTAS EN VIVO',
     badge: 'Ventaja Táctica',
     title: 'Rastreo Silencioso de Lectura y Descarga de Documentos',
@@ -320,7 +343,7 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
   },
   {
     id: 'feat_4',
-    order: 4,
+    order: 5,
     category: 'GESTIÓN OPERATIVA DIARIA',
     badge: 'Ahorro de Tiempo',
     title: 'Bandeja Inteligente de "Cotizaciones por Enviar"',
@@ -332,7 +355,7 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
   },
   {
     id: 'feat_5',
-    order: 5,
+    order: 6,
     category: 'MÉTRICAS & MARKETING DIGITAL',
     badge: 'Retorno de Inversión',
     title: 'Rastreador de Tráfico y Embudo de Conversión (FB, IG, WA)',
@@ -344,7 +367,7 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
   },
   {
     id: 'feat_6',
-    order: 6,
+    order: 7,
     category: 'EXPERIENCIA DE USUARIO',
     badge: 'Cero Fricción',
     title: 'Agenda Interactiva con Detección Visual de Campos Incompletos',
@@ -356,7 +379,7 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
   },
   {
     id: 'feat_7',
-    order: 7,
+    order: 8,
     category: 'PRUEBA SOCIAL & CONFIANZA',
     badge: 'Reputación Blindada',
     title: 'Muro de Reseñas y Testimonios con Carrusel Dinámico',
@@ -368,7 +391,7 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
   },
   {
     id: 'feat_8',
-    order: 8,
+    order: 9,
     category: 'CENTRO DE MANDO DIRECTIVO',
     badge: 'Control Total',
     title: 'Panel Administrativo Todo-en-Uno (Modo Claro / Modo Pro)',
@@ -380,7 +403,7 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
   },
   {
     id: 'feat_9',
-    order: 9,
+    order: 10,
     category: 'INFRAESTRUCTURA DE VANGUARDIA',
     badge: 'Grado Silicon Valley',
     title: 'Infraestructura Web de Alta Velocidad y Carga Instantánea',
@@ -392,7 +415,7 @@ const DEFAULT_FEATURES: ProjectFeature[] = [
   },
   {
     id: 'feat_10',
-    order: 10,
+    order: 11,
     category: 'TECNOLOGÍA MÓVIL MODERNA',
     badge: 'Instalación en 1-Clic',
     title: 'Aplicación Web Progresiva (PWA Móvil Primero)',
@@ -585,15 +608,31 @@ export const ProjectPresentationPage: React.FC<ProjectPresentationPageProps> = (
           <nav className="hidden lg:flex items-center gap-1.5 text-xs font-bold text-slate-300">
             <button
               type="button"
+              onClick={() => document.getElementById('cotizador-5min')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-2.5 py-1 rounded-lg text-amber-300 hover:text-amber-200 hover:bg-amber-400/10 transition-colors cursor-pointer flex items-center gap-1"
+            >
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <span>Cotizador 5 Min</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => document.getElementById('control-ingresos')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-2.5 py-1 rounded-lg text-emerald-400 hover:text-emerald-300 hover:bg-emerald-400/10 transition-colors cursor-pointer flex items-center gap-1"
+            >
+              <DollarSign className="w-3.5 h-3.5" />
+              <span>Control de Ingresos</span>
+            </button>
+            <button
+              type="button"
               onClick={() => document.getElementById('lista-funcionalidades')?.scrollIntoView({ behavior: 'smooth' })}
               className="px-2.5 py-1 rounded-lg hover:text-white hover:bg-slate-800/80 transition-colors cursor-pointer"
             >
-              10 Innovaciones
+              Capacidades
             </button>
             <button
               type="button"
               onClick={() => document.getElementById('resumen-entregables')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-2.5 py-1 rounded-lg text-amber-400 hover:text-amber-300 hover:bg-amber-400/10 transition-colors cursor-pointer flex items-center gap-1"
+              className="px-2.5 py-1 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors cursor-pointer flex items-center gap-1"
             >
               <Boxes className="w-3.5 h-3.5" />
               <span>Qué Recibes</span>
@@ -718,7 +757,7 @@ export const ProjectPresentationPage: React.FC<ProjectPresentationPageProps> = (
               }}
               className="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#67141d] to-[#8B1826] hover:opacity-95 text-white text-xs sm:text-sm font-black shadow-lg shadow-[#67141d]/30 transition-all flex items-center gap-2 cursor-pointer active:scale-95"
             >
-              <span>Ver las 10 Funcionalidades en Detalle</span>
+              <span>Explorar Capacidades del Sistema ({data.features.length})</span>
               <ChevronRight className="w-4 h-4" />
             </button>
 
@@ -727,7 +766,7 @@ export const ProjectPresentationPage: React.FC<ProjectPresentationPageProps> = (
               className="px-5 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-200 text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer"
             >
               <FileText className="w-4 h-4 text-amber-400" />
-              <span>Abrir Cotizador en Vivo</span>
+              <span>Abrir Cotizador en 5 Min</span>
             </a>
           </div>
 
@@ -751,6 +790,244 @@ export const ProjectPresentationPage: React.FC<ProjectPresentationPageProps> = (
             ))}
           </div>
 
+        </section>
+
+        {/* ========================================================
+            SECCIÓN DESTACADA: COTIZADOR DINÁMICO EN 5 MINUTOS (PERSUASIVO)
+           ======================================================== */}
+        <section id="cotizador-5min" className="scroll-mt-20 relative">
+          <div className="bg-gradient-to-br from-amber-950/40 via-slate-900 to-[#121c2e] border-2 border-amber-400/40 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8 relative overflow-hidden">
+            {/* Background Glow */}
+            <div className="absolute -right-20 -top-20 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="max-w-3xl space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 text-amber-400 border border-amber-400/30 text-[11px] font-black uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Velocidad de Cierre Insuperable</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white leading-tight">
+                Genera Cotizaciones Persuasivas en Solo 5 Minutos con el Cotizador Dinámico
+              </h2>
+              <p className="text-sm sm:text-base text-slate-300 font-medium leading-relaxed">
+                En servicios técnicos de alta urgencia como detección de fugas y destaqueos, <span className="text-amber-300 font-bold">el cliente contrata en caliente</span>. Si tardas horas en enviar un presupuesto o mandas un audio improvisado, el cliente busca otras empresas y empieza a comparar precios. Con tu nuevo cotizador dinámico, emites una propuesta formal, persuasiva e impecable en solo 5 minutos antes de arrancar tu vehículo.
+              </p>
+            </div>
+
+            {/* Grid de 3 Pilares Persuasivos del Cotizador en 5 Minutos */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div className="bg-slate-950/70 border border-slate-800 p-5 rounded-2xl space-y-2.5">
+                <div className="w-10 h-10 rounded-xl bg-amber-400/10 text-amber-400 flex items-center justify-center font-black text-lg">
+                  ⚡
+                </div>
+                <h3 className="text-sm font-black text-white">1. Cierre en Caliente (5 Minutos)</h3>
+                <p className="text-slate-300 leading-relaxed font-medium">
+                  Rellenas cliente, diagnóstico y costo en solo 5 minutos desde tu celular. Tu cliente recibe un documento corporativo mientras la necesidad de solucionar el problema está en su punto máximo.
+                </p>
+              </div>
+
+              <div className="bg-slate-950/70 border border-slate-800 p-5 rounded-2xl space-y-2.5">
+                <div className="w-10 h-10 rounded-xl bg-emerald-400/10 text-emerald-400 flex items-center justify-center font-black text-lg">
+                  🛡️
+                </div>
+                <h3 className="text-sm font-black text-white">2. Erradica el Regateo de Precios</h3>
+                <p className="text-slate-300 leading-relaxed font-medium">
+                  El formato formal con membrete, logotipo de alta resolución, desglose de mano de obra y cláusula de garantía transmite tanta autoridad técnica que el cliente asume el precio sin pedir rebajas.
+                </p>
+              </div>
+
+              <div className="bg-slate-950/70 border border-slate-800 p-5 rounded-2xl space-y-2.5">
+                <div className="w-10 h-10 rounded-xl bg-blue-400/10 text-blue-400 flex items-center justify-center font-black text-lg">
+                  📱
+                </div>
+                <h3 className="text-sm font-black text-white">3. Despacho Directo a WhatsApp</h3>
+                <p className="text-slate-300 leading-relaxed font-medium">
+                  Genera una tarjeta oficial en WhatsApp y radar inteligente que te notifica en vivo el segundo exacto en que tu cliente revisa y descarga el documento para llamarlo en el momento ideal.
+                </p>
+              </div>
+            </div>
+
+            {/* Llamado a Probar el Cotizador */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-800/80">
+              <div className="text-xs text-slate-300 font-semibold flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Disponible para emitir cotizaciones al instante desde cualquier teléfono móvil o tablet.</span>
+              </div>
+              <a
+                href="/cotizador"
+                className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-amber-950 text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-400/20 active:scale-95 cursor-pointer"
+              >
+                <FileText className="w-4 h-4" />
+                <span>Abrir y Probar Cotizador Dinámico</span>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================
+            SECCIÓN DESTACADA: CONTROL DE INGRESOS Y GASTOS OPERATIVOS
+           ======================================================== */}
+        <section id="control-ingresos" className="scroll-mt-20 relative">
+          <div className="bg-gradient-to-br from-emerald-950/40 via-slate-900 to-[#0A1424] border-2 border-emerald-500/40 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8 relative overflow-hidden">
+            {/* Background Glow */}
+            <div className="absolute -left-20 -top-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="max-w-3xl space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[11px] font-black uppercase tracking-wider">
+                <DollarSign className="w-3.5 h-3.5" />
+                <span>Finanzas Claras & Cero Fugas de Dinero</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white leading-tight">
+                Control Integral de Ingresos (Diario, Semanal y Mensual) y Registro de Gastos con Comprobantes
+              </h2>
+              <p className="text-sm sm:text-base text-slate-300 font-medium leading-relaxed">
+                Para que un negocio crezca con fuerza, el dueño necesita <span className="text-emerald-300 font-bold">saber con exactitud cómo va cada día, semana y mes</span>. Ya no dependes de cuadernos con hojas rotas ni de buscar facturas arrugadas de gasolina en la guantera: ahora llevas el control total de ingresos y gastos operativos en la misma aplicación desde tu bolsillo.
+              </p>
+            </div>
+
+            {/* Showcase Visual: Comparador Ingresos vs Gastos vs Utilidad Líquida */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-xs">
+              
+              {/* Columna Izquierda: Monitoreo de Ingresos por Períodos y Métodos */}
+              <div className="bg-slate-950/80 border border-slate-800 p-5 rounded-3xl space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black">
+                      ₡
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-white">Monitoreo de Ingresos en Vivo</h3>
+                      <p className="text-[10.5px] text-slate-400 font-medium">Auditoría por período y método de pago</p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-emerald-400/10 text-emerald-300 border border-emerald-400/30">
+                    Tiempo Real
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="bg-slate-900 p-3 rounded-2xl border border-slate-800">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Diario</span>
+                    <span className="text-xs sm:text-sm font-black text-emerald-400 block mt-1">Cierre de Hoy</span>
+                    <span className="text-[9.5px] text-slate-500">Al terminar la ruta</span>
+                  </div>
+                  <div className="bg-slate-900 p-3 rounded-2xl border border-emerald-500/30">
+                    <span className="text-[10px] font-bold text-emerald-400 uppercase block">Semanal</span>
+                    <span className="text-xs sm:text-sm font-black text-white block mt-1">Esta Semana</span>
+                    <span className="text-[9.5px] text-emerald-300">Lunes a Domingo</span>
+                  </div>
+                  <div className="bg-slate-900 p-3 rounded-2xl border border-slate-800">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Mensual</span>
+                    <span className="text-xs sm:text-sm font-black text-emerald-400 block mt-1">Este Mes</span>
+                    <span className="text-[9.5px] text-slate-500">Crecimiento global</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-1 text-[11.5px]">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+                    <span className="flex items-center gap-2 text-slate-200 font-bold">
+                      <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Sinpe Móvil</span>
+                    </span>
+                    <span className="font-mono font-black text-emerald-300">Identificación por número y fecha</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-blue-500/5 border border-blue-500/20">
+                    <span className="flex items-center gap-2 text-slate-200 font-bold">
+                      <CreditCard className="w-3.5 h-3.5 text-blue-400" />
+                      <span>Tarjeta de Débito / Crédito</span>
+                    </span>
+                    <span className="font-mono font-black text-blue-300">Conciliación de datáfono</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                    <span className="flex items-center gap-2 text-slate-200 font-bold">
+                      <Banknote className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Efectivo en Mano</span>
+                    </span>
+                    <span className="font-mono font-black text-amber-300">Control de caja diaria</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Columna Derecha: Subida de Comprobantes de Gastos (Gasolina y Alimentación) */}
+              <div className="bg-slate-950/80 border border-slate-800 p-5 rounded-3xl space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center font-black">
+                      <Receipt className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-white">Subida de Comprobantes & Gastos</h3>
+                      <p className="text-[10.5px] text-slate-400 font-medium">Gasolina, alimentación, peajes e insumos</p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-rose-400/10 text-rose-300 border border-rose-400/30">
+                    Foto Directa
+                  </span>
+                </div>
+
+                <div className="space-y-2.5">
+                  <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-900 border border-slate-800">
+                    <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0">
+                      <Fuel className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-black text-white">Gastos de Gasolina / Combustible</span>
+                        <span className="text-[10px] text-amber-300 font-bold">Foto del Tiquete</span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 leading-relaxed mt-0.5">
+                        Tomas la foto de la factura en la bomba de gasolina y se guarda de inmediato con fecha, monto y comprobante visible.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-900 border border-slate-800">
+                    <div className="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center shrink-0">
+                      <Utensils className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-black text-white">Alimentación y Viáticos en Ruta</span>
+                        <span className="text-[10px] text-orange-300 font-bold">Respaldo Inmediato</span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 leading-relaxed mt-0.5">
+                        Registras los almuerzos y refrigerios técnicos del equipo en la calle para que ningún gasto quede en el aire.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Fórmula de Rentabilidad */}
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/60 to-slate-900 border border-emerald-500/30 flex items-center justify-between gap-3">
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 block">
+                        Cálculo Automático
+                      </span>
+                      <span className="text-xs sm:text-sm font-black text-white">
+                        Ingresos Cobrados - Gastos de Ruta = Utilidad Neta Real
+                      </span>
+                    </div>
+                    <span className="text-lg">🎯</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Pie de Sección con Enlace al Panel */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-800/80">
+              <div className="text-xs text-slate-300 font-semibold flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Disponible en el panel administrativo con acceso protegido desde móvil o PC.</span>
+              </div>
+              <a
+                href="/detec/panel"
+                className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 cursor-pointer"
+              >
+                <DollarSign className="w-4 h-4" />
+                <span>Abrir Control de Ingresos en el Panel</span>
+              </a>
+            </div>
+
+          </div>
         </section>
 
         {/* ========================================================
