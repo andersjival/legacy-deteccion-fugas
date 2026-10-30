@@ -37,6 +37,7 @@ export interface JobQuote {
   websiteUrl: string;
   createdAt: string;
   status?: 'por_enviar' | 'enviada' | 'aceptada';
+  appointmentId?: string;
 }
 
 export interface SavedQuoteEntry {
@@ -53,4 +54,5 @@ export interface SavedQuoteEntry {
   isDownloaded?: boolean;
   downloadedAt?: string | null;
   shareUrl?: string;
+  appointmentId?: string;
 }

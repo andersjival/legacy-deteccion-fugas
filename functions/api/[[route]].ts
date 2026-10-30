@@ -832,16 +832,21 @@ app.post('/quotes', async (c) => {
   const responsibleName = body.responsible_name || body.responsibleName || 'David Rojas';
   const responsiblePhone = body.responsible_phone || body.responsiblePhone || '6408-0124';
   const status = body.status || 'por_enviar';
+  const appointmentId = body.appointment_id || body.appointmentId || null;
 
   if (c.env.DB) {
     try {
+      try {
+        await c.env.DB.prepare('ALTER TABLE quotes ADD COLUMN appointment_id TEXT').run();
+      } catch {}
+
       await c.env.DB.prepare(`
         INSERT INTO quotes (
           id, quote_number, date, company_name, client_name, client_location, client_phone,
           work_reference, scope_items, labor_cost, materials_cost, materials_detail,
-          apply_iva, delivery_time, total_amount, file_name, responsible_name, responsible_phone, status
+          apply_iva, delivery_time, total_amount, file_name, responsible_name, responsible_phone, status, appointment_id
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
           quote_number = excluded.quote_number,
           date = excluded.date,
@@ -861,11 +866,12 @@ app.post('/quotes', async (c) => {
           responsible_name = excluded.responsible_name,
           responsible_phone = excluded.responsible_phone,
           status = excluded.status,
+          appointment_id = excluded.appointment_id,
           updated_at = CURRENT_TIMESTAMP
       `).bind(
         id, quoteNumber, date, companyName, clientName, clientLocation, clientPhone,
         workReference, scopeItems, laborCost, materialsCost, materialsDetail,
-        applyIva, deliveryTime, totalAmount, fileName, responsibleName, responsiblePhone, status
+        applyIva, deliveryTime, totalAmount, fileName, responsibleName, responsiblePhone, status, appointmentId
       ).run();
     } catch (e) {
       console.warn('D1 insert/update quote error:', e);

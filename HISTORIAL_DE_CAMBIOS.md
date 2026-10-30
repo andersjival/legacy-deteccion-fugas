@@ -15,6 +15,13 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.66.0] - 2026-10-30 - Aislamiento Estricto: "Crear Cotización" para Citas Online y "Compartir Cotización" Solo para Creadas por Admin
+- **Aislamiento de Citas Online vs Cotizaciones Creadas (`AdminView.tsx`, `JobQuoteManager.tsx`, `types/quote.ts`, `functions/api/[[route]].ts`):**
+  - Para todas las citas que el usuario reserva online en el sitio web, el sistema muestra siempre de manera obligatoria el botón **`Crear Cotización`**, eliminando falsos positivos provocados por coincidencias laxas de nombres o teléfonos de pruebas previas.
+  - El botón **`Compartir Cotización Oficial por WhatsApp`** solo se muestra en las cotizaciones que el administrador ha creado expresamente (en el Gestor de Cotizaciones) o cuando existe una cotización vinculada de forma estricta mediante `appointment_id` a esa cita específica.
+  - Trazabilidad y persistencia integral del identificador único de cita (`appointment_id`) a través del cotizador, estado de la aplicación, LocalStorage y la base de datos Cloudflare D1.
+
+
 ### [v2.65.0] - 2026-10-30 - Modalidades de Inversión (3 Planes) y Desglose de Ahorro de Hosting y Dominio
 - **Sección de Planes Comerciales en Propuesta (`ProjectPresentationPage.tsx`):**
   - **Plan 1 (Inversión Base Reducida):** Pago inicial de ₡155.000 colones + ₡25.000 por mes (la cuota de mantenimiento mensual más baja).

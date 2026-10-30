@@ -282,7 +282,8 @@ export const JobQuoteManager: React.FC<JobQuoteManagerProps> = ({
         applyIVA: false,
         deliveryTime: 'Atención técnica según agenda programada',
         paymentTerms: '100% contra entrega y satisfacción al cliente',
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        appointmentId: prefill.appointmentId || undefined
       }));
 
       setEditingQuoteId(null);
@@ -320,11 +321,13 @@ export const JobQuoteManager: React.FC<JobQuoteManagerProps> = ({
           isDownloaded: Boolean(q.is_downloaded),
           downloadedAt: q.downloaded_at ? new Date(q.downloaded_at).toLocaleString('es-CR') : null,
           shareUrl: `${window.location.origin}/cotizacion/${q.id}`,
+          appointmentId: q.appointment_id || q.appointmentId || undefined,
           quoteData: {
             id: q.id,
             quoteNumber: q.quote_number,
             date: q.date,
             status: (q.status as 'por_enviar' | 'enviada' | 'aceptada') || 'por_enviar',
+            appointmentId: q.appointment_id || q.appointmentId || undefined,
             companyName: q.company_name || 'Royalty Destaqueo de Tuberías',
             companyLogoUrl: DEFAULT_LOGO,
             customLogoUrl: null,
@@ -523,6 +526,8 @@ export const JobQuoteManager: React.FC<JobQuoteManagerProps> = ({
         total_amount: tot,
         file_name: finalName,
         status,
+        appointment_id: activeQuote.appointmentId || undefined,
+        appointmentId: activeQuote.appointmentId || undefined,
         responsible_name: activeQuote.responsibleName,
         responsible_phone: activeQuote.responsiblePhone
       });
@@ -582,6 +587,7 @@ export const JobQuoteManager: React.FC<JobQuoteManagerProps> = ({
       isDownloaded: existing?.isDownloaded || false,
       downloadedAt: existing?.downloadedAt || null,
       shareUrl: `${window.location.origin}/cotizacion/${targetId}`,
+      appointmentId: quote.appointmentId || undefined,
       quoteData: quoteToSave
     };
 
@@ -823,6 +829,7 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
           workReference: quoteToSend.workReference || 'Trabajo Técnico Especializado',
           totalAmount: (Number(quoteToSend.laborCost) || 0) + (Number(quoteToSend.materialsCost) || 0),
           status: 'enviada',
+          appointmentId: quoteToSend.appointmentId || undefined,
           sentAt: new Date().toISOString(),
           viewCount: 0,
           isDownloaded: false
@@ -976,6 +983,7 @@ _Esta cotización fue generada de manera digital por el sistema de Royalty._`;
       isDownloaded: existing?.isDownloaded || false,
       downloadedAt: existing?.downloadedAt || null,
       shareUrl: `${window.location.origin}/cotizacion/${targetId}`,
+      appointmentId: quoteToSave.appointmentId || undefined,
       quoteData: { ...quoteToSave, status: entryStatus }
     };
 

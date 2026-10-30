@@ -147,17 +147,15 @@ export const AdminView: React.FC<AdminViewProps> = ({
   }, [refreshQuotes]);
 
   const findQuoteForAppointment = (app: any) => {
-    const rawAppPhone = (app.client_phone || '').replace(/\D/g, '').slice(-8);
-    const cleanAppName = (app.client_name || '').trim().toLowerCase();
-    if (!rawAppPhone && !cleanAppName) return null;
+    if (!app || !app.id) return null;
 
+    // Aislamiento estricto: El botón de compartir cotización oficial solo aparece
+    // si el administrador creó explícitamente la cotización para esta cita.
+    // Citas reservadas online por clientes muestran siempre "Crear Cotización".
     return quotesList.find((q: any) => {
       const qData = q.quoteData || q;
-      const qPhone = (qData.client_phone || qData.clientPhone || '').replace(/\D/g, '').slice(-8);
-      const qName = (qData.client_name || qData.clientName || '').trim().toLowerCase();
-
-      if (rawAppPhone && qPhone && rawAppPhone === qPhone) return true;
-      if (cleanAppName && qName && (cleanAppName.includes(qName) || qName.includes(cleanAppName))) return true;
+      const qAppId = qData.appointmentId || q.appointment_id || q.appointmentId;
+      if (qAppId && qAppId === app.id) return true;
       return false;
     });
   };
