@@ -218,9 +218,24 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
         </div>
       </div>
 
-      {/* Pie de página sutil */}
-      <div className="text-center py-2 text-[11px] text-slate-400 font-semibold">
-        Legacy Detección de Fugas • Sistema de Gestión Móvil
+      {/* Pie de página con Copyright Animado by GeoSoft */}
+      <div className="text-center py-3 space-y-2">
+        <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-xs border border-slate-200/80 shadow-xs hover:shadow-sm transition-all">
+          <a
+            href="https://www.geosoft.lat"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[11px] sm:text-xs tracking-wider hover:opacity-95 transition-opacity"
+            title="Desarrollado por GeoSoft"
+          >
+            <span className="animate-copyright-sweep font-bold">
+              © Copyright en Royalty Detección by GeoSoft
+            </span>
+          </a>
+        </div>
+        <p className="text-[10.5px] text-slate-400 font-semibold">
+          Legacy Detección de Fugas • Sistema de Gestión Móvil
+        </p>
       </div>
     </div>
   );

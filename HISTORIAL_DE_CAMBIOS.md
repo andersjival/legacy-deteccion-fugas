@@ -15,6 +15,12 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.63.0] - 2026-10-30 - Atribución de Copyright con Barrido Cromático Animado By GeoSoft
+- **Animación Multicolor de Copyright (`index.css`, `AdminLogin.tsx`, `Footer.tsx`):**
+  - Incorporada animación de barrido de luz multicolor (`.animate-copyright-sweep` y `@keyframes textLightSweep`) portada fielmente de BOSUNI CR.
+  - Gradiente multicromático vivo (`#64748B`, `#D97706`, `#059669`, `#2563EB`, `#9333EA`, `#EC4899`) con ciclo infinito suave de 4 segundos.
+  - Añadida pastilla interactiva flotante en el pie del login (`AdminLogin.tsx`) y en el footer principal con el texto `© Copyright en Royalty Detección by GeoSoft` enlazado a `https://www.geosoft.lat` con `target="_blank"` y `rel="noopener noreferrer"`.
+
 ### [v2.62.0] - 2026-10-30 - Cobro Multi-Método por Trabajo y Pestaña Dedicada de Control de Ingresos
 - **Registro de Cobro Multi-Método al Finalizar Trabajo (`PaymentModal.tsx`, `paymentParser.ts`):**
   - Al completar un trabajo, el técnico puede ingresar varios montos por diferentes medios de pago a un mismo trabajo (Pago Mixto).

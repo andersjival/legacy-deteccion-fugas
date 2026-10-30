@@ -151,7 +151,19 @@ export const Footer: React.FC<FooterProps> = ({
             <span className="text-[11px] text-slate-400 font-semibold hidden md:inline">Síguenos:</span>
             <SocialLinks size="sm" />
           </div>
-          <p className="text-[11px]">Diseño y Arquitectura de Alta Precisión.</p>
+          <div className="flex items-center gap-2">
+            <a
+              href="https://www.geosoft.lat"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] hover:opacity-90 transition-opacity"
+              title="Desarrollado por GeoSoft"
+            >
+              <span className="animate-copyright-sweep font-bold">
+                © Copyright en Royalty Detección by GeoSoft
+              </span>
+            </a>
+          </div>
         </div>
 
       </div>
