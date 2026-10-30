@@ -270,9 +270,9 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
           <button
             type="button"
             onClick={handleMarkAsCompleted}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-orange-500 via-brand-orange to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-md hover:shadow-glow-orange active:scale-98 transition-all cursor-pointer"
           >
-            <CheckCircle className="w-4 h-4 text-emerald-600" />
+            <CheckCircle className="w-4 h-4 text-white" />
             <span>Marcar Trabajo como Finalizado</span>
           </button>
         )}

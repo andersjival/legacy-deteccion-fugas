@@ -321,9 +321,9 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
           <button
             type="button"
             onClick={handleMarkAsCompleted}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 shadow-xs hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-orange-500 via-brand-orange to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-md hover:shadow-glow-orange hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
           >
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <CheckCircle2 className="w-4 h-4 text-white" />
             <span>Marcar Trabajo como Finalizado</span>
           </button>
         )}

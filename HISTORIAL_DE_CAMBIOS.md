@@ -15,6 +15,11 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.64.0] - 2026-10-30 - Color Naranja para el Botón "Marcar Trabajo como Finalizado"
+- **Actualización de Color e Impacto Visual (`AppointmentCard.tsx`, `TodayRouteCard.tsx`):**
+  - Cambiado el color del botón `Marcar Trabajo como Finalizado` de esmeralda a naranja vibrante (`bg-gradient-to-r from-orange-500 via-brand-orange to-amber-500 text-white`).
+  - Sombra y brillo dinámico en hover (`hover:shadow-glow-orange`) con icono de check blanco para máxima visibilidad táctil en ruta.
+
 ### [v2.63.0] - 2026-10-30 - Atribución de Copyright con Barrido Cromático Animado By GeoSoft
 - **Animación Multicolor de Copyright (`index.css`, `AdminLogin.tsx`, `Footer.tsx`):**
   - Incorporada animación de barrido de luz multicolor (`.animate-copyright-sweep` y `@keyframes textLightSweep`) portada fielmente de BOSUNI CR.
