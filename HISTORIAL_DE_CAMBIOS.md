@@ -15,6 +15,17 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ## 🚀 Entregas y Versiones
 
+### [v2.62.0] - 2026-10-30 - Cobro Multi-Método por Trabajo y Pestaña Dedicada de Control de Ingresos
+- **Registro de Cobro Multi-Método al Finalizar Trabajo (`PaymentModal.tsx`, `paymentParser.ts`):**
+  - Al completar un trabajo, el técnico puede ingresar varios montos por diferentes medios de pago a un mismo trabajo (Pago Mixto).
+  - Selector individual para elegir: Efectivo (`cash`), Sinpe Móvil (`sinpe`), Transferencia Bancaria (`transfer`) y Tarjeta (`card`).
+  - Posibilidad de agregar dinámicamente múltiples medios de pago (`+ Agregar Otro Medio de Pago`), con cálculo automático del monto total y desglose en tiempo real.
+- **Visualización y Conciliación Contable en Tarjetas y Reportes:**
+  - `TodayRouteCard.tsx` y `AppointmentCard.tsx` muestran el monto total cobrado y el desglose en vivo (`Cobrado: ₡... (₡X Sinpe + ₡Y Efectivo + ₡Z Transferencia)`).
+  - `FinancialReportCard.tsx` audita con precisión matemática los ingresos diarios, semanales y mensuales en 4 columnas (Sinpe Móvil, Efectivo, Transferencia y Tarjeta).
+- **Pestaña y Acceso Directo de "Ingresos" en Panel de Control (`AdminView.tsx`, `AdminBottomNav.tsx`):**
+  - Añadida pestaña dedicada `Ingresos` (`finances`) en la barra superior de escritorio y en la navegación móvil para acceso inmediato a balances contables y gastos.
+
 ### [v2.61.0] - 2026-10-30 - Cotizaciones en 5 Minutos y Módulo de Control de Ingresos y Gastos con Comprobantes
 - **Cotizador Dinámico en Solo 5 Minutos (`ProjectPresentationPage.tsx`):**
   - Incorporada sección destacada y textos persuasivos orientados al cierre en caliente en menos de 5 minutos desde el vehículo.

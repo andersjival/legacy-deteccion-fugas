@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { DollarSign, Smartphone, CreditCard, Banknote, Calendar, TrendingUp, Plus, Receipt, Fuel, Utensils, Trash2, X, Upload, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { DollarSign, Smartphone, CreditCard, Banknote, ArrowLeftRight, Calendar, TrendingUp, Plus, Receipt, Fuel, Utensils, Trash2, X, Upload, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { Appointment } from '../../types/appointment';
 import { getTodayDateString } from '../../utils/dateFormatter';
+import { parsePaymentBreakdown } from '../../utils/paymentParser';
 
 interface FinancialReportCardProps {
   appointments: Appointment[];
@@ -75,19 +76,37 @@ export const FinancialReportCard: React.FC<FinancialReportCardProps> = ({ appoin
     ? todayAppointments 
     : (period === 'week' ? weekAppointments : monthAppointments);
 
-  // Totales de Ingresos
-  const totalAmount = activeList.reduce((acc, a) => acc + (Number(a.amount_collected) || 0), 0);
-  
-  const sinpeList = activeList.filter((a) => (a.payment_method || 'sinpe') === 'sinpe' && (a.amount_collected || 0) > 0);
-  const totalSinpe = sinpeList.reduce((acc, a) => acc + Number(a.amount_collected || 0), 0);
+  // Totales de Ingresos desglosados con soporte multi-método (Sinpe, Efectivo, Transferencia, Tarjeta)
+  let totalSinpe = 0;
+  let countSinpe = 0;
+  let totalCash = 0;
+  let countCash = 0;
+  let totalTransfer = 0;
+  let countTransfer = 0;
+  let totalCard = 0;
+  let countCard = 0;
 
-  const cardList = activeList.filter((a) => a.payment_method === 'card' && (a.amount_collected || 0) > 0);
-  const totalCard = cardList.reduce((acc, a) => acc + Number(a.amount_collected || 0), 0);
+  activeList.forEach((a) => {
+    const splits = parsePaymentBreakdown(a);
+    splits.forEach((s) => {
+      if (s.method === 'sinpe') {
+        totalSinpe += s.amount;
+        countSinpe++;
+      } else if (s.method === 'cash') {
+        totalCash += s.amount;
+        countCash++;
+      } else if (s.method === 'transfer') {
+        totalTransfer += s.amount;
+        countTransfer++;
+      } else if (s.method === 'card') {
+        totalCard += s.amount;
+        countCard++;
+      }
+    });
+  });
 
-  const cashList = activeList.filter((a) => a.payment_method === 'cash' && (a.amount_collected || 0) > 0);
-  const totalCash = cashList.reduce((acc, a) => acc + Number(a.amount_collected || 0), 0);
-
-  const billedCount = activeList.filter((a) => (a.amount_collected || 0) > 0).length;
+  const totalAmount = totalSinpe + totalCash + totalTransfer + totalCard;
+  const billedCount = activeList.filter((a) => (Number(a.amount_collected) || 0) > 0).length;
 
   // Filtrar Gastos según el período activo
   const activeExpenses = expenses.filter((exp) => {
@@ -247,7 +266,7 @@ export const FinancialReportCard: React.FC<FinancialReportCardProps> = ({ appoin
         <span className="text-[10.5px] font-black text-slate-500 uppercase tracking-wider block">
           Desglose de Cobros por Método ({periodLabel})
         </span>
-        <div className="grid grid-cols-3 gap-2 text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
           {/* Sinpe Móvil */}
           <div className="bg-emerald-50/70 p-2.5 rounded-2xl border border-emerald-200/60">
             <div className="flex items-center justify-between text-emerald-800 font-black text-[10px] mb-1">
@@ -256,27 +275,11 @@ export const FinancialReportCard: React.FC<FinancialReportCardProps> = ({ appoin
                 <span>Sinpe Móvil</span>
               </span>
               <span className="text-[9px] bg-emerald-200/70 px-1.5 py-0.2 rounded-md font-bold">
-                {sinpeList.length}
+                {countSinpe}
               </span>
             </div>
             <div className="font-black text-xs sm:text-sm text-emerald-900 leading-tight">
               ₡{totalSinpe.toLocaleString('es-CR')}
-            </div>
-          </div>
-
-          {/* Tarjeta */}
-          <div className="bg-blue-50/70 p-2.5 rounded-2xl border border-blue-200/60">
-            <div className="flex items-center justify-between text-blue-800 font-black text-[10px] mb-1">
-              <span className="flex items-center gap-1">
-                <CreditCard className="w-3 h-3 text-blue-600" />
-                <span>Tarjeta</span>
-              </span>
-              <span className="text-[9px] bg-blue-200/70 px-1.5 py-0.2 rounded-md font-bold">
-                {cardList.length}
-              </span>
-            </div>
-            <div className="font-black text-xs sm:text-sm text-blue-900 leading-tight">
-              ₡{totalCard.toLocaleString('es-CR')}
             </div>
           </div>
 
@@ -288,11 +291,43 @@ export const FinancialReportCard: React.FC<FinancialReportCardProps> = ({ appoin
                 <span>Efectivo</span>
               </span>
               <span className="text-[9px] bg-amber-200/70 px-1.5 py-0.2 rounded-md font-bold">
-                {cashList.length}
+                {countCash}
               </span>
             </div>
             <div className="font-black text-xs sm:text-sm text-amber-900 leading-tight">
               ₡{totalCash.toLocaleString('es-CR')}
+            </div>
+          </div>
+
+          {/* Transferencia Bancaria */}
+          <div className="bg-cyan-50/70 p-2.5 rounded-2xl border border-cyan-200/60">
+            <div className="flex items-center justify-between text-cyan-800 font-black text-[10px] mb-1">
+              <span className="flex items-center gap-1">
+                <ArrowLeftRight className="w-3 h-3 text-cyan-600" />
+                <span>Transferencia</span>
+              </span>
+              <span className="text-[9px] bg-cyan-200/70 px-1.5 py-0.2 rounded-md font-bold">
+                {countTransfer}
+              </span>
+            </div>
+            <div className="font-black text-xs sm:text-sm text-cyan-900 leading-tight">
+              ₡{totalTransfer.toLocaleString('es-CR')}
+            </div>
+          </div>
+
+          {/* Tarjeta */}
+          <div className="bg-blue-50/70 p-2.5 rounded-2xl border border-blue-200/60">
+            <div className="flex items-center justify-between text-blue-800 font-black text-[10px] mb-1">
+              <span className="flex items-center gap-1">
+                <CreditCard className="w-3 h-3 text-blue-600" />
+                <span>Tarjeta</span>
+              </span>
+              <span className="text-[9px] bg-blue-200/70 px-1.5 py-0.2 rounded-md font-bold">
+                {countCard}
+              </span>
+            </div>
+            <div className="font-black text-xs sm:text-sm text-blue-900 leading-tight">
+              ₡{totalCard.toLocaleString('es-CR')}
             </div>
           </div>
         </div>

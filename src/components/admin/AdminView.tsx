@@ -23,7 +23,7 @@ import {
   formatDateToSpanish, 
   formatTime12h 
 } from '../../utils/dateFormatter';
-import { Bell, RefreshCw, X, Navigation, Star, Calendar, Clock, Settings, FileText, BarChart3, Eye, Plus, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Bell, RefreshCw, X, Navigation, Star, Calendar, Clock, Settings, FileText, BarChart3, Eye, Plus, CheckCircle2, AlertCircle, DollarSign } from 'lucide-react';
 
 interface AdminViewProps {
   onClose: () => void;
@@ -34,7 +34,7 @@ interface AdminViewProps {
   notificationsGranted?: boolean;
 }
 
-const VALID_ADMIN_TABS: AdminTab[] = ['route', 'all', 'quotes', 'traffic', 'schedule', 'settings', 'reviews'];
+const VALID_ADMIN_TABS: AdminTab[] = ['route', 'all', 'quotes', 'finances', 'traffic', 'schedule', 'settings', 'reviews'];
 
 const getInitialAdminTab = (): AdminTab => {
   if (typeof window !== 'undefined') {
@@ -339,8 +339,9 @@ export const AdminView: React.FC<AdminViewProps> = ({
           {[
             { id: 'route' as AdminTab, label: 'Ruta de Hoy', icon: Navigation, count: todayAppointments.length },
             { id: 'all' as AdminTab, label: 'Todas las Citas', icon: Calendar, count: pendingAppointments.length },
-            { id: 'traffic' as AdminTab, label: 'Tráfico & Métricas', icon: BarChart3, count: 0 },
             { id: 'quotes' as AdminTab, label: 'Cotizador', icon: FileText, count: 0 },
+            { id: 'finances' as AdminTab, label: 'Ingresos', icon: DollarSign, count: 0 },
+            { id: 'traffic' as AdminTab, label: 'Tráfico & Métricas', icon: BarChart3, count: 0 },
             { id: 'schedule' as AdminTab, label: 'Horarios', icon: Clock, count: 0 },
             { id: 'settings' as AdminTab, label: 'Ajustes', icon: Settings, count: 0 }
           ].map((tab) => {
@@ -886,6 +887,24 @@ export const AdminView: React.FC<AdminViewProps> = ({
               initialClientData={quotePrefill}
               onClearPrefill={() => setQuotePrefill(null)}
             />
+          </div>
+        )}
+
+        {/* TAB CONTROL DE INGRESOS Y GASTOS (DIARIO, SEMANAL, MENSUAL) */}
+        {activeTab === 'finances' && (
+          <div className="w-full space-y-4">
+            <div className="flex items-center justify-between pb-1">
+              <div>
+                <h2 className="text-base sm:text-lg font-black text-brand-dark">Control de Ingresos y Gastos</h2>
+                <p className="text-xs text-slate-500 font-medium">
+                  Balances diarios, semanales y mensuales con registro de comprobantes
+                </p>
+              </div>
+              <span className="text-xs font-black text-emerald-700 bg-emerald-50 px-3 py-1 rounded-xl border border-emerald-200">
+                AUDITORÍA EN VIVO
+              </span>
+            </div>
+            <FinancialReportCard appointments={appointments} />
           </div>
         )}
 

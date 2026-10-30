@@ -4,6 +4,7 @@ import { Appointment, AppointmentStatus, PaymentMethod } from '../../types/appoi
 import { formatTime12h, formatDateToSpanish } from '../../utils/dateFormatter';
 import { ServiceEditorModal } from './ServiceEditorModal';
 import { PaymentModal } from './PaymentModal';
+import { formatPaymentSummary } from '../../utils/paymentParser';
 import { api } from '../../services/api';
 
 interface TodayRouteCardProps {
@@ -12,7 +13,7 @@ interface TodayRouteCardProps {
   onUpdateStatus: (id: string, status: AppointmentStatus) => void;
   onOpenLightbox: (photos: string[], index: number) => void;
   onUpdateService?: (id: string, newServiceType: string) => Promise<void>;
-  onUpdatePayment?: (id: string, amount: number, method: PaymentMethod) => Promise<void>;
+  onUpdatePayment?: (id: string, amount: number, method: string) => Promise<void>;
   onCreateQuote?: (appointment: Appointment) => void;
   onEditQuote?: (quoteId: string) => void;
   existingQuote?: any;
@@ -140,9 +141,14 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
             </span>
           </div>
           {Number(appointment.amount_collected || 0) > 0 ? (
-            <span className="text-[11px] font-black text-emerald-800 bg-white px-2.5 py-0.5 rounded-xl border border-emerald-200">
-              Cobrado: ₡{Number(appointment.amount_collected).toLocaleString('es-CR')}
-            </span>
+            <div className="flex items-center gap-1.5 flex-wrap justify-end">
+              <span className="text-[11px] font-black text-emerald-800 bg-white px-2.5 py-0.5 rounded-xl border border-emerald-200">
+                Cobrado: ₡{Number(appointment.amount_collected).toLocaleString('es-CR')}
+              </span>
+              <span className="text-[10px] text-emerald-800 font-bold bg-emerald-100/80 px-2 py-0.5 rounded-lg border border-emerald-300">
+                {formatPaymentSummary(appointment)}
+              </span>
+            </div>
           ) : (
             <button
               type="button"
@@ -181,18 +187,18 @@ export const TodayRouteCard: React.FC<TodayRouteCardProps> = ({
         {/* Estado y Monto del Cobro */}
         <div className="pt-0.5">
           {Number(appointment.amount_collected || 0) > 0 ? (
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-black text-emerald-800">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-black text-emerald-800 flex-wrap">
               <span>₡{Number(appointment.amount_collected).toLocaleString('es-CR')}</span>
-              <span className="text-[10px] text-emerald-600 font-bold uppercase">
-                ({appointment.payment_method === 'card' ? 'Tarjeta' : (appointment.payment_method === 'cash' ? 'Efectivo' : 'Sinpe Móvil')})
+              <span className="text-[10px] text-emerald-700 font-bold">
+                ({formatPaymentSummary(appointment)})
               </span>
               {onUpdatePayment && (
                 <button
                   type="button"
                   onClick={() => setIsPaymentOpen(true)}
-                  className="ml-1 text-[10px] text-emerald-700 underline font-bold hover:text-emerald-900"
+                  className="ml-1 text-[10px] text-emerald-700 underline font-bold hover:text-emerald-900 cursor-pointer"
                 >
-                  Cambiar
+                  Editar Cobro
                 </button>
               )}
             </div>

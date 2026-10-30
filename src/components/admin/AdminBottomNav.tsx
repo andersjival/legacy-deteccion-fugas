@@ -1,7 +1,7 @@
 import React from 'react';
-import { Navigation, Calendar, Clock, Settings, FileText, BarChart3 } from 'lucide-react';
+import { Navigation, Calendar, Clock, Settings, FileText, BarChart3, DollarSign } from 'lucide-react';
 
-export type AdminTab = 'route' | 'all' | 'quotes' | 'traffic' | 'schedule' | 'settings' | 'reviews';
+export type AdminTab = 'route' | 'all' | 'quotes' | 'finances' | 'traffic' | 'schedule' | 'settings' | 'reviews';
 
 interface AdminBottomNavProps {
   activeTab: AdminTab;
@@ -41,6 +41,12 @@ export const AdminBottomNav: React.FC<AdminBottomNavProps> = ({
       id: 'quotes' as AdminTab,
       label: 'Cotizador',
       icon: FileText,
+      badge: null
+    },
+    {
+      id: 'finances' as AdminTab,
+      label: 'Ingresos',
+      icon: DollarSign,
       badge: null
     },
     {

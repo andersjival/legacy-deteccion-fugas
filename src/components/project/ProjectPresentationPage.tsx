@@ -40,7 +40,8 @@ import {
   Utensils,
   Receipt,
   Banknote,
-  CreditCard
+  CreditCard,
+  ArrowLeftRight
 } from 'lucide-react';
 import { ProjectFeature, ProjectMetric, ProjectPresentationData } from '../../types/project';
 
@@ -928,21 +929,43 @@ export const ProjectPresentationPage: React.FC<ProjectPresentationPageProps> = (
                       <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
                       <span>Sinpe Móvil</span>
                     </span>
-                    <span className="font-mono font-black text-emerald-300">Identificación por número y fecha</span>
-                  </div>
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-blue-500/5 border border-blue-500/20">
-                    <span className="flex items-center gap-2 text-slate-200 font-bold">
-                      <CreditCard className="w-3.5 h-3.5 text-blue-400" />
-                      <span>Tarjeta de Débito / Crédito</span>
-                    </span>
-                    <span className="font-mono font-black text-blue-300">Conciliación de datáfono</span>
+                    <span className="font-mono font-black text-emerald-300">Conciliación inmediata</span>
                   </div>
                   <div className="flex items-center justify-between p-2.5 rounded-xl bg-amber-500/5 border border-amber-500/20">
                     <span className="flex items-center gap-2 text-slate-200 font-bold">
                       <Banknote className="w-3.5 h-3.5 text-amber-400" />
                       <span>Efectivo en Mano</span>
                     </span>
-                    <span className="font-mono font-black text-amber-300">Control de caja diaria</span>
+                    <span className="font-mono font-black text-amber-300">Control de caja de ruta</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-cyan-500/5 border border-cyan-500/20">
+                    <span className="flex items-center gap-2 text-slate-200 font-bold">
+                      <ArrowLeftRight className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Transferencia Bancaria</span>
+                    </span>
+                    <span className="font-mono font-black text-cyan-300">Auditoría de cuenta</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-blue-500/5 border border-blue-500/20">
+                    <span className="flex items-center gap-2 text-slate-200 font-bold">
+                      <CreditCard className="w-3.5 h-3.5 text-blue-400" />
+                      <span>Tarjeta Débito / Crédito</span>
+                    </span>
+                    <span className="font-mono font-black text-blue-300">Datáfono / Terminal</span>
+                  </div>
+
+                  {/* Bloque Destacado de Pago Mixto / Multi-Monto */}
+                  <div className="p-3 rounded-2xl bg-gradient-to-r from-emerald-950/80 to-slate-900 border border-emerald-500/30 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-black uppercase text-emerald-300">
+                        ⚡ Pago Mixto al Finalizar Trabajo
+                      </span>
+                      <span className="text-[9.5px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-bold">
+                        Varios Montos en 1 Trabajo
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-300 leading-snug">
+                      Cuando terminas un trabajo, el sistema te permite ingresar varios montos por diferentes medios de pago: ej. ₡30,000 en Sinpe, ₡15,000 en efectivo y ₡10,000 en transferencia mediante un selector rápido.
+                    </p>
                   </div>
                 </div>
               </div>

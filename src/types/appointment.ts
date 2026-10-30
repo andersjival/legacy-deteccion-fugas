@@ -15,7 +15,12 @@ export const DEFAULT_SERVICES: ServiceItem[] = [
 ];
 
 export type AppointmentStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
-export type PaymentMethod = 'sinpe' | 'card' | 'cash';
+export type PaymentMethod = 'sinpe' | 'cash' | 'transfer' | 'card';
+
+export interface PaymentSplit {
+  method: PaymentMethod;
+  amount: number;
+}
 
 export interface Appointment {
   id: string;
